@@ -1,0 +1,2 @@
+CB2C.PY : Python Cute BASIC to C "compiler", invoke using ./CB2C.PY (file name) and it will convert the Cute BASIC to C and print the result in standard out
+COMPCB.SH : Bash wrapper for CB2C.PY, invoke using ./COMPCB.SH (file name) and it will use CB2C.PY to generate the C code, then creates a file with the appropriate headers and compiles the result with GCC. Executable and file names are based on the original Cute BASIC file name.
