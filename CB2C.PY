@@ -1,5 +1,15 @@
 #!/usr/bin/python
 import sys
+
+#stack for keeping track of IF statements - holds line numbers of IF
+ifStatementStack = []
+#stack for keeping track of LOOPWHILE statements - holds like numbers of LOOPWHILE
+loopStatementStack = []
+#giant buffer holding output
+output = []
+#list of names of variables
+varnames = []
+
 # This if only runs if this file is called as a script - if it is included, it doesn't
 if __name__ == "__main__":
 	if len(sys.argv) < 2:
@@ -11,7 +21,7 @@ if __name__ == "__main__":
 	# Flags for program START and END - one per program
 	hasstart = 0
 	hasend = 0
-	output = []
+
 	# Header for all CUTE BASIC compilations
 	output.append("#include \"CBSTDLIB.H\"")
 	# Basic nibble type
@@ -20,8 +30,7 @@ if __name__ == "__main__":
 	output.append("unsigned int data : 4;")
 	output.append("unsigned int pad : 4;")
 	output.append("} nib;")
-	# list of variable names
-	varnames = []
+	
 	while(line != ""):
 		# Check for the start
 		if line.strip() == "START":
@@ -46,13 +55,13 @@ if __name__ == "__main__":
 		# LET - specifically declaration
 		if splitline[0] == "LET":
 			for i in varnames:
-				if i == splitline[1]:
+				if len(splitline) > 1 and i == splitline[1]:
 					print "Variable name " + splitline[1] + " already declared!"
 					quit(1)
 			# The variable name will be the second whitespace delimited field
 			varnames.append(splitline[1])
 			# AS - initialisation
-			if splitline[2] == "AS":
+			if len(splitline) > 2 and splitline[2] == "AS":
 				if int(splitline[3]) > 16:
 					print "Variable " + splitline[1] + " too big!"
 					quit(1)
@@ -96,7 +105,8 @@ if __name__ == "__main__":
 		elif ((splitline[0] in varnames) and splitline[1] == "BE"): 
 			vartypes = ["BINARY", "HEX", "CHAR"]
 			vartype = ""
-			if(splitline[2] in ["COMPLEMENT", "NEGATE", "INCREMENT", "DECREMENT", "NOT"]):
+			if(splitline[2] in ["COMPLEMENT", "NEGATE", "INCREMENT", "DECREMENT", "NOT", "ADDRESSOF", "CONTENTOF"]):
+				#unary operations
 				
 				if splitline[3] in vartypes:
 					vartype = splitline[3]
@@ -120,6 +130,10 @@ if __name__ == "__main__":
 					output.append(splitline[0] + ".data = " + splitline[3] + " - 1;")
 				elif splitline[2] == "NOT":
 					output.append(splitline[0] + ".data = !" + splitline[3] + ";")
+				elif splitline[2] == "ADDRESSOF":
+					output.append(splitline[0] + ".data = &(" + splitline[3] + ");")
+				elif splitline[2] == "CONTENTOF":
+					output.append(splitline[0] + ".data = *(" + splitline[3] + ");")
 			
 			if splitline[2] in vartypes:
 				vartype = splitline[2]
@@ -172,6 +186,12 @@ if __name__ == "__main__":
 			elif splitline[3] == "XNOR":
 				output.append(splitline[0] + ".data = ~(" + splitline[2] + " ^ " + splitline[4] + ") ;")
 				
+			#binary bitshifting
+			elif (splitline[3] == "RROTATE" or splitline[3] == "RSHIFT"):
+				output.append(splitline[0] + ".data = " + splitline[2] + " >> " + splitline[4] + ";")
+			elif (splitline[3] == "LROTATE" or splitline[3] == "LSHIFT"):
+				output.append(splitline[0] + ".data = " + splitline[2] + " << " + splitline[4] + ";")
+				
 			#binary logical operators
 			elif splitline[3] == "ALSO":
 				output.append(splitline[0] + ".data = " + splitline[2] + " && " + splitline[4] + ";")
@@ -181,23 +201,106 @@ if __name__ == "__main__":
 			#Logical tests
 			elif splitline[3] == "EQUALS":
 				output.append(splitline[0] + ".data = " + splitline[2] + " == " + splitline[4] + ";")
+			elif splitline[3] == "NOTEQUALS":
+				output.append(splitline[0] + ".data = " + splitline[2] + " != " + splitline[4] + ";")
+			elif splitline[3] == "GREATER":
+				output.append(splitline[0] + ".data = " + splitline[2] + " > " + splitline[4] + ";")
+			elif splitline[3] == "GREATEREQUALS":
+				output.append(splitline[0] + ".data = " + splitline[2] + " >= " + splitline[4] + ";")
+			elif splitline[3] == "LESS":
+				output.append(splitline[0] + ".data = " + splitline[2] + " < " + splitline[4] + ";")
+			elif splitline[3] == "LESSEQUALS":
+				output.append(splitline[0] + ".data = " + splitline[2] + " <= " + splitline[4] + ";")
 
-		#Conditionals
-		#If/else/elseif/endif
-		elif splitline[0] == "IF":
-			output.append("if (" + splitline[1] + ") {")
-		elif splitline[0] == "ELSEIF":
-			output.append("else if (" + splitline[1] + ") {")
-		elif splitline[0] == "ELSE":
-			output.append("else {")
-		elif splitline[0]== "ENDIF":
-			output.append("}")
 		
-		#Loopwhile/Endloop
-		if splitline[0] == "LOOPWHILE":
-			output.append("while (" + splitline[1] + ") {")
+		elif(splitline[0] in ["IF", "ELSEIF", "ELSE", "ENDIF", "LOOPWHILE", "ENDLOOP", "LOOPAGAIN", "EXITLOOP", "EXITIF"]):
+			vartypes = ["BINARY", "HEX", "CHAR"]
+			vartype = ""
+			if len(splitline) > 1 and splitline[1] in vartypes:
+				vartype = splitline[1]
+				splitline.remove(splitline[1])
+				if vartype == "BINARY":
+					splitline[1] = "0b" + splitline[1]
+				elif vartype == "HEX":
+					splitline[1] = "0x" + splitline[1]
+				elif vartype[1] == "CHAR":
+					splitline[1] = "\'" + splitline[1] + "\'"
+			elif len(splitline) > 1:
+				splitline[1] = splitline[1] + ".data"
+	
+			#Conditionals
+			#If/else/elseif/endif
+			if splitline[0] == "IF":
+				output.append("if (" + splitline[1] + ") {")
+				ifStatementStack.append(linenum)
+			elif splitline[0] == "ELSEIF":
+				output.append("}")
+				output.append("else if (" + splitline[1] + ") {")
+			elif splitline[0] == "ELSE":
+				output.append("}")
+				output.append("else {")
+			elif splitline[0]== "ENDIF":
+				output.append("}")
+				output.append("exitif"  + str(ifStatementStack.pop()) + ":")
+				output.append(";")
+				
 			
+			#Loopwhile/Endloop
+			elif splitline[0] == "LOOPWHILE":
+				output.append("while (" + splitline[1] + ") {")
+				loopStatementStack.append(linenum)
+			elif splitline[0] == "ENDLOOP":
+				output.append("}")
+				output.append("exitloop" + str(loopStatementStack.pop()) + ":")
+				output.append(";")
 			
+			#GOTO derivatives
+			elif splitline[0] == "LOOPAGAIN":
+				output.append("continue;")
+			elif splitline[0] == "EXITLOOP":
+				output.append("goto exitloop" + str(loopStatementStack[-1]) + ";")
+			elif splitline[0] == "EXITIF":
+				output.append("goto exitif"+ str(ifStatementStack[-1]) + ";")
+		
+		
+		if splitline[0] == "NOHEADER":
+			output.remove("puts(HEADER);")
+			output.remove("puts(\"\");")
+		
+		if splitline[0] == "PRINT":
+			if splitline[3] in vartypes:
+				vartype = splitline[3]
+				splitline.remove(splitline[3])
+				if vartype == "BINARY":
+					splitline[3] = "0b" + splitline[3]
+				elif vartype == "HEX":
+					splitline[3] = "0x" + splitline[3]
+				elif vartype == "CHAR":
+					splitline[3] = "'" + splitline[3] + "'"
+			else:
+				splitline[3] = splitline[3] + ".data"
+			if splitline[2] == "CHAR":
+				output.append("printf(\"%c\", " + splitline[3] + ");")
+			elif splitline[2] == "STRING":
+				output.append("printf(\"%s\", " + splitline[3] + ");")
+			elif splitline[2] == "UNSIGNED":
+				output.append("printf(\"%u\", " + splitline[3] + ");")			
+			elif splitline[2] == "SIGNED":
+				output.append("printf(\"%i\", " + splitline[3] + ");")
+			elif splitline[2] == "BINARY":
+				output.append("int binaryread" + linenum + " = " + splitline[3])
+				output.append("for(int i = 0; i < " + splitline[1] + "; i++ ) {")
+				output.append("if (binaryread" + linenum + " & 1)")
+				output.append("{")
+				output.append("printf(\"1\");")
+				output.append("else")
+				output.append("printf(\"0\");")
+				output.append("binaryread" + linenum + " >>= 1;")
+				output.append("}")
+			elif splitline[2] == "HEX":
+				output.append("printf(\"%X\", " + splitline[3] + ");")			
+			else:
+				output.append("printf(\"%u\", " + splitline[3] + ");")	
 		line = inputf.readline()
 		linenum = linenum + 1
 	inputf.close()

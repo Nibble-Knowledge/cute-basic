@@ -11,9 +11,10 @@
 #include <time.h>
 
 #define STRING 0
-#define UNSIGNED 1
-#define SIGNED 2
-#define BINARY 3
-#define HEX 4
+#define CHAR 1
+#define UNSIGNED 2
+#define SIGNED 3
+#define BINARY 4
+#define HEX 5
 
 #endif /* _CBSTDLIB_ */
