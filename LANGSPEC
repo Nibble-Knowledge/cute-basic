@@ -55,6 +55,7 @@ Binary mathematical operators:
 (var1) SUBTRACT (var2) : evaluates to difference of var1-var2
 (var1) MODULUS (var2) : evaluates to remainder of var1/var2
 (var1) MULTIPLY (var2) : evaluates to product of var1*var2
+(var1) DIVIDE (var2) : evaluates to product of var1/var2
 
 Unary logical operators:
 NOT (var1) : evaluates to logical negation of var1
