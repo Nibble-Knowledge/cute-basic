@@ -39,9 +39,9 @@ LET (variable name) AS (size in nibbles) BE (number) : Creates a variable called
 
 
 Assignment:
-(var1) = (var2) : Assigns value of var2 to var1. SIGNED keyword is implied. var2 can be a literal.
-(var1) = (var2) UNSIGNED : assigns value of var2 to var1. Truncates or zero-extends
-(var1) = (var2) SIGNED : assigns value of var2 to var1. Truncates (maintaining value of MSB) or sign-extends
+(var1) BE (var2) : Assigns value of var2 to var1. SIGNED keyword is implied. var2 can be a literal.
+(var1) BE (var2) UNSIGNED : assigns value of var2 to var1. Truncates or zero-extends
+(var1) BE (var2) SIGNED : assigns value of var2 to var1. Truncates (maintaining value of MSB) or sign-extends
 
 
 
@@ -99,17 +99,19 @@ Control:
 START : The entry hook of the program 
 END : The exit hook of the program 
 
-{} enclose code blocks, as C - single lines need not be enclosed
+IF...ENDIF
 
 Conditionals:
-IF (var1) {}
-ELSE IF (var2) {}
+IF (var1)
+ELSE IF (var2)
 ELSE {}
-ENDIF;      : as usual, var1 & var2 are probably expressions
+ENDIF
+
+LOOPWHILE...ENDLOOP
 
 Loops:
-LOOPWHILE (var1) {}
-ENDLOOP;
+LOOPWHILE (var1)
+ENDLOOP
 
 GOTO derivatives:
 LOOPAGAIN   : return to top of loop, as "continue"
@@ -122,33 +124,34 @@ EARLYEND    : goto "END", as C "return" in main()
 
 Probably include GOTO and labels, even though they make Naomi sad :(
 
-
+LABEL (name)
+GOTO (name)
 
 Functions:
 
 Declaration (probably c-like, in the old declare-before-first-use way):
 
 : RETURNS and TAKES both optional, [] part can be repeated (comma-separated), funcName must be unique
-FUNCTION (funcName) RETURNS (size in nibbles) TAKES [(size in nibbles) (paramName)] 
+FUNCTION (funcName) RETURNS (size in nibbles) TAKES [(size in nibbles) (paramName)] ALSO...
 FUNCTION (funcName) TAKES ... RETURNS (size in nibbles) 
 FUNCTION (funcName) TAKES [(size in nibbles) (paramName)]
 FUNCTION (funcName) RETURNS (size in nibbles)
 FUNCTION (funcName)
 
 for example,
-FUNCTION simpleVoid TAKES 4 firstPointer, 4 secondPointer;
-FUNCTION getSysTime RETURNS 32;
+FUNCTION simpleVoid TAKES 4 firstPointer ALSO 4 secondPointer
+FUNCTION getSysTime RETURNS 32
 
 Definition:
-DEFINE (funcName) RETURNS ... TAKES ... ;   //RETURNS and TAKES are optional, but must match declaration signature
-{Code goes here}  
+DEFINE (funcName) RETURNS ... TAKES ... ALSO ....   //RETURNS and TAKES are optional, but must match declaration signature
+Code goes here 
 ENDFUNCTION (funcName);
 
 Return:
 RETURN (var1) : exits function, returns var1
 
 Calls:
-CALL (funcName) (var1) (var2)... : var1, var2, are parameters. Evaluates to return type of funcName; evaluates to TRUE if nothing returned
+CALL (funcName) (var1) ALSO (var2)... : var1, var2, are parameters. Evaluates to return type of funcName; evaluates to TRUE if nothing returned
 
 
 
