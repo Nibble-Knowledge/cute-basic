@@ -132,14 +132,14 @@ Functions:
 Declaration (probably c-like, in the old declare-before-first-use way):
 
 : RETURNS and TAKES both optional, [] part can be repeated (comma-separated), funcName must be unique
-FUNCTION (funcName) RETURNS (size in nibbles) TAKES [(size in nibbles) (paramName)] ALSO...
+FUNCTION (funcName) RETURNS (size in nibbles) TAKES [(size in nibbles) (paramName)] ASWELL...
 FUNCTION (funcName) TAKES ... RETURNS (size in nibbles) 
 FUNCTION (funcName) TAKES [(size in nibbles) (paramName)]
 FUNCTION (funcName) RETURNS (size in nibbles)
 FUNCTION (funcName)
 
 for example,
-FUNCTION simpleVoid TAKES 4 firstPointer ALSO 4 secondPointer
+FUNCTION simpleVoid TAKES 4 firstPointer ASWELL 4 secondPointer
 FUNCTION getSysTime RETURNS 32
 
 Definition:
