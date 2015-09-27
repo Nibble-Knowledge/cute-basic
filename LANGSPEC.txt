@@ -1,0 +1,166 @@
+Cute BASIC uses all uppercase keywords. 
+ 
+ 
+Cute BASIC files are all uppercase with the *.CB extension. 
+
+Variable names can be use both cases, plus numerals and underscores.
+Must start with a letter or underscore.
+
+Variable scope is:
+-Global if defined outside of START ... END or DEFINE ... ENDFUNCTION block
+-Local to block (or function) they're declared inside, plus blocks (loop or if) contained within that block
+-Static to function if declared as static (not sure how to yet)
+ 
+
+Literals:
+-Default to decimal
+-'char' evaluates to ASCII (or UTF-8) binary representation of char - 'A' or '#'
+-0x causes evaluation as hexadecimal - 0x0BADF00D
+-b causes evaluation as binary - b00110101
+Literal TRUE => any non-zero variable (written as literal, evaluates to b0001)
+Literal FALSE => zero
+
+Precedence: assignment = evaluates last. Comparisons evaluate after math/bitwise, and logical after comparison.
+Unary operators evaluate before binary ones of same type. Otherwise, parens must be used -> compiler complains if not present.
+
+so, overall: parens => calls => unary math/bitwise/pointer => binary math/bitwise => Comparison => unary logical => binary logical => assignment/control
+
+SIGNED and UNSIGNED keywords - maybe apply broadly? (without specifying at on other keywords)
+Maybe declare on variable declaration? currently unsure.
+
+From here on: Any variables, other than when assigned to, can also be a literal or another valid expression.
+
+ 
+Declaration and initialization: 
+LET (variable name) : Creates a variable called (variable name) 
+LET (variable name) BE (number) : Creates a variable called (variable name) and assigns (number) to it 
+LET (variable name) AS (size in nibbles) : Creates a variable called (variable name) with a size in nibbles of (size in nibbles) 
+LET (variable name) AS (size in nibbles) BE (number) : Creates a variable called (variable name) with a size in nibbles of (size in nibbles) and assigns (number) to it 
+
+
+Assignment:
+(var1) = (var2) : Assigns value of var2 to var1. SIGNED keyword is implied. var2 can be a literal.
+(var1) = (var2) UNSIGNED : assigns value of var2 to var1. Truncates or zero-extends
+(var1) = (var2) SIGNED : assigns value of var2 to var1. Truncates (maintaining value of MSB) or sign-extends
+
+
+
+Unary mathematical operators:
+NEGATE (var1) : evaluates to -(var1). In 2's complement, so (COMPLEMENT var1) ADD 1
+INCREMENT (var1) : evaluates to (var1 + 1)
+DECREMENT (var1) : evaluates to (var1 - 1)
+
+Binary mathematical operators:
+(var1) ADD (var2) : evaluates to sum of var1+var2
+(var1) SUBTRACT (var2) : evaluates to difference of var1-var2
+(var1) MODULUS (var2) : evaluates to remainder of var1/var2
+(var1) MULTIPLY (var2) : evaluates to product of var1*var2
+
+Unary logical operators:
+NOT (var1) : evaluates to logical negation of var1
+
+Binary logical operators:
+-Consider safe ("lazy") execution - i.e. AND doesn't evaluate second expression if first expression is false
+(var1) ALSO (var2) : evaluates to TRUE if both var1 and var2 are TRUE
+(var1) EITHER (var2) : evaluates to TRUE if either var1 or var2 are TRUE
+
+Unary bitwise operators:
+COMPLEMENT (var1) : evaluates to bitwise complement of var1
+
+Binary bitwise operators:
+(var1) AND (var2) : evaluates to bitwise AND of variables
+(var1) OR (var2) : evaluates to bitwise OR of variables
+(var1) XOR (var2) : evaluates to bitwise XOR of variables
+(var1) NAND (var2)
+(var1) NOR (var2)
+(var1) XNOR (var2)
+
+Binary rotation:
+(var1) LSHIFT (var2) : var2 should be small; left-shifts by var2, fills right with zeros, truncates anything that falls off left
+(var1) RSHIFT (var2)
+(var1) LROTATE (var2) : var2 should be small; left-rotates by var2, anything that falls off left gets put back on right
+(var1) RROTATE (var2) 
+
+Logical comparators:
+(var1) EQUALS (var2)
+(var1) NOTEQUALS (var2)
+(var1) GREATER (var2)
+(var1) GREATEREQUALS (var2)
+(var1) LESS (var2)
+(var1) LESSEQUALS (var2)
+
+Pointers:
+CONTENTOF (var1) : evaluates to dereferenced value pointed at by var1
+ADDRESSOF (var1) : evaluates to (16-bit) address of var1
+
+
+ 
+Control: 
+START : The entry hook of the program 
+END : The exit hook of the program 
+
+{} enclose code blocks, as C - single lines need not be enclosed
+
+Conditionals:
+IF (var1) {}
+ELSE IF (var2) {}
+ELSE {}
+ENDIF;      : as usual, var1 & var2 are probably expressions
+
+Loops:
+LOOPWHILE (var1) {}
+ENDLOOP;
+
+GOTO derivatives:
+LOOPAGAIN   : return to top of loop, as "continue"
+EXITLOOP   : exit innermost loop, as "break"
+EXITLOOP (number) : exit (number) of loops. Compile error if number too high
+EXITIF : exit innermost "if" block, as "break"
+EXITIF (number) : exit (number) of if blocks. Compile error if number too high
+
+EARLYEND    : goto "END", as C "return" in main()
+
+Probably include GOTO and labels, even though they make Naomi sad :(
+
+
+
+Functions:
+
+Declaration (probably c-like, in the old declare-before-first-use way):
+
+: RETURNS and TAKES both optional, [] part can be repeated (comma-separated), funcName must be unique
+FUNCTION (funcName) RETURNS (size in nibbles) TAKES [(size in nibbles) (paramName)] 
+FUNCTION (funcName) TAKES ... RETURNS (size in nibbles) 
+FUNCTION (funcName) TAKES [(size in nibbles) (paramName)]
+FUNCTION (funcName) RETURNS (size in nibbles)
+FUNCTION (funcName)
+
+for example,
+FUNCTION simpleVoid TAKES 4 firstPointer, 4 secondPointer;
+FUNCTION getSysTime RETURNS 32;
+
+Definition:
+DEFINE (funcName) RETURNS ... TAKES ... ;   //RETURNS and TAKES are optional, but must match declaration signature
+{Code goes here}  
+ENDFUNCTION (funcName);
+
+Return:
+RETURN (var1) : exits function, returns var1
+
+Calls:
+CALL (funcName) (var1) (var2)... : var1, var2, are parameters. Evaluates to return type of funcName; evaluates to TRUE if nothing returned
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
