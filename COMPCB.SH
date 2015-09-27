@@ -23,7 +23,7 @@ then
 			exit
 		fi
 		cat tempout >> $OUTFILE
-		gcc $OUTFILE -o $OUTEXE
+		gcc -x c $OUTFILE -o $OUTEXE
 		rm tempout
 	else
 		echo "File not Cute BASIC file!"
