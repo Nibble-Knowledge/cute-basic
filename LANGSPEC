@@ -14,7 +14,7 @@ Variable scope is:
 
 Literals:
 -Default to decimal
--'char' evaluates to ASCII (or UTF-8) binary representation of char - 'A' or '#'
+-CHAR (character) evaluates to ASCII (or UTF-8) binary representation of char - 'A' or '#'
 -0x causes evaluation as hexadecimal - 0x0BADF00D
 -b causes evaluation as binary - b00110101
 Literal TRUE => any non-zero variable (written as literal, evaluates to b0001)
@@ -39,7 +39,7 @@ LET (variable name) AS (size in nibbles) BE (number) : Creates a variable called
 
 
 Assignment:
-(var1) BE (var2) : Assigns value of var2 to var1. SIGNED keyword is implied. var2 can be a literal.
+(var1) BE (var2) : Assigns value of var2 to var1. UNSIGNED keyword is implied. var2 can be a literal.
 (var1) BE (var2) UNSIGNED : assigns value of var2 to var1. Truncates or zero-extends
 (var1) BE (var2) SIGNED : assigns value of var2 to var1. Truncates (maintaining value of MSB) or sign-extends
 
@@ -152,18 +152,3 @@ RETURN (var1) : exits function, returns var1
 
 Calls:
 CALL (funcName) (var1) ALSO (var2)... : var1, var2, are parameters. Evaluates to return type of funcName; evaluates to TRUE if nothing returned
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
