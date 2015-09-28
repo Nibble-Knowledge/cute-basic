@@ -105,7 +105,7 @@ IF...ENDIF
 Conditionals:
 IF (var1)
 ELSE IF (var2)
-ELSE {}
+ELSE
 ENDIF
 
 LOOPWHILE...ENDLOOP
@@ -121,7 +121,7 @@ EXITLOOP (number) : exit (number) of loops. Compile error if number too high
 EXITIF : exit innermost "if" block, as "break"
 EXITIF (number) : exit (number) of if blocks. Compile error if number too high
 
-EARLYEND    : goto "END", as C "return" in main()
+EARLYEND : goto "END", as C "return" in main()
 
 Probably include GOTO and labels, even though they make Naomi sad :(
 
@@ -144,7 +144,7 @@ FUNCTION simpleVoid TAKES 4 firstPointer ASWELL 4 secondPointer
 FUNCTION getSysTime RETURNS 32
 
 Definition:
-DEFINE (funcName) RETURNS ... TAKES ... ALSO ....   //RETURNS and TAKES are optional, but must match declaration signature
+DEFINE (funcName) RETURNS ... TAKES ... ASWELL ....   //RETURNS and TAKES are optional, but must match declaration signature
 Code goes here 
 ENDFUNCTION (funcName);
 
@@ -152,4 +152,27 @@ Return:
 RETURN (var1) : exits function, returns var1
 
 Calls:
-CALL (funcName) (var1) ALSO (var2)... : var1, var2, are parameters. Evaluates to return type of funcName; evaluates to TRUE if nothing returned
+CALL (funcName) (var1) ASWELL (var2)... : var1, var2, are parameters. Evaluates to return type of funcName; evaluates to TRUE if nothing returned
+
+I/O:
+
+-This section needs work-
+
+NOHEADER: Remove CUTE BASIC header output
+
+PRINT (size in nibbles) (variable type) (variable): Print (variable) of size (size in nibbles) and type (variable type)
+PRINT (size in nibbles) (variable type) (immmediate variable type) (immmediate): print immediate value of value (immmediate) of type (immmediate variable type) of size (size in nibbles) and type (variable type)
+
+GETKEY (variable): Get a character from the keyboard and store it in (variable)
+
+FILEIN (variable) (file name): Read character from file into variable
+FILEIN (variable) (file name) AT (offset variable): Read character at offset (offset variable) into (variable) form (file name)
+FILEIN (variable) (file name) AT (value): Read character at offset (value) into (variable) from (file name)
+
+FILEOUT (variable) (file name): Append (variable) to (file name)
+FILEOUT (variable) (file name) AT (offset variable): Write (variable) at offset (offset variable) to (file name)
+FILEOUT (type) (value) (file name) AT (offset variable): Write (value) of (type) at offset (value) to (file name)
+FILEOUT (variable) (file name) AT (offset value): Write (variable) at offset (offset value) to (file name)
+FILEOUT (type) (value) (file name) AT (offset value): Write (value) of (type) at offset (offset value) to (file name)
+
+FILESIZE (variable) (file name): Get the size of (file name) and store it in (variable)
