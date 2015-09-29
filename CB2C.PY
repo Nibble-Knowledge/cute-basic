@@ -11,6 +11,7 @@ output = []
 varnames = []
 vartypes = ["BINARY", "HEX", "CHAR"]
 varsizes = []
+varstofree = []
 
 # This if only runs if this file is called as a script - if it is included, it doesn't
 if __name__ == "__main__":
@@ -34,10 +35,21 @@ if __name__ == "__main__":
 	# Basic nibble type
 	output.append("typedef struct _nib")
 	output.append("{")
-	output.append("unsigned int data : 4;")
-	output.append("unsigned int pad : 4;")
+	output.append("uint8_t data : 4;")
 	output.append("} nib;")
 	
+	output.append("typedef struct _nibx")
+	output.append("{")
+	output.append("uint8_t data : 4;")
+	output.append("void *extdata;")
+	output.append("} nibx;")
+	
+	output.append("typedef struct _nibxs")
+	output.append("{")
+	output.append("int8_t data : 4;")
+	output.append("void *extdata;")
+	output.append("} nibxs;")
+
 	output.append("/*Function declarations go here*/")
 	output.append("")
 	output.append("")
@@ -80,7 +92,8 @@ if __name__ == "__main__":
 			structstart = output.index("/*Structs go here*/")
 			# AS - initialisation
 			if len(splitline) > 2 and splitline[2] == "AS":
-				if int(splitline[3]) > 16:
+				
+				'''if int(splitline[3]) > 16:
 					print "Variable " + splitline[1] + " too big!"
 					quit(1)
 				if splitline[3] in varsizes:
@@ -89,18 +102,24 @@ if __name__ == "__main__":
 						output.append(splitline[1] + ".data = " + splitline[5] + ";")
 					continue
 				output.insert(structstart + 1, "typedef struct _nibx" + splitline[3])
-				output.insert(structstart + 2, "{")
+				output.insert(structstart + 2, "{")'''
 				# Firstly, check if we're using SIGNED or UNSIGNED - if neither, UNSIGNED.
 				if len(splitline) <= 6 or splitline[6] == "UNSIGNED":
-					# Try to match requested size with variable size in C. The next field after as is the size in nibbles (so the first if is less than 3 nibbles or 16 bits)
+					output.append("nibx " + splitline[1] + ";")
+					output.append(splitline[1] + ".extdata = malloc(" + str(int(splitline[3]) * 8) + ");")
+					varstofree.append(splitline[1])
+					'''# Try to match requested size with variable size in C. The next field after as is the size in nibbles (so the first if is less than 3 nibbles or 16 bits)
 					if int(splitline[3]) <= 3:
 						output.insert(structstart + 3, "unsigned short int data : " + str(int(splitline[3]) * 4) + ";")
 					elif int(splitline[3]) > 3 and int(splitline[3]) <= 8:
 						output.insert(structstart + 3, "unsigned int data : " + str(int(splitline[3]) * 4) + ";")
 					elif int(splitline[3]) > 8 and int(splitline[3]) <= 16:
-						output.insert(structstart + 3, "unsigned long long data : " + str(int(splitline[3]) * 4) + ";")
+						output.insert(structstart + 3, "unsigned long long data : " + str(int(splitline[3]) * 4) + ";")'''
 				elif len(splitline) > 6 and splitline[6] == "SIGNED":
-					# Signed version
+					output.append("nibxs " + splitline[1] + ";")
+					output.append(splitline[1] + ".extdata = malloc(" + str(int(splitline[3]) * 8) + ");")
+					varstofree.append(splitline[1])
+					'''# Signed version
 					if int(splitline[3]) <= 3:
 						output.insert(structstart + 3, "short int data : " + str(int(splitline[3]) * 4) + ";")
 					elif int(splitline[3]) > 3 and int(splitline[3]) <= 8:
@@ -119,14 +138,13 @@ if __name__ == "__main__":
 				# BTW reader, this inserts to a static place in the list so all new variable do have a place... faster then checking!
 				output.insert(structstart + 5, "} nibx" + splitline[3] + ";")
 				output.append("nibx" + splitline[3] + " " + splitline[1] + ";")
-				varsizes.append(splitline[3])
+				varsizes.append(splitline[3])'''
 				if len(splitline) > 4 and splitline[4] == "BE":
 					output.append(splitline[1] + ".data = " + splitline[5] + ";")
 			else:
 				output.append("nib " + splitline[1] + ";")
 				if splitline[2] == "BE":
-					output.append(splitline[1] + ".data = " + splitline[3] + ";")
-					
+					output.append(splitline[1] + ".data = " + splitline[3] + ";")					
 		#Math, with assignment as the first thing on the line
 		elif ((splitline[0] in varnames) and splitline[1] == "BE"): 
 			vartypes = ["BINARY", "HEX", "CHAR"]
@@ -370,11 +388,11 @@ if __name__ == "__main__":
 				elif vartype == "CHAR":
 					splitline[3] = "'" + splitline[3] + "'"
 			else:
-				splitline[3] = splitline[3] + ".data"
+				splitline[3] = splitline[3] + ".extdata[0]"
 			if splitline[2] == "CHAR":
 				output.append("printf(\"%c\", " + splitline[3] + ");")
 			elif splitline[2] == "STRING":
-				output.append("printf(\"%s\", &" + splitline[3] + ");")
+				output.append("printf(\"%s\", " + splitline[3] + ");")
 			elif splitline[2] == "UNSIGNED":
 				output.append("printf(\"%u\", " + splitline[3] + ");")			
 			elif splitline[2] == "SIGNED":
@@ -395,7 +413,7 @@ if __name__ == "__main__":
 				output.append("printf(\"%u\", " + splitline[3] + ");")
 		
 		if splitline[0] == "GETKEY":
-			output.append(splitline[1] + ".data = getchar();")
+			output.append(splitline[1] + ".extdata[0] = getchar();")
 			
 		if splitline[0] == "FILEOUT":
 			output.append("FILE *file" + str(linenum) + ";")
@@ -415,11 +433,11 @@ if __name__ == "__main__":
 				splitline.remove(splitline[1])
 				varout = "0b" + splitline[1]
 			else:
-				varout = splitline[1] + ".data"
+				varout = splitline[1] + ".extdata[0]"
 			if len(splitline) > 3 and splitline[3] == "AT":
 				output.append("file" + str(linenum) + " = fopen(\"" + str(splitline[2]) + "\", \"r+\");")
 				if len(splitline) > 4 and splitline[4] in varnames:
-					output.append("fseek(file" + str(linenum) + ", " + str(splitline[4]) + ".data , SEEK_SET);")
+					output.append("fseek(file" + str(linenum) + ", " + str(splitline[4]) + ".extdata[0] , SEEK_SET);")
 				output.append("fseek(file" + str(linenum) + ", " + str(splitline[4]) + " , SEEK_SET);")
 			else:
 				output.append("file" + str(linenum) + " = fopen(\"" + str(splitline[2]) + "\", \"a\");")
@@ -431,16 +449,16 @@ if __name__ == "__main__":
 			output.append("file" + str(linenum) + " = fopen(\"" + str(splitline[2]) + "\", \"r\");")
 			if len(splitline) > 3 and splitline[3] == "AT":
 				if len(splitline) > 4 and splitline[4] in varnames:
-					output.append("fseek(file" + str(linenum) + ", " + str(splitline[4]) + ".data , SEEK_SET);")
+					output.append("fseek(file" + str(linenum) + ", " + str(splitline[4]) + ".extdata[0] , SEEK_SET);")
 				output.append("fseek(file" + str(linenum) + ", " + str(splitline[4]) + " , SEEK_SET);")
-			output.append(str(splitline[1]) + ".data = fgetc(file" + str(linenum) + ");")
+			output.append(str(splitline[1]) + ".extdata[0] = fgetc(file" + str(linenum) + ");")
 			output.append("fclose(file" + str(linenum) + ");")
 		
 		if splitline[0] == "FILESIZE":
 			output.append("FILE *file" + str(linenum) + " = NULL;")
 			output.append("file" + str(linenum) + " = fopen(\"" + str(splitline[2]) + "\", \"r\");")
 			output.append("fseek(file" + str(linenum) + ", 0L, SEEK_END);")
-			output.append(str(splitline[1]) + ".data = ftell(file" + str(linenum) + ");")
+			output.append(str(splitline[1]) + ".extdata[0] = ftell(file" + str(linenum) + ");")
 			output.append("fclose(file" + str(linenum) + ");")
 			
 		

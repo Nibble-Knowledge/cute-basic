@@ -9,6 +9,7 @@
 #include <limits.h>
 #include <string.h>
 #include <time.h>
+#include <stdint.h>
 
 #define STRING 0
 #define CHAR 1
