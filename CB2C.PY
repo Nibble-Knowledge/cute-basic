@@ -41,13 +41,13 @@ if __name__ == "__main__":
 	output.append("typedef struct _nibx")
 	output.append("{")
 	output.append("uint8_t data : 4;")
-	output.append("void *extdata;")
+	output.append("char *extdata;")
 	output.append("} nibx;")
 	
 	output.append("typedef struct _nibxs")
 	output.append("{")
 	output.append("int8_t data : 4;")
-	output.append("void *extdata;")
+	output.append("char *extdata;")
 	output.append("} nibxs;")
 
 	output.append("/*Function declarations go here*/")
@@ -435,7 +435,7 @@ if __name__ == "__main__":
 			else:
 				varout = splitline[1] + ".extdata[0]"
 			if len(splitline) > 3 and splitline[3] == "AT":
-				output.append("file" + str(linenum) + " = fopen(\"" + str(splitline[2]) + "\", \"r+\");")
+				output.append("file" + str(linenum) + " = fopen(\"" + str(splitline[2]) + "\", \"ab+\");")
 				if len(splitline) > 4 and splitline[4] in varnames:
 					output.append("fseek(file" + str(linenum) + ", " + str(splitline[4]) + ".extdata[0] , SEEK_SET);")
 				output.append("fseek(file" + str(linenum) + ", " + str(splitline[4]) + " , SEEK_SET);")
