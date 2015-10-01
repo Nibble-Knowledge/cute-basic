@@ -38,23 +38,34 @@ if __name__ == "__main__":
 	output.append("uint8_t data : 4;")
 	output.append("} nib;")
 	
-	output.append("typedef struct _nibx")
-	output.append("{")
-	output.append("uint8_t data : 4;")
-	output.append("char *extdata;")
-	output.append("} nibx;")
-	
-	output.append("typedef struct _nibxs")
+	output.append("typedef struct _snib")
 	output.append("{")
 	output.append("int8_t data : 4;")
-	output.append("char *extdata;")
-	output.append("} nibxs;")
-
+	output.append("} snib;")
+	
+	output.append("/*Function declarations go here*/")
 	output.append("/*Function declarations go here*/")
 	output.append("")
 	output.append("")
+
+	multicomment = 0
 	
 	for line in inputf.readlines():
+		
+		if len(line) > 1 and (line.find("#/") != -1):
+			multicomment = 0
+			continue
+	
+		elif multicomment == 1:
+			continue	
+		
+		elif len(line.strip()) > 1 and line.strip()[0] == "/" and line.strip()[1] == "#":
+			multicomment = 1
+			continue
+
+		elif len(line.strip()) > 0 and line.strip()[0] == "#":
+			continue
+
 		# Check for the start
 		if line.strip() == "START":
 			if hasstart == 1:
@@ -81,7 +92,15 @@ if __name__ == "__main__":
 		# LET - specifically declaration
 		if len(splitline) == 0:
 			continue
-		if splitline[0] == "LET":
+		elif splitline[0] == "ASM" or splitline[0] == "PASSTHROC":
+			del splitline[0]
+			newline = ""
+			for i in splitline:
+				newline += i
+				newline += " "
+			output.append(newline)
+			continue
+		elif splitline[0] == "LET":
 			for i in varnames:
 				if len(splitline) > 1 and i == splitline[1]:
 					print "Variable name " + splitline[1] + " already declared!"
@@ -92,57 +111,19 @@ if __name__ == "__main__":
 			structstart = output.index("/*Structs go here*/")
 			# AS - initialisation
 			if len(splitline) > 2 and splitline[2] == "AS":
-				
-				'''if int(splitline[3]) > 16:
-					print "Variable " + splitline[1] + " too big!"
-					quit(1)
-				if splitline[3] in varsizes:
-					output.append("nibx" + splitline[3] + " " + splitline[1] + ";")
-					if len(splitline) > 4 and splitline[4] == "BE":
-						output.append(splitline[1] + ".data = " + splitline[5] + ";")
-					continue
-				output.insert(structstart + 1, "typedef struct _nibx" + splitline[3])
-				output.insert(structstart + 2, "{")'''
 				# Firstly, check if we're using SIGNED or UNSIGNED - if neither, UNSIGNED.
 				if len(splitline) <= 6 or splitline[6] == "UNSIGNED":
-					output.append("nibx " + splitline[1] + ";")
-					output.append(splitline[1] + ".extdata = malloc(" + str(int(splitline[3]) * 8) + ");")
+					output.append("nib *" + splitline[1] + " = malloc(sizeof(nib) * " + splitline[3] + ");")
+					#output.append(splitline[1] + ".extdata = malloc(" + str(int(splitline[3]) * 8) + ");")
 					varstofree.append(splitline[1])
-					'''# Try to match requested size with variable size in C. The next field after as is the size in nibbles (so the first if is less than 3 nibbles or 16 bits)
-					if int(splitline[3]) <= 3:
-						output.insert(structstart + 3, "unsigned short int data : " + str(int(splitline[3]) * 4) + ";")
-					elif int(splitline[3]) > 3 and int(splitline[3]) <= 8:
-						output.insert(structstart + 3, "unsigned int data : " + str(int(splitline[3]) * 4) + ";")
-					elif int(splitline[3]) > 8 and int(splitline[3]) <= 16:
-						output.insert(structstart + 3, "unsigned long long data : " + str(int(splitline[3]) * 4) + ";")'''
 				elif len(splitline) > 6 and splitline[6] == "SIGNED":
-					output.append("nibxs " + splitline[1] + ";")
-					output.append(splitline[1] + ".extdata = malloc(" + str(int(splitline[3]) * 8) + ");")
+					output.append("snib *" + splitline[1] + " = malloc(sizeof(snib) * " + splitline[3] + ");")
+					#output.append(splitline[1] + ".extdata = malloc(" + str(int(splitline[3]) * 8) + ");")
 					varstofree.append(splitline[1])
-					'''# Signed version
-					if int(splitline[3]) <= 3:
-						output.insert(structstart + 3, "short int data : " + str(int(splitline[3]) * 4) + ";")
-					elif int(splitline[3]) > 3 and int(splitline[3]) <= 8:
-						output.insert(structstart + 3, "int data : " + str(int(splitline[3]) * 4) + ";")
-					elif int(splitline[3]) > 8 and int(splitline[3]) <= 16:
-						output.insert(structstart + 3, "long long data : " + str(int(splitline[3]) * 4) + ";")
-				# Padding - you cannot have a non-multiple of 8 bits on an x86 machine.
-				if ((int(splitline[3]) * 4) % 8) > 0 and ((int(splitline[3]) * 4) % 8) <= 3:
-					output.insert(structstart + 4, "unsigned short int pad : " + str((int(splitline[3]) * 4) % 8) + ";")
-				elif (int(splitline[3]) * 4) % 8 > 3 and (int(splitline[3]) * 4) <= 8:
-					output.insert(structstart + 4, "unsigned int pad : " + str((int(splitline[3]) * 4) % 8) + ";")
-				elif (int(splitline[3]) * 4) % 8 > 8 and (int(splitline[3]) * 4) % 8 <= 16:
-					output.insert(structstart + 4, "unsigned long long pad : " + str((int(splitline[3]) * 4) % 8) + ";")
-				else:
-					output.insert(structstart + 4, "")
-				# BTW reader, this inserts to a static place in the list so all new variable do have a place... faster then checking!
-				output.insert(structstart + 5, "} nibx" + splitline[3] + ";")
-				output.append("nibx" + splitline[3] + " " + splitline[1] + ";")
-				varsizes.append(splitline[3])'''
 				if len(splitline) > 4 and splitline[4] == "BE":
 					output.append(splitline[1] + ".data = " + splitline[5] + ";")
 			else:
-				output.append("nib " + splitline[1] + ";")
+				output.append("nib *" + splitline[1] + " = malloc(sizeof(nib));")
 				if splitline[2] == "BE":
 					output.append(splitline[1] + ".data = " + splitline[3] + ";")					
 		#Math, with assignment as the first thing on the line
@@ -162,7 +143,8 @@ if __name__ == "__main__":
 					elif vartype[3] == "CHAR":
 						splitline[3] = "\'" + splitline[3] + "\'"
 				else:
-					splitline[3] = splitline[3] + ".data"
+					splitline[3] = splitline[3] + "[0].data"
+				splitline[0] += "[0]"
 				#unary math/bit/logic operators
 				if splitline[2] == "COMPLEMENT":
 					output.append(splitline[0] + ".data = ~" + splitline[3] + ";")
@@ -313,31 +295,9 @@ if __name__ == "__main__":
 			elif splitline[0] == "GOTO":
 				output.append("goto " + splitline[1] + ";")
 				
-		#function declarations
-		if splitline[0] == "FUNCTION":
-			nextparam =0
-			temp = ""
-			if len(splitline) > 3 and splitline[2] == "RETURNS":
-				temp += "nibx" + splitline[3] + " " + splitline[1] + "("
-				nextparam = 4
-			else:
-				temp += "void " + splitline[1] + "("
-				nextparam = 2
-			while len(splitline) >= nextparam + 2:
-				if splitline[nextparam] != "TAKES" and splitline[nextparam] != "ASWELL":
-					nextparam = nextparam + 1
-					continue
-				temp += "nibx" + splitline[nextparam + 1] + " " + splitline[nextparam + 2]
-				nextparam += 3
-				if len(splitline) >= nextparam + 2:
-					temp += ","
-			temp += ");"
-			functionindex = output.index("/*Function declarations go here*/")
-			output.insert(functionindex + 1, temp)
-				
-		
 		#function definition
-		if splitline[0] == "DEFINE":
+		#if splitline[0] == "DEFINE":
+		if splitline[0] == "FUNCTION":
 			#must match declaration sig
 			nextparam = 0
 			temp = ""
@@ -355,6 +315,10 @@ if __name__ == "__main__":
 				nextparam += 3
 				if len(splitline) >= nextparam + 2:
 					temp += ","
+			temp2 = temp
+			temp2 += ");"
+			functionindex = output.index("/*Function declarations go here*/")
+			output.insert(functionindex + 1, temp2)
 			temp += "){"
 			output.append(temp)
 		elif splitline[0] == "ENDFUNCTION":
@@ -377,7 +341,8 @@ if __name__ == "__main__":
 			output.remove("puts(HEADER);")
 			output.remove("puts(\"\");")
 		
-		if splitline[0] == "PRINT":
+		if splitline[0] == "CALL":
+			'''if splitline[0] == "PRINT":
 			if splitline[3] in vartypes:
 				vartype = splitline[3]
 				splitline.remove(splitline[3])
@@ -411,11 +376,16 @@ if __name__ == "__main__":
 				output.append("printf(\"%X\", " + splitline[3] + ");")			
 			else:
 				output.append("printf(\"%u\", " + splitline[3] + ");")
+			'''
 		
-		if splitline[0] == "GETKEY":
-			output.append(splitline[1] + ".extdata[0] = getchar();")
+			if splitline[1] == "GETCHAR":
+				#output.append(splitline[1] + ".extdata[0] = getchar();")
+				output.append("tempc" + linenum + " = getchar();")
+				output.append(splitline[2] + "[0].data = tempc;")
+				output.append(splitline[2] + "[1].data = tempc > 4;")
+				output.append("printf(\"%i, %i, %c\n\", " + splitline[2] + "[0].data, " + splitline[2] + "[1].data, (char)((char)" + splitline[2] + "[0].data + (char) " + splitline + "[1].data < 4));"
 			
-		if splitline[0] == "FILEOUT":
+		'''if splitline[0] == "FILEOUT":
 			output.append("FILE *file" + str(linenum) + ";")
 			if splitline[1] == "CHAR":
 				splitline.remove(splitline[1])
@@ -459,9 +429,8 @@ if __name__ == "__main__":
 			output.append("file" + str(linenum) + " = fopen(\"" + str(splitline[2]) + "\", \"r\");")
 			output.append("fseek(file" + str(linenum) + ", 0L, SEEK_END);")
 			output.append(str(splitline[1]) + ".extdata[0] = ftell(file" + str(linenum) + ");")
-			output.append("fclose(file" + str(linenum) + ");")
+			output.append("fclose(file" + str(linenum) + ");")'''
 			
-		
 		linenum = linenum + 1
 	inputf.close()
 	if hasstart == 0:
