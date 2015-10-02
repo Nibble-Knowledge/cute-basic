@@ -155,11 +155,21 @@ if __name__ == "__main__":
 			else:
 				output.append("nib *" + splitline[1] + " = malloc(sizeof(nib));")
 				if splitline[2] == "BE":
-					output.append(splitline[1] + ".data = " + splitline[3] + ";")					
+					output.append(splitline[1] + "[0].data = " + splitline[3] + ";")					
 		#Math, with assignment as the first thing on the line
-		elif ((splitline[0] in varnames) and splitline[1] == "BE"): 
+		elif ((splitline[0] in varnames) and (splitline[1] == "BE" or splitline[3] == "BE")): 
 			vartypes = ["BINARY", "HEX", "CHAR"]
 			vartype = ""
+			indexright = 0
+			indexleft = 0
+			if splitline[1] == "AT":
+				indexright = int(splitline[2])
+				del splitline[1]
+				del splitline[1]
+			if len(splitline) > 3 and splitline[3] == "AT":
+				indexleft = int(splitline[4])
+				del splitline[3]
+				del splitline[3]
 			if(splitline[2] in ["COMPLEMENT", "NEGATE", "INCREMENT", "DECREMENT", "NOT", "ADDRESSOF", "CONTENTOF"]):
 				#unary operations
 				
@@ -172,9 +182,9 @@ if __name__ == "__main__":
 						splitline[3] = "0x" + splitline[3]
 					elif vartype[3] == "CHAR":
 						splitline[3] = "\'" + splitline[3] + "\'"
-				else:
-					splitline[3] = splitline[3] + "[0].data"
-				splitline[0] += "[0]"
+				elif splitline[3] in varnames:
+					splitline[3] = splitline[3] + "[" + str(indexleft) + "].data"
+				splitline[0] += "[" + str(indexright) + "]"
 				#unary math/bit/logic operators
 				if splitline[2] == "COMPLEMENT":
 					output.append(splitline[0] + ".data = ~" + splitline[3] + ";")
@@ -191,6 +201,9 @@ if __name__ == "__main__":
 				elif splitline[2] == "CONTENTOF":
 					output.append(splitline[0] + ".data = *(" + splitline[3] + ");")
 			
+			binopindexright = 0			
+			binopindexleft = 0			
+
 			if splitline[2] in vartypes:
 				vartype = splitline[2]
 				splitline.remove(splitline[2])
@@ -201,7 +214,10 @@ if __name__ == "__main__":
 				elif vartype[2] == "CHAR":
 					splitline[2] = "\'" + splitline[2] + "\'"
 			else:
-				splitline[2] = splitline[2] + ".data"
+				if len(splitline) > 3 and splitline[3] == "AT":
+					binopindexright = int(splitline[3])
+					del splitline[3:4]
+				splitline[2] = splitline[2] + "[" + str(binopindexright) + "].data"
 				
 			if len(splitline) > 4:
 				if splitline[4] in vartypes:
@@ -214,64 +230,71 @@ if __name__ == "__main__":
 					elif vartype[4] == "CHAR":
 						splitline[4] = "\'" + splitline[4] + "\'"
 				else:
-					splitline[4] = splitline[4] + ".data"
+					if len(splitline) > 5 and splitline[5] == "AT":
+						binopindexright = int(splitline[6])
+						del splitline[5:6]
+					splitline[4] = splitline[4] + "[" + str(binopindexleft) + "].data"
+
+			print splitline
 				
-			#binary math operators
-			if splitline[3] == "ADD":
-				output.append(splitline[0] + ".data = " + splitline[2] + " + " + splitline[4] + " ;")
-			elif splitline[3] == "SUBTRACT":
-				output.append(splitline[0] + ".data = " + splitline[2] + " - " + splitline[4] + " ;")
-			elif splitline[3] == "MULTIPLY":
-				output.append(splitline[0] + ".data = " + splitline[2] + " * " + splitline[4] + " ;")
-			elif splitline[3] == "DIVIDE":
-				output.append(splitline[0] + ".data = " + splitline[2] + " / " + splitline[4] + " ;")
-			elif splitline[3] == "MODULUS":
-				output.append(splitline[0] + ".data = " + splitline[2] + " % " + splitline[4] + " ;")
+			if len(splitline) > 3:	
+				#binary math operators
+				if splitline[3] == "ADD":
+					output.append(splitline[0] + ".data = " + splitline[2] + " + " + splitline[4] + " ;")
+				elif splitline[3] == "SUBTRACT":
+					output.append(splitline[0] + ".data = " + splitline[2] + " - " + splitline[4] + " ;")
+				elif splitline[3] == "MULTIPLY":
+					output.append(splitline[0] + ".data = " + splitline[2] + " * " + splitline[4] + " ;")
+				elif splitline[3] == "DIVIDE":
+					output.append(splitline[0] + ".data = " + splitline[2] + " / " + splitline[4] + " ;")
+				elif splitline[3] == "MODULUS":
+					output.append(splitline[0] + ".data = " + splitline[2] + " % " + splitline[4] + " ;")
 			
-			#binary bitwise operators
-			elif splitline[3] == "AND":
-				output.append(splitline[0] + ".data = " + splitline[2] + " & " + splitline[4] + " ;")
-			elif splitline[3] == "NAND":
-				output.append(splitline[0] + ".data = ~(" + splitline[2] + " & " + splitline[4] + ") ;")
-			elif splitline[3] == "OR":
-				output.append(splitline[0] + ".data = " + splitline[2] + " | " + splitline[4] + " ;")
-			elif splitline[3] == "NOR":
-				output.append(splitline[0] + ".data = ~(" + splitline[2] + " | " + splitline[4] + ") ;")
-			elif splitline[3] == "XOR":
-				output.append(splitline[0] + ".data = " + splitline[2] + " ^ " + splitline[4] + ";")
-			elif splitline[3] == "XNOR":
-				output.append(splitline[0] + ".data = ~(" + splitline[2] + " ^ " + splitline[4] + ") ;")
+				#binary bitwise operators
+				elif splitline[3] == "AND":
+					output.append(splitline[0] + ".data = " + splitline[2] + " & " + splitline[4] + " ;")
+				elif splitline[3] == "NAND":
+					output.append(splitline[0] + ".data = ~(" + splitline[2] + " & " + splitline[4] + ") ;")
+				elif splitline[3] == "OR":
+					output.append(splitline[0] + ".data = " + splitline[2] + " | " + splitline[4] + " ;")
+				elif splitline[3] == "NOR":
+					output.append(splitline[0] + ".data = ~(" + splitline[2] + " | " + splitline[4] + ") ;")
+				elif splitline[3] == "XOR":
+					output.append(splitline[0] + ".data = " + splitline[2] + " ^ " + splitline[4] + ";")
+				elif splitline[3] == "XNOR":
+					output.append(splitline[0] + ".data = ~(" + splitline[2] + " ^ " + splitline[4] + ") ;")
 				
-			#binary bitshifting
-			elif (splitline[3] == "RROTATE" or splitline[3] == "RSHIFT"):
-				output.append(splitline[0] + ".data = " + splitline[2] + " >> " + splitline[4] + ";")
-			elif (splitline[3] == "LROTATE" or splitline[3] == "LSHIFT"):
-				output.append(splitline[0] + ".data = " + splitline[2] + " << " + splitline[4] + ";")
+				#binary bitshifting
+				elif (splitline[3] == "RROTATE" or splitline[3] == "RSHIFT"):
+					output.append(splitline[0] + ".data = " + splitline[2] + " >> " + splitline[4] + ";")
+				elif (splitline[3] == "LROTATE" or splitline[3] == "LSHIFT"):
+					output.append(splitline[0] + ".data = " + splitline[2] + " << " + splitline[4] + ";")
 				
-			#binary logical operators
-			elif splitline[3] == "ALSO":
-				output.append(splitline[0] + ".data = " + splitline[2] + " && " + splitline[4] + ";")
-			elif splitline[3] == "EITHER":
-				output.append(splitline[0] + ".data = " + splitline[2] + " || " + splitline[4] + ";")
+				#binary logical operators
+				elif splitline[3] == "ALSO":
+					output.append(splitline[0] + ".data = " + splitline[2] + " && " + splitline[4] + ";")
+				elif splitline[3] == "EITHER":
+					output.append(splitline[0] + ".data = " + splitline[2] + " || " + splitline[4] + ";")
 				
-			#Logical tests
-			elif splitline[3] == "EQUALS":
-				output.append(splitline[0] + ".data = " + splitline[2] + " == " + splitline[4] + ";")
-			elif splitline[3] == "NOTEQUALS":
-				output.append(splitline[0] + ".data = " + splitline[2] + " != " + splitline[4] + ";")
-			elif splitline[3] == "GREATER":
-				output.append(splitline[0] + ".data = " + splitline[2] + " > " + splitline[4] + ";")
-			elif splitline[3] == "GREATEREQUALS":
-				output.append(splitline[0] + ".data = " + splitline[2] + " >= " + splitline[4] + ";")
-			elif splitline[3] == "LESS":
-				output.append(splitline[0] + ".data = " + splitline[2] + " < " + splitline[4] + ";")
-			elif splitline[3] == "LESSEQUALS":
-				output.append(splitline[0] + ".data = " + splitline[2] + " <= " + splitline[4] + ";")
+				#Logical tests
+				elif splitline[3] == "EQUALS":
+					output.append(splitline[0] + ".data = " + splitline[2] + " == " + splitline[4] + ";")
+				elif splitline[3] == "NOTEQUALS":
+					output.append(splitline[0] + ".data = " + splitline[2] + " != " + splitline[4] + ";")
+				elif splitline[3] == "GREATER":
+					output.append(splitline[0] + ".data = " + splitline[2] + " > " + splitline[4] + ";")
+				elif splitline[3] == "GREATEREQUALS":
+					output.append(splitline[0] + ".data = " + splitline[2] + " >= " + splitline[4] + ";")
+				elif splitline[3] == "LESS":
+					output.append(splitline[0] + ".data = " + splitline[2] + " < " + splitline[4] + ";")
+				elif splitline[3] == "LESSEQUALS":
+					output.append(splitline[0] + ".data = " + splitline[2] + " <= " + splitline[4] + ";")
 
 		#Conditionals + GOTO
 		elif(splitline[0] in ["IF", "ELSEIF", "ELSE", "ENDIF", "LOOPWHILE", "ENDLOOP", "LOOPAGAIN", "EXITLOOP", "EXITIF", "EARLYEND", "LABEL", "GOTO"]):
 			vartypes = ["BINARY", "HEX", "CHAR"]
 			vartype = ""
+			boolindex = 0
 			if len(splitline) > 1 and splitline[1] in vartypes:
 				vartype = splitline[1]
 				splitline.remove(splitline[1])
@@ -281,8 +304,10 @@ if __name__ == "__main__":
 					splitline[1] = "0x" + splitline[1]
 				elif vartype[1] == "CHAR":
 					splitline[1] = "\'" + splitline[1] + "\'"
-			elif len(splitline) > 1:
-				splitline[1] = splitline[1] + ".data"
+			elif len(splitline) > 1 and splitline[2] == "AT":
+				boolindex = int(splitline[3])
+			if len(splitline) > 1:
+				splitline[1] = splitline[1] + "[" + str(boolindex) + "].data"
 	
 			#If/else/elseif/endif
 			if splitline[0] == "IF":

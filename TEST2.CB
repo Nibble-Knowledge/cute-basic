@@ -1,0 +1,7 @@
+START
+LET X AS 10
+LET Y BE 2
+X AT 4 BE 5
+X AT 2 BE X AT 5 ADD Y
+PASSTHROC printf("X: %i\n", X[2]);
+END

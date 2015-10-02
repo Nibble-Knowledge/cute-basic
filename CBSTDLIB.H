@@ -1,7 +1,7 @@
 #ifndef _CBSTDLIB_
 #define _CBSTDLIB_
 
-#define HEADER "CUTE BASIC VERSION 0.1a"
+#define HEADER "CUTE BASIC VERSION 0.2a"
 
 #include <stdio.h>
 #include <stdlib.h>

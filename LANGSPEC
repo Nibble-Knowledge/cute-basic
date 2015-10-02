@@ -132,7 +132,7 @@ Functions:
 
 Declaration (probably c-like, in the old declare-before-first-use way):
 
-: RETURNS and TAKES both optional, [] part can be repeated (comma-separated), funcName must be unique
+/*: RETURNS and TAKES both optional, [] part can be repeated (comma-separated), funcName must be unique
 FUNCTION (funcName) RETURNS (size in nibbles) TAKES [(size in nibbles) (paramName)] ASWELL...
 FUNCTION (funcName) TAKES ... RETURNS (size in nibbles) 
 FUNCTION (funcName) TAKES [(size in nibbles) (paramName)]
@@ -141,10 +141,10 @@ FUNCTION (funcName)
 
 for example,
 FUNCTION simpleVoid TAKES 4 firstPointer ASWELL 4 secondPointer
-FUNCTION getSysTime RETURNS 32
+FUNCTION getSysTime RETURNS 32*/
 
 Definition:
-DEFINE (funcName) RETURNS ... TAKES ... ASWELL ....   //RETURNS and TAKES are optional, but must match declaration signature
+FUNCTION (funcName) RETURNS ... TAKES ... ASWELL ....   //RETURNS and TAKES are optional, but must match declaration signature
 Code goes here 
 ENDFUNCTION (funcName);
 
@@ -160,7 +160,7 @@ I/O:
 
 NOHEADER: Remove CUTE BASIC header output
 
-PRINT (size in nibbles) (variable type) (variable): Print (variable) of size (size in nibbles) and type (variable type)
+/*PRINT (size in nibbles) (variable type) (variable): Print (variable) of size (size in nibbles) and type (variable type)
 PRINT (size in nibbles) (variable type) (immmediate variable type) (immmediate): print immediate value of value (immmediate) of type (immmediate variable type) of size (size in nibbles) and type (variable type)
 
 GETKEY (variable): Get a character from the keyboard and store it in (variable)
@@ -175,7 +175,7 @@ FILEOUT (type) (value) (file name) AT (offset variable): Write (value) of (type)
 FILEOUT (variable) (file name) AT (offset value): Write (variable) at offset (offset value) to (file name)
 FILEOUT (type) (value) (file name) AT (offset value): Write (value) of (type) at offset (offset value) to (file name)
 
-FILESIZE (variable) (file name): Get the size of (file name) and store it in (variable)
+FILESIZE (variable) (file name): Get the size of (file name) and store it in (variable)*/
 
 CALL GETCHAR (variable) [AT (index)] (file name or STDIN): Gets a character from file or STDIN(keyboard)  
 CALL PUTCHAR (variable) [AT (index)] (file name or STDOUT): Writes a character to file or STDOUT(screen)    
