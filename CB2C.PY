@@ -383,7 +383,7 @@ if __name__ == "__main__":
 				output.append("tempc" + linenum + " = getchar();")
 				output.append(splitline[2] + "[0].data = tempc;")
 				output.append(splitline[2] + "[1].data = tempc > 4;")
-				output.append("printf(\"%i, %i, %c\n\", " + splitline[2] + "[0].data, " + splitline[2] + "[1].data, (char)((char)" + splitline[2] + "[0].data + (char) " + splitline + "[1].data < 4));"
+				output.append("printf(\"%i, %i, %c\n\", " + splitline[2] + "[0].data, " + splitline[2] + "[1].data, (char)((char)" + splitline[2] + "[0].data + (char) " + splitline + "[1].data < 4));")
 			
 		'''if splitline[0] == "FILEOUT":
 			output.append("FILE *file" + str(linenum) + ";")
