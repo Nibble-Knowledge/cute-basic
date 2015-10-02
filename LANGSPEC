@@ -176,3 +176,6 @@ FILEOUT (variable) (file name) AT (offset value): Write (variable) at offset (of
 FILEOUT (type) (value) (file name) AT (offset value): Write (value) of (type) at offset (offset value) to (file name)
 
 FILESIZE (variable) (file name): Get the size of (file name) and store it in (variable)
+
+CALL GETCHAR (variable) [AT (index)] (file name or STDIN): Gets a character from file or STDIN(keyboard)  
+CALL PUTCHAR (variable) [AT (index)] (file name or STDOUT): Writes a character to file or STDOUT(screen)    

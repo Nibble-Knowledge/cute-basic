@@ -8,6 +8,10 @@ loopStatementStack = []
 #giant buffer holding output
 output = []
 #list of names of variables
+
+#format: VARNAME SIZE SIGN
+variables = []
+
 varnames = []
 vartypes = ["BINARY", "HEX", "CHAR"]
 varsizes = []
@@ -108,8 +112,34 @@ if __name__ == "__main__":
 			# The variable name will be the second whitespace delimited field
 			varnames.append(splitline[1])
 			
-			structstart = output.index("/*Structs go here*/")
+			'''
+			newvar = []
+			newvar.append(splitline[1])
+			
+			#default values if not user-specified
+			nibbleCount = 1
+			isSigned = 0
+			
 			# AS - initialisation
+			
+			if "AS" in splitline:
+				ASindex = splitline.index("AS")
+				nibbleCount = int(splitline[ASindex + 1])
+				
+			newvar.append(nibbleCount)
+				
+			if "SIGNED" in splitline:
+				newvar.append("SIGNED")
+			else:
+				newvar.append("UNSIGNED")
+				
+			variables.append(newvar)
+			
+			for(i = 0; i < nibbleCount; i++):
+				output.append("nib " + splitline[1] + "_" + str(i) + ";")
+				'''
+				
+			
 			if len(splitline) > 2 and splitline[2] == "AS":
 				# Firstly, check if we're using SIGNED or UNSIGNED - if neither, UNSIGNED.
 				if len(splitline) <= 6 or splitline[6] == "UNSIGNED":
@@ -326,22 +356,69 @@ if __name__ == "__main__":
 		elif splitline[0] == "RETURN":
 			output.append("return " + splitline[1] +";")
 		elif splitline[0] == "CALL":
-			nextparam = 2
-			temp = ""
-			temp += splitline[1] + "( "
-			while len(splitline) > nextparam:
-				temp += splitline[nextparam]
-				if len(splitline) >= nextparam + 2:
-					temp += ", "
-				nextparam += 2
-			temp += ");"
-			output.append(temp)
+			if splitline[1] == "GETCHAR":
+				
+				#assume we're starting at index 0, unless told otherwise
+				startindex = 0
+				readlocation = "stdin"
+				
+				#this is how they can tell us otherwise
+				if splitline[2] == "AT":
+					startindex = splitline[3]
+					splitline.remove(splitline[2])
+					splitline.remove(splitline[2])
+				if len(splitline) > 3:
+					readlocation = splitline[3]
+					
+				#output.append(splitline[1] + ".extdata[0] = getchar();")
+				if readlocation != "stdin":
+					output.append("FILE *file" + str(linenum) + "= fopen(\"" + readlocation + "\", \"r\");")
+					readlocation = "file" + str(linenum)
+				output.append("char tempc" + str(linenum) + " = getc(" + readlocation + ");")
+				output.append(splitline[2] + "[" + str(startindex) + "].data = tempc" + str(linenum) + ";")
+				output.append(splitline[2] + "[" + str(startindex + 1) + "].data = tempc" + str(linenum) + " >> 4;")
+				if readlocation != "stdin":
+					output.append("fclose(file" + str(linenum) + ");")			
+			elif splitline[1] == "PUTCHAR":	
+				
+				#assume we're starting at index 0, unless told otherwise
+				startindex = 0
+				writelocation = "stdout"
+				
+				#this is how they can tell us otherwise
+				if splitline[2] == "AT":
+					startindex = splitline[3]
+					splitline.remove(splitline[2])
+					splitline.remove(splitline[2])
+				if len(splitline) > 3:
+					writelocation = splitline[3]
+				
+				output.append("char ch" + str(linenum) + " = 0;")
+				output.append("ch" + str(linenum) + " = (ch" + str(linenum) + " & 0xF0) | (" + splitline[2] + "[" + str(startindex) + "].data & 0xF);")
+				output.append("ch" + str(linenum) + " = (ch" + str(linenum) + " & 0x0F) | ((" + splitline[2] + "[" + str(startindex + 1) + "].data & 0xF) << 4);")
+				if writelocation != "stdout":
+					output.append("FILE *file" + str(linenum) + "= fopen(\"" + writelocation + "\", \"a\");")
+					writelocation = "file" + str(linenum)
+				output.append("putc(ch" + str(linenum) + ", " + writelocation + ");")
+				if writelocation != "stdout":				
+					output.append("fclose(file" + str(linenum) + ");")
+			else:
+				nextparam = 2
+				temp = ""
+				temp += splitline[1] + "( "
+				while len(splitline) > nextparam:
+					temp += splitline[nextparam]
+					if len(splitline) >= nextparam + 2:
+						temp += ", "
+					nextparam += 2
+				temp += ");"
+				output.append(temp)
 		
 		if splitline[0] == "NOHEADER":
 			output.remove("puts(HEADER);")
 			output.remove("puts(\"\");")
 		
-		if splitline[0] == "CALL":
+		#if splitline[0] == "CALL":
 			'''if splitline[0] == "PRINT":
 			if splitline[3] in vartypes:
 				vartype = splitline[3]
@@ -377,13 +454,6 @@ if __name__ == "__main__":
 			else:
 				output.append("printf(\"%u\", " + splitline[3] + ");")
 			'''
-		
-			if splitline[1] == "GETCHAR":
-				#output.append(splitline[1] + ".extdata[0] = getchar();")
-				output.append("tempc" + linenum + " = getchar();")
-				output.append(splitline[2] + "[0].data = tempc;")
-				output.append(splitline[2] + "[1].data = tempc > 4;")
-				output.append("printf(\"%i, %i, %c\n\", " + splitline[2] + "[0].data, " + splitline[2] + "[1].data, (char)((char)" + splitline[2] + "[0].data + (char) " + splitline + "[1].data < 4));")
 			
 		'''if splitline[0] == "FILEOUT":
 			output.append("FILE *file" + str(linenum) + ";")
