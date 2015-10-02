@@ -35,7 +35,7 @@ Declaration and initialization:
 LET (variable name) : Creates a variable called (variable name) 
 LET (variable name) BE (number) : Creates a variable called (variable name) and assigns (number) to it 
 LET (variable name) AS (size in nibbles) : Creates a variable called (variable name) with a size in nibbles of (size in nibbles) 
-LET (variable name) AS (size in nibbles) BE (number) : Creates a variable called (variable name) with a size in nibbles of (size in nibbles) and assigns (number) to it 
+/*LET (variable name) AS (size in nibbles) BE (number) : Creates a variable called (variable name) with a size in nibbles of (size in nibbles) and assigns (number) to it */
 
 
 Assignment:
