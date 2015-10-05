@@ -14,7 +14,9 @@ then
 			exit
 		fi
 		echo "" > "$OUTFILE"
-		./CB2C.PY "$CBFILE" > tempout
+		#./CB2C.PY "$CBFILE" > tempout
+		./CB2C2.PY "$CBFILE" > tempout
+
 		if [ "$?" != "0" ]
 		then
 			echo "Compilation error: "

@@ -388,10 +388,10 @@ if __name__ == "__main__":
 				readlocation = "stdin"
 				
 				#this is how they can tell us otherwise
-				if splitline[2] == "AT":
-					startindex = splitline[3]
-					splitline.remove(splitline[2])
-					splitline.remove(splitline[2])
+				if len(splitline) > 3 and splitline[3] == "AT":
+					startindex = splitline[4]
+					splitline.remove(splitline[3])
+					splitline.remove(splitline[3])
 				if len(splitline) > 3:
 					readlocation = splitline[3]
 					
@@ -401,7 +401,7 @@ if __name__ == "__main__":
 					readlocation = "file" + str(linenum)
 				output.append("char tempc" + str(linenum) + " = getc(" + readlocation + ");")
 				output.append(splitline[2] + "[" + str(startindex) + "].data = tempc" + str(linenum) + ";")
-				output.append(splitline[2] + "[" + str(startindex + 1) + "].data = tempc" + str(linenum) + " >> 4;")
+				output.append(splitline[2] + "[" + str(int(startindex) + 1) + "].data = tempc" + str(linenum) + " >> 4;")
 				if readlocation != "stdin":
 					output.append("fclose(file" + str(linenum) + ");")			
 			elif splitline[1] == "PUTCHAR":	
@@ -411,16 +411,16 @@ if __name__ == "__main__":
 				writelocation = "stdout"
 				
 				#this is how they can tell us otherwise
-				if splitline[2] == "AT":
-					startindex = splitline[3]
-					splitline.remove(splitline[2])
-					splitline.remove(splitline[2])
+				if len(splitline) > 3 and splitline[3] == "AT":
+					startindex = splitline[4]
+					splitline.remove(splitline[3])
+					splitline.remove(splitline[3])
 				if len(splitline) > 3:
 					writelocation = splitline[3]
 				
 				output.append("char ch" + str(linenum) + " = 0;")
-				output.append("ch" + str(linenum) + " = (ch" + str(linenum) + " & 0xF0) | (" + splitline[2] + "[" + str(startindex) + "].data & 0xF);")
-				output.append("ch" + str(linenum) + " = (ch" + str(linenum) + " & 0x0F) | ((" + splitline[2] + "[" + str(startindex + 1) + "].data & 0xF) << 4);")
+				output.append("ch" + str(linenum) + " = (ch" + str(linenum) + " & 0xF0) | (" + str(splitline[2]) + "[" + str(startindex) + "].data & 0xF);")
+				output.append("ch" + str(linenum) + " = (ch" + str(linenum) + " & 0x0F) | ((" + str(splitline[2]) + "[" + str(int(startindex) + 1) + "].data & 0xF) << 4);")
 				if writelocation != "stdout":
 					output.append("FILE *file" + str(linenum) + "= fopen(\"" + writelocation + "\", \"a\");")
 					writelocation = "file" + str(linenum)
@@ -443,88 +443,6 @@ if __name__ == "__main__":
 			output.remove("puts(HEADER);")
 			output.remove("puts(\"\");")
 		
-		#if splitline[0] == "CALL":
-			'''if splitline[0] == "PRINT":
-			if splitline[3] in vartypes:
-				vartype = splitline[3]
-				splitline.remove(splitline[3])
-				if vartype == "BINARY":
-					splitline[3] = "0b" + splitline[3]
-				elif vartype == "HEX":
-					splitline[3] = "0x" + splitline[3]
-				elif vartype == "CHAR":
-					splitline[3] = "'" + splitline[3] + "'"
-			else:
-				splitline[3] = splitline[3] + ".extdata[0]"
-			if splitline[2] == "CHAR":
-				output.append("printf(\"%c\", " + splitline[3] + ");")
-			elif splitline[2] == "STRING":
-				output.append("printf(\"%s\", " + splitline[3] + ");")
-			elif splitline[2] == "UNSIGNED":
-				output.append("printf(\"%u\", " + splitline[3] + ");")			
-			elif splitline[2] == "SIGNED":
-				output.append("printf(\"%i\", " + splitline[3] + ");")
-			elif splitline[2] == "BINARY":
-				output.append("int binaryread" + str(linenum) + " = " + splitline[3])
-				output.append("for(int i = 0; i < " + splitline[1] + "; i++ ) {")
-				output.append("if (binaryread" + str(linenum) + " & 1)")
-				output.append("{")
-				output.append("printf(\"1\");")
-				output.append("else")
-				output.append("printf(\"0\");")
-				output.append("binaryread" + str(linenum) + " >>= 1;")
-				output.append("}")
-			elif splitline[2] == "HEX":
-				output.append("printf(\"%X\", " + splitline[3] + ");")			
-			else:
-				output.append("printf(\"%u\", " + splitline[3] + ");")
-			'''
-			
-		'''if splitline[0] == "FILEOUT":
-			output.append("FILE *file" + str(linenum) + ";")
-			if splitline[1] == "CHAR":
-				splitline.remove(splitline[1])
-				varout = "\'" + splitline[1] + "\'"
-			elif splitline[1] == "UNSIGNED":
-				splitline.remove(splitline[1])
-				varout = splitline[1]
-			elif splitline[1] == "SIGNED":
-				splitline.remove(splitline[1])
-				varout = "(unsigned char) " + splitline[1]
-			elif splitline[1] == "HEX":
-				splitline.remove(splitline[1])
-				varout = "0x" + splitline[1]
-			elif splitline[1] == "BINARY":
-				splitline.remove(splitline[1])
-				varout = "0b" + splitline[1]
-			else:
-				varout = splitline[1] + ".extdata[0]"
-			if len(splitline) > 3 and splitline[3] == "AT":
-				output.append("file" + str(linenum) + " = fopen(\"" + str(splitline[2]) + "\", \"ab+\");")
-				if len(splitline) > 4 and splitline[4] in varnames:
-					output.append("fseek(file" + str(linenum) + ", " + str(splitline[4]) + ".extdata[0] , SEEK_SET);")
-				output.append("fseek(file" + str(linenum) + ", " + str(splitline[4]) + " , SEEK_SET);")
-			else:
-				output.append("file" + str(linenum) + " = fopen(\"" + str(splitline[2]) + "\", \"a\");")
-			output.append("fputc(" + str(varout) + " , file" + str(linenum) + ");")
-			output.append("fclose(file" + str(linenum) + ");")	
-		
-		if splitline[0] == "FILEIN":
-			output.append("FILE *file" + str(linenum) + " = NULL;")
-			output.append("file" + str(linenum) + " = fopen(\"" + str(splitline[2]) + "\", \"r\");")
-			if len(splitline) > 3 and splitline[3] == "AT":
-				if len(splitline) > 4 and splitline[4] in varnames:
-					output.append("fseek(file" + str(linenum) + ", " + str(splitline[4]) + ".extdata[0] , SEEK_SET);")
-				output.append("fseek(file" + str(linenum) + ", " + str(splitline[4]) + " , SEEK_SET);")
-			output.append(str(splitline[1]) + ".extdata[0] = fgetc(file" + str(linenum) + ");")
-			output.append("fclose(file" + str(linenum) + ");")
-		
-		if splitline[0] == "FILESIZE":
-			output.append("FILE *file" + str(linenum) + " = NULL;")
-			output.append("file" + str(linenum) + " = fopen(\"" + str(splitline[2]) + "\", \"r\");")
-			output.append("fseek(file" + str(linenum) + ", 0L, SEEK_END);")
-			output.append(str(splitline[1]) + ".extdata[0] = ftell(file" + str(linenum) + ");")
-			output.append("fclose(file" + str(linenum) + ");")'''
 			
 		linenum = linenum + 1
 	inputf.close()
