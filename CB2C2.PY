@@ -110,7 +110,8 @@ def variableDeclaration(splitline):
 				varstofree.append(splitline[1])
 				
 			if len(splitline) > 4 and splitline[4] == "BE":
-				output.append(splitline[1] + ".data = " + splitline[5] + ";")
+				output.append(splitline[1] + "[0].data = " + splitline[5] + ";")
+			
 		else:
 			output.append("nib *" + splitline[1] + " = malloc(sizeof(nib));")
 			if len(splitline) > 2 and splitline[2] == "BE":
@@ -135,7 +136,43 @@ def checkVartype(splitline, index):
 #Checks if unary math operations are being performed with assignments as the first thing on the line
 #Takes: a splitline
 def unarymath(splitline):	
-	return
+	if ((splitline[0] in varnames) and (splitline[2] in ["COMPLEMENT", "NEGATE", "INCREMENT", "DECREMENT", "NOT", "ADDRESSOF", "CONTENTOF"])): 
+	#unary operations
+	
+		indexright = 0
+		indexleft = 0
+
+		if splitline[1] == "AT":
+			indexright = int(splitline[2])
+			del splitline[1]
+			del splitline[1]
+		if len(splitline) > 3 and splitline[3] == "AT":
+			indexleft = int(splitline[4])
+			del splitline[3]
+			del splitline[3]
+
+		if splitline[3] in vartypes:
+			splitline = checkVartype(splitline, 3)
+			
+		elif splitline[3] in varnames:
+			splitline[3] = splitline[3] + "[" + str(indexleft) + "].data"
+			
+		splitline[0] += "[" + str(indexright) + "]"
+		#unary math/bit/logic operators
+		if splitline[2] == "COMPLEMENT":
+			output.append(splitline[0] + ".data = ~" + splitline[3] + ";")
+		elif splitline[2] == "NEGATE":
+			output.append(splitline[0] + ".data = -" + splitline[3] + ";")
+		elif splitline[2] == "INCREMENT":
+			output.append(splitline[0] + ".data = " + splitline[3] + " + 1;")
+		elif splitline[2] == "DECREMENT":
+			output.append(splitline[0] + ".data = " + splitline[3] + " - 1;")
+		elif splitline[2] == "NOT":
+			output.append(splitline[0] + ".data = !" + splitline[3] + ";")
+		elif splitline[2] == "ADDRESSOF":
+			output.append(splitline[0] + ".data = &(" + splitline[3] + ");")
+		elif splitline[2] == "CONTENTOF":
+			output.append(splitline[0] + ".data = *(" + splitline[3] + ");")
 	
 
 #Checks if binary math operations are being performed with assignments as the first thing on the line
@@ -143,80 +180,100 @@ def unarymath(splitline):
 def binarymath(splitline):					
 	if ((splitline[0] in varnames) and len(splitline) > 4): 
 	
+		binopindexright = 0			
+		binopindexleft = 0	
+	
 		if splitline[2] in vartypes:
 			splitline = checkVartype(splitline, 2)
+		else:
+			if len(splitline) > 3 and splitline[3] == "AT":
+				binopindexright = int(splitline[3])
+				del splitline[3:4]
+			if splitline[2] in varnames:
+				splitline[2] = splitline[2] + "[" + str(binopindexright) + "].data"
 			
-		if splitline[4] in vartypes:
-			splitline = checkVartype(splitline, 4)
+		if len(splitline) > 4:
+			if splitline[4] in vartypes:
+				splitline = checkVartype(splitline, 4)
+			else:
+				if len(splitline) > 5 and splitline[5] == "AT":
+					binopindexright = int(splitline[6])
+					del splitline[5:6]
+				if splitline[4] in varnames:
+					splitline[4] = splitline[4] + "[" + str(binopindexleft) + "].data"
+
 
 
 		if splitline[3] == "ADD":
-			output.append(splitline[0] + ".data = " + splitline[2] + " + " + splitline[4] + " ;")
+			output.append(splitline[0] + "[0].data = " + splitline[2] + " + " + splitline[4] + " ;")
 		elif splitline[3] == "SUBTRACT":
-			output.append(splitline[0] + ".data = " + splitline[2] + " - " + splitline[4] + " ;")
+			output.append(splitline[0] + "[0].data = " + splitline[2] + " - " + splitline[4] + " ;")
 		elif splitline[3] == "MULTIPLY":
-			output.append(splitline[0] + ".data = " + splitline[2] + " * " + splitline[4] + " ;")
+			output.append(splitline[0] + "[0].data = " + splitline[2] + " * " + splitline[4] + " ;")
 		elif splitline[3] == "DIVIDE":
-			output.append(splitline[0] + ".data = " + splitline[2] + " / " + splitline[4] + " ;")
+			output.append(splitline[0] + "[0].data = " + splitline[2] + " / " + splitline[4] + " ;")
 		elif splitline[3] == "MODULUS":
-			output.append(splitline[0] + ".data = " + splitline[2] + " % " + splitline[4] + " ;")
+			output.append(splitline[0] + "[0].data = " + splitline[2] + " % " + splitline[4] + " ;")
 	
 		#binary bitwise operators
 		elif splitline[3] == "AND":
-			output.append(splitline[0] + ".data = " + splitline[2] + " & " + splitline[4] + " ;")
+			output.append(splitline[0] + "[0].data = " + splitline[2] + " & " + splitline[4] + " ;")
 		elif splitline[3] == "NAND":
-			output.append(splitline[0] + ".data = ~(" + splitline[2] + " & " + splitline[4] + ") ;")
+			output.append(splitline[0] + "[0].data = ~(" + splitline[2] + " & " + splitline[4] + ") ;")
 		elif splitline[3] == "OR":
-			output.append(splitline[0] + ".data = " + splitline[2] + " | " + splitline[4] + " ;")
+			output.append(splitline[0] + "[0].data = " + splitline[2] + " | " + splitline[4] + " ;")
 		elif splitline[3] == "NOR":
-			output.append(splitline[0] + ".data = ~(" + splitline[2] + " | " + splitline[4] + ") ;")
+			output.append(splitline[0] + "[0].data = ~(" + splitline[2] + " | " + splitline[4] + ") ;")
 		elif splitline[3] == "XOR":
-			output.append(splitline[0] + ".data = " + splitline[2] + " ^ " + splitline[4] + ";")
+			output.append(splitline[0] + "[0].data = " + splitline[2] + " ^ " + splitline[4] + ";")
 		elif splitline[3] == "XNOR":
-			output.append(splitline[0] + ".data = ~(" + splitline[2] + " ^ " + splitline[4] + ") ;")
+			output.append(splitline[0] + "[0].data = ~(" + splitline[2] + " ^ " + splitline[4] + ") ;")
 		
 		#binary bitshifting
 		elif (splitline[3] == "RROTATE" or splitline[3] == "RSHIFT"):
-			output.append(splitline[0] + ".data = " + splitline[2] + " >> " + splitline[4] + ";")
+			output.append(splitline[0] + "[0].data = " + splitline[2] + " >> " + splitline[4] + ";")
 		elif (splitline[3] == "LROTATE" or splitline[3] == "LSHIFT"):
-			output.append(splitline[0] + ".data = " + splitline[2] + " << " + splitline[4] + ";")
+			output.append(splitline[0] + "[0].data = " + splitline[2] + " << " + splitline[4] + ";")
 		
 		#binary logical operators
 		elif splitline[3] == "ALSO":
-			output.append(splitline[0] + ".data = " + splitline[2] + " && " + splitline[4] + ";")
+			output.append(splitline[0] + "[0].data = " + splitline[2] + " && " + splitline[4] + ";")
 		elif splitline[3] == "EITHER":
-			output.append(splitline[0] + ".data = " + splitline[2] + " || " + splitline[4] + ";")
+			output.append(splitline[0] + "[0].data = " + splitline[2] + " || " + splitline[4] + ";")
 		
 		#Logical tests
 		elif splitline[3] == "EQUALS":
-			output.append(splitline[0] + ".data = " + splitline[2] + " == " + splitline[4] + ";")
+			output.append(splitline[0] + "[0].data = " + splitline[2] + " == " + splitline[4] + ";")
 		elif splitline[3] == "NOTEQUALS":
-			output.append(splitline[0] + ".data = " + splitline[2] + " != " + splitline[4] + ";")
+			output.append(splitline[0] + "[0].data = " + splitline[2] + " != " + splitline[4] + ";")
 		elif splitline[3] == "GREATER":
-			output.append(splitline[0] + ".data = " + splitline[2] + " > " + splitline[4] + ";")
+			output.append(splitline[0] + "[0].data = " + splitline[2] + " > " + splitline[4] + ";")
 		elif splitline[3] == "GREATEREQUALS":
-			output.append(splitline[0] + ".data = " + splitline[2] + " >= " + splitline[4] + ";")
+			output.append(splitline[0] + "[0].data = " + splitline[2] + " >= " + splitline[4] + ";")
 		elif splitline[3] == "LESS":
-			output.append(splitline[0] + ".data = " + splitline[2] + " < " + splitline[4] + ";")
+			output.append(splitline[0] + "[0].data = " + splitline[2] + " < " + splitline[4] + ";")
 		elif splitline[3] == "LESSEQUALS":
-			output.append(splitline[0] + ".data = " + splitline[2] + " <= " + splitline[4] + ";")
+			output.append(splitline[0] + "[0].data = " + splitline[2] + " <= " + splitline[4] + ";")
 
 
-#Checks if basic assignment is taking palce
+#Checks if assigning a variable to another variable
 #Takes: a splitline
 def assignment(splitline):					
-	if ((splitline[0] in varnames) and (splitline[1] == "BE")): 
-		pass
+	if ((splitline[0] in varnames) and (len(splitline) == 3)): 
+		if(splitline[2] in varnames):
+			output.append(splitline[0] + "[0].data = " + splitline[2] + "[0].data;")
+		else:
+			output.append(splitline[0] + "[0].data = " + splitline[2] + ";")
 
-#Checks a line for any conditionals or goto statements
-#Takes: a splitline
-def conditionals(splitline):
-	if(splitline[0] in ["IF", "ELSEIF", "ELSE", "ENDIF", "LOOPWHILE", "ENDLOOP", "LOOPAGAIN", "EXITLOOP", "EXITIF", "EARLYEND", "LABEL", "GOTO"]):
+#Checks a line for any conditionals
+#Takes: a splitline, linenum
+def conditionals(splitline, linenum):
+	if(splitline[0] in ["IF", "ELSEIF", "ELSE", "ENDIF", "LOOPWHILE", "ENDLOOP", "LOOPAGAIN", "EXITLOOP", "EXITIF", "EARLYEND"]):
 		vartype = ""
 		boolindex = 0
 		if len(splitline) > 1 and splitline[1] in vartypes:
 			splitline = checkVartype(splitline, 1)
-		elif len(splitline) > 1 and splitline[2] == "AT":
+		elif len(splitline) > 2 and splitline[2] == "AT":
 			boolindex = int(splitline[3])
 		if len(splitline) > 1:
 			splitline[1] = splitline[1] + "[" + str(boolindex) + "].data"
@@ -254,14 +311,19 @@ def conditionals(splitline):
 		elif splitline[0] == "EXITIF":
 			output.append("goto exitif"+ str(ifStatementStack[-1]) + ";")
 	
-		#GOTO/Labels
+		#Earlyend
 		elif splitline[0] == "EARLYEND":
 			output.append("goto END;")
-		elif splitline[0] == "LABEL":
+
+
+#goto and labels
+#Takes: splitline
+def goto(splitline):
+	if(splitline[0] in ["GOTO", "LABEL"]):
+		if splitline[0] == "LABEL":
 			output.append(splitline[1] + ":")
 		elif splitline[0] == "GOTO":
 			output.append("goto " + splitline[1] + ";")
-
 
 #Checks if the line contains any function properties
 #Takes: splitline
@@ -437,8 +499,11 @@ def main():
 		assignment(splitline)
 		
 		#Check for conditionals
-		conditionals(splitline)
+		conditionals(splitline,linenum)
 		
+		#Check for goto/labels
+		goto(splitline)
+
 		#Check for functions
 		functionProperties(splitline)
 		

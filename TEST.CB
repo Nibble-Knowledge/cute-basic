@@ -1,9 +1,264 @@
 START
 #CALL TESTERBEEP
-CALL OTHERTHING
+#CALL OTHERTHING
+
+LET A SIGNED
+LET AA							
+LET B BE 1
+LET C AS 2
+LET D AS 2 BE 2
+LET E
+
+PASSTHROC printf("%d\n", A[0].data);
+PASSTHROC printf("%d\n", AA[0].data);
+PASSTHROC printf("%d\n", B[0].data);
+PASSTHROC printf("%d\n", C[0].data);
+PASSTHROC printf("%d\n", D[0].data);
+PASSTHROC printf("%d\n\n\n", E[0].data);
+
+A BE B
+AA BE 3
+
+PASSTHROC printf("%d\n", A[0].data);
+PASSTHROC printf("%d\n\n\n", AA[0].data);
+
+A BE NEGATE A
+B BE INCREMENT B
+AA BE DECREMENT AA
+
+PASSTHROC printf("%d\n", A[0].data);
+PASSTHROC printf("%d\n", B[0].data);
+PASSTHROC printf("%d\n\n\n", AA[0].data);
+
+A BE B ADD AA
+B BE A SUBTRACT 1
+C BE 5 MODULUS 3
+D BE 2 MULTIPLY 3
+E BE 7 DIVIDE 2
+
+PASSTHROC printf("%d\n", A[0].data);
+PASSTHROC printf("%d\n", B[0].data);
+PASSTHROC printf("%d\n", C[0].data);
+PASSTHROC printf("%d\n", D[0].data);
+PASSTHROC printf("%d\n\n\n", E[0].data);
+
+LET ZZ 
+LET Z BE 1
+Z BE NOT Z
+
+PASSTHROC printf("%d\n\n\n", Z[0].data);
+
+Z BE 0
+Z BE NOT Z
+
+PASSTHROC printf("%d\n\n\n", Z[0].data);
+
+LET Y BE 0
+LET X BE 0
+Z BE Y ALSO X
+ZZ BE Y EITHER X
+PASSTHROC printf("%d\n", Z[0].data);
+PASSTHROC printf("%d\n\n\n", ZZ[0].data);
+
+Y BE 0
+X BE 1
+Z BE Y ALSO X
+ZZ BE Y EITHER X
+PASSTHROC printf("%d\n", Z[0].data);
+PASSTHROC printf("%d\n\n\n", ZZ[0].data);
+
+Y BE 1
+X BE 0
+Z BE Y ALSO X
+ZZ BE Y EITHER X
+PASSTHROC printf("%d\n", Z[0].data);
+PASSTHROC printf("%d\n\n\n", ZZ[0].data);
+
+Y BE 1
+X BE 1
+Z BE Y ALSO X
+ZZ BE Y EITHER X
+PASSTHROC printf("%d\n", Z[0].data);
+PASSTHROC printf("%d\n\n\n", ZZ[0].data);
+
+Y BE COMPLEMENT Y
+PASSTHROC printf("%d\n\n\n", Y[0].data);
+
+LET ZZZ
+LET ZZZZ
+LET ZZZZZ
+LET ZZZZZZ
+
+X BE 0 
+Y BE 0
+Z BE X AND Y
+Z BE X OR Y
+Z BE X XOR Y
+Z BE X NAND Y
+Z BE X NOR Y
+Z BE X XNOR Y
+PASSTHROC printf("%d\n", Z[0].data);
+PASSTHROC printf("%d\n", ZZ[0].data);
+PASSTHROC printf("%d\n", ZZZ[0].data);
+PASSTHROC printf("%d\n", ZZZZ[0].data);
+PASSTHROC printf("%d\n", ZZZZZ[0].data);
+PASSTHROC printf("%d\n\n\n", ZZZZZZ[0].data);
+
+X BE 0
+Y BE 1
+Z BE X AND Y
+Z BE X OR Y
+Z BE X XOR Y
+Z BE X NAND Y
+Z BE X NOR Y
+Z BE X XNOR Y
+PASSTHROC printf("%d\n", Z[0].data);
+PASSTHROC printf("%d\n", ZZ[0].data);
+PASSTHROC printf("%d\n", ZZZ[0].data);
+PASSTHROC printf("%d\n", ZZZZ[0].data);
+PASSTHROC printf("%d\n", ZZZZZ[0].data);
+PASSTHROC printf("%d\n\n\n", ZZZZZZ[0].data);
+
+X BE 1
+Y BE 0
+Z BE X AND Y
+Z BE X OR Y
+Z BE X XOR Y
+Z BE X NAND Y
+Z BE X NOR Y
+Z BE X XNOR Y
+PASSTHROC printf("%d\n", Z[0].data);
+PASSTHROC printf("%d\n", ZZ[0].data);
+PASSTHROC printf("%d\n", ZZZ[0].data);
+PASSTHROC printf("%d\n", ZZZZ[0].data);
+PASSTHROC printf("%d\n", ZZZZZ[0].data);
+PASSTHROC printf("%d\n\n\n", ZZZZZZ[0].data);
+
+X BE 1
+Y BE 1
+Z BE X AND Y
+Z BE X OR Y
+Z BE X XOR Y
+Z BE X NAND Y
+Z BE X NOR Y
+Z BE X XNOR Y
+PASSTHROC printf("%d\n", Z[0].data);
+PASSTHROC printf("%d\n", ZZ[0].data);
+PASSTHROC printf("%d\n", ZZZ[0].data);
+PASSTHROC printf("%d\n", ZZZZ[0].data);
+PASSTHROC printf("%d\n", ZZZZZ[0].data);
+PASSTHROC printf("%d\n\n\n", ZZZZZZ[0].data);
+
+Z BE 5 EQUALS 5
+ZZ BE 5 NOTEQUALS 4
+ZZZ BE 4 GREATER 2
+ZZZZ BE 4 GREATEREQUALS 4
+ZZZZZ BE 2 LESS 4
+ZZZZZZ BE 2 LESSEQUALS 2
+PASSTHROC printf("%d\n", Z[0].data);
+PASSTHROC printf("%d\n", ZZ[0].data);
+PASSTHROC printf("%d\n", ZZZ[0].data);
+PASSTHROC printf("%d\n", ZZZZ[0].data);
+PASSTHROC printf("%d\n", ZZZZZ[0].data);
+PASSTHROC printf("%d\n\n\n", ZZZZZZ[0].data);
+
+Z BE 5 EQUALS 4
+ZZ BE 5 NOTEQUALS 5
+ZZZ BE 4 GREATER 6
+ZZZZ BE 4 GREATEREQUALS 6
+ZZZZZ BE 5 LESS 4
+ZZZZZZ BE 5 LESSEQUALS 2
+PASSTHROC printf("%d\n", Z[0].data);
+PASSTHROC printf("%d\n", ZZ[0].data);
+PASSTHROC printf("%d\n", ZZZ[0].data);
+PASSTHROC printf("%d\n", ZZZZ[0].data);
+PASSTHROC printf("%d\n", ZZZZZ[0].data);
+PASSTHROC printf("%d\n\n\n", ZZZZZZ[0].data);
+
+Z BE 1
+ZZ BE 0
+IF Z
+PASSTHROC printf("FIRST IF\n");
+ELSEIF ZZ
+PASSTHROC printf("FIRST ELSEIF\n");
+ELSE
+PASSTHROC printf("FIRST ELSE\n");
+ENDIF
+
+Z BE 0
+ZZ BE 1
+IF Z
+PASSTHROC printf("2 IF\n");
+ELSEIF ZZ
+PASSTHROC printf("2 ELSEIF\n");
+ELSE
+PASSTHROC printf("2 ELSE\n");
+ENDIF
+
+Z BE 0
+ZZ BE 0
+IF Z
+PASSTHROC printf("3 IF\n");
+ELSEIF ZZ
+PASSTHROC printf("3 ELSEIF\n");
+ELSE
+PASSTHROC printf("3 ELSE\n");
+ENDIF
+
+Z BE 3
+LOOPWHILE Z
+PASSTHROC printf("%d\n", Z[0].data);
+
+Z BE DECREMENT Z
+ENDLOOP
+
+PASSTHROC printf("\n\n");
+
+Z BE 3
+Y BE 3
+LOOPWHILE Z
+PASSTHROC printf("%d\n", Z[0].data);
+PASSTHROC printf("%d\n\n", Y[0].data);
+ZZ BE Y DIVIDE 3
+IF ZZ
+Z BE DECREMENT Z
+Y BE DECREMENT Y
+LOOPAGAIN
+ENDIF
+Z BE DECREMENT Z
+ENDLOOP
+
+Z BE 3
+LOOPWHILE Z
+PASSTHROC printf("%d\n\n\n", Z[0].data);
+EXITLOOP
+ENDLOOP
+
+Z BE 1
+IF Z
+PASSTHROC printf("%d\n\n\n", Z[0].data);
+EXITIF
+PASSTHROC printf("%d\n\n\n", Z[0].data);
+ENDIF
+
+Z BE 1
+LABEL LAB
+PASSTHROC printf("LAB\n");
+IF Z
+Z BE DECREMENT Z
+PASSTHROC printf("GOTO LAB\n");
+
+GOTO LAB
+ENDIF
+
+
+
+PASSTHROC printf("B4 EARLYEND\n");
+EARLYEND
+PASSTHROC printf("AFTER EARLYEND\n");
+
 
 END
-
 /#
 FUNCTION TESTERBEEP
     LET OUT AS 2 SIGNED
@@ -17,7 +272,7 @@ FUNCTION TESTERBEEP
 
 ENDFUNCTION
 #/
-
+/#
 FUNCTION OTHERTHING
 	LET X BE 1
 	LET Y BE 2
@@ -33,4 +288,4 @@ FUNCTION OTHERTHING
 	DECREMENT Z
 
 ENDFUNCTION	
-
+#/

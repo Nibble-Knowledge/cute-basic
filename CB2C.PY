@@ -104,6 +104,8 @@ if __name__ == "__main__":
 				newline += " "
 			output.append(newline)
 			continue
+		
+		
 		elif splitline[0] == "LET":
 			for i in varnames:
 				if len(splitline) > 1 and i == splitline[1]:
@@ -111,33 +113,7 @@ if __name__ == "__main__":
 					quit(1)
 			# The variable name will be the second whitespace delimited field
 			varnames.append(splitline[1])
-			
-			'''
-			newvar = []
-			newvar.append(splitline[1])
-			
-			#default values if not user-specified
-			nibbleCount = 1
-			isSigned = 0
-			
-			# AS - initialisation
-			
-			if "AS" in splitline:
-				ASindex = splitline.index("AS")
-				nibbleCount = int(splitline[ASindex + 1])
-				
-			newvar.append(nibbleCount)
-				
-			if "SIGNED" in splitline:
-				newvar.append("SIGNED")
-			else:
-				newvar.append("UNSIGNED")
-				
-			variables.append(newvar)
-			
-			for(i = 0; i < nibbleCount; i++):
-				output.append("nib " + splitline[1] + "_" + str(i) + ";")
-				'''
+
 				
 			
 			if len(splitline) > 2 and splitline[2] == "AS":
@@ -155,7 +131,9 @@ if __name__ == "__main__":
 			else:
 				output.append("nib *" + splitline[1] + " = malloc(sizeof(nib));")
 				if splitline[2] == "BE":
-					output.append(splitline[1] + "[0].data = " + splitline[3] + ";")					
+					output.append(splitline[1] + "[0].data = " + splitline[3] + ";")
+					
+					
 		#Math, with assignment as the first thing on the line
 		elif ((splitline[0] in varnames) and (splitline[1] == "BE" or splitline[3] == "BE")): 
 			vartypes = ["BINARY", "HEX", "CHAR"]
