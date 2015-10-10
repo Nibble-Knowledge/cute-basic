@@ -333,18 +333,19 @@ def functionProperties(splitline):
 		nextparam = 0
 		temp = ""
 		if len(splitline) > 3 and splitline[2] == "RETURNS":
-			temp += "nibx" + splitline[3] + " " + splitline[1] + "("
+			temp += "nib * " + splitline[1]  + "("
 			nextparam = 4
 		else:
 			temp += "void " + splitline[1] + "("
 			nextparam = 2
-		while len(splitline) >= nextparam + 2:
+		while len(splitline) >= nextparam + 1:
+			#print len(splitline)
 			if splitline[nextparam] != "TAKES" and splitline[nextparam] != "ASWELL":
 				nextparam = nextparam + 1
 				continue
-			temp += "nibx" + splitline[nextparam + 1] + " " + splitline[nextparam + 2]
-			nextparam += 3
-			if len(splitline) >= nextparam + 2:
+			temp += "nib *" + splitline[nextparam + 1] + " " 
+			nextparam += 2
+			if len(splitline) >= nextparam + 1:
 				temp += ","
 		temp2 = temp
 		temp2 += ");"
@@ -414,13 +415,18 @@ def putchar(splitline, linenum):
 #Takes: splitline, current line number
 def functionCall(splitline, linenum):
 	if splitline[0] == "CALL":
+		temp = ""
 		if splitline[1] == "GETCHAR":
 			getchar(splitline, linenum)
 		elif splitline[1] == "PUTCHAR":
 			putchar(splitline, linenum)
-		else:
-			nextparam = 2
-			temp = ""
+		else:	
+			if len(splitline) > 3 and splitline[2] == "RETURNS":
+				temp += splitline[3] + "[0].data = "
+				nextparam = 5
+			else:
+				nextparam = 2
+			
 			temp += splitline[1] + "( "
 			while len(splitline) > nextparam:
 				temp += splitline[nextparam]
