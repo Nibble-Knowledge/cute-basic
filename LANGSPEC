@@ -16,7 +16,7 @@ Literals:
 -Default to decimal
 -CHAR (character) evaluates to ASCII (or UTF-8) binary representation of char - 'A' or '#'
 -0x causes evaluation as hexadecimal - 0x0BADF00D
--b causes evaluation as binary - b00110101
+-0b causes evaluation as binary - 0b00110101
 Literal TRUE => any non-zero variable (written as literal, evaluates to b0001)
 Literal FALSE => zero
 

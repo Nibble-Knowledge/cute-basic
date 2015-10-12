@@ -422,7 +422,7 @@ def functionCall(splitline, linenum):
 			putchar(splitline, linenum)
 		else:	
 			if len(splitline) > 3 and splitline[2] == "RETURNS":
-				temp += splitline[3] + "[0].data = "
+				temp += splitline[3] + " = "
 				nextparam = 5
 			else:
 				nextparam = 2
@@ -436,6 +436,24 @@ def functionCall(splitline, linenum):
 			temp += ");"
 			output.append(temp)
 
+
+#Checks for filein/out or size
+#Takes: splitline, linenum
+def files(splitline, linenum):
+	if splitline[0] in ["FILEIN", "FILEOUT", "FILESIZE"]:
+		var = splitline[1]
+		filename = splitline[2]
+		
+		if splitline[0] == "FILEIN":
+			pass
+		elif splitline[0] == "FILEOUT":
+			pass
+		elif splitline[0] == "FILESIZE":
+			output.append("FILE *file" + str(linenum) + "= fopen(\"" + filename + "\", \"r\");")
+			readlocation = "file" + str(linenum)
+			output.append("fseek("+ readlocation + ", 0L, SEEK_END);")
+			output.append(var + "[0].data = ftell(" + readlocation + ");")
+			output.append(var + "[1].data = ftell(" + readlocation + ") >> 4;")
 
 
 def main():
@@ -515,6 +533,9 @@ def main():
 		
 		#Check for function call
 		functionCall(splitline, linenum)
+		
+		#Check for file I/Os
+		files(splitline,linenum)
 		
 		#Check for NOHEADER
 		if splitline[0] == "NOHEADER":

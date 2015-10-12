@@ -7,7 +7,7 @@ LET B BE 1
 LET C AS 2
 LET D AS 2 BE 2
 LET E
-
+PASSTHROC printf("*********ASSIGNMENT*********\n");
 PASSTHROC printf("%d\n", A[0].data);
 PASSTHROC printf("%d\n", AA[0].data);
 PASSTHROC printf("%d\n", B[0].data);
@@ -21,6 +21,8 @@ AA BE 3
 PASSTHROC printf("%d\n", A[0].data);
 PASSTHROC printf("%d\n\n\n", AA[0].data);
 
+
+PASSTHROC printf("*********UNARY/BINARY*********\n");
 A BE NEGATE A
 B BE INCREMENT B
 AA BE DECREMENT AA
@@ -83,19 +85,21 @@ PASSTHROC printf("%d\n\n\n", ZZ[0].data);
 Y BE COMPLEMENT Y
 PASSTHROC printf("%d\n\n\n", Y[0].data);
 
+
+PASSTHROC printf("*********BINARY BITWISE*********\n");
 LET ZZZ
 LET ZZZZ
 LET ZZZZZ
 LET ZZZZZZ
 
-X BE 0 
+X BE 0
 Y BE 0
 Z BE X AND Y
-Z BE X OR Y
-Z BE X XOR Y
-Z BE X NAND Y
-Z BE X NOR Y
-Z BE X XNOR Y
+ZZ BE X OR Y
+ZZZ BE X XOR Y
+ZZZZ BE X NAND Y
+ZZZZZ BE X NOR Y
+ZZZZZZ BE X XNOR Y
 PASSTHROC printf("%d\n", Z[0].data);
 PASSTHROC printf("%d\n", ZZ[0].data);
 PASSTHROC printf("%d\n", ZZZ[0].data);
@@ -106,11 +110,11 @@ PASSTHROC printf("%d\n\n\n", ZZZZZZ[0].data);
 X BE 0
 Y BE 1
 Z BE X AND Y
-Z BE X OR Y
-Z BE X XOR Y
-Z BE X NAND Y
-Z BE X NOR Y
-Z BE X XNOR Y
+ZZ BE X OR Y
+ZZZ BE X XOR Y
+ZZZZ BE X NAND Y
+ZZZZZ BE X NOR Y
+ZZZZZZ BE X XNOR Y
 PASSTHROC printf("%d\n", Z[0].data);
 PASSTHROC printf("%d\n", ZZ[0].data);
 PASSTHROC printf("%d\n", ZZZ[0].data);
@@ -121,11 +125,11 @@ PASSTHROC printf("%d\n\n\n", ZZZZZZ[0].data);
 X BE 1
 Y BE 0
 Z BE X AND Y
-Z BE X OR Y
-Z BE X XOR Y
-Z BE X NAND Y
-Z BE X NOR Y
-Z BE X XNOR Y
+ZZ BE X OR Y
+ZZZ BE X XOR Y
+ZZZZ BE X NAND Y
+ZZZZZ BE X NOR Y
+ZZZZZZ BE X XNOR Y
 PASSTHROC printf("%d\n", Z[0].data);
 PASSTHROC printf("%d\n", ZZ[0].data);
 PASSTHROC printf("%d\n", ZZZ[0].data);
@@ -136,11 +140,11 @@ PASSTHROC printf("%d\n\n\n", ZZZZZZ[0].data);
 X BE 1
 Y BE 1
 Z BE X AND Y
-Z BE X OR Y
-Z BE X XOR Y
-Z BE X NAND Y
-Z BE X NOR Y
-Z BE X XNOR Y
+ZZ BE X OR Y
+ZZZ BE X XOR Y
+ZZZZ BE X NAND Y
+ZZZZZ BE X NOR Y
+ZZZZZZ BE X XNOR Y
 PASSTHROC printf("%d\n", Z[0].data);
 PASSTHROC printf("%d\n", ZZ[0].data);
 PASSTHROC printf("%d\n", ZZZ[0].data);
@@ -148,12 +152,14 @@ PASSTHROC printf("%d\n", ZZZZ[0].data);
 PASSTHROC printf("%d\n", ZZZZZ[0].data);
 PASSTHROC printf("%d\n\n\n", ZZZZZZ[0].data);
 
-Z BE 5 EQUALS 5
-ZZ BE 5 NOTEQUALS 4
-ZZZ BE 4 GREATER 2
-ZZZZ BE 4 GREATEREQUALS 4
-ZZZZZ BE 2 LESS 4
-ZZZZZZ BE 2 LESSEQUALS 2
+X BE 10
+Y BE 3
+Z BE X AND Y
+ZZ BE X OR Y
+ZZZ BE X XOR Y
+ZZZZ BE X NAND Y
+ZZZZZ BE X NOR Y
+ZZZZZZ BE X XNOR Y
 PASSTHROC printf("%d\n", Z[0].data);
 PASSTHROC printf("%d\n", ZZ[0].data);
 PASSTHROC printf("%d\n", ZZZ[0].data);
@@ -161,12 +167,16 @@ PASSTHROC printf("%d\n", ZZZZ[0].data);
 PASSTHROC printf("%d\n", ZZZZZ[0].data);
 PASSTHROC printf("%d\n\n\n", ZZZZZZ[0].data);
 
-Z BE 5 EQUALS 4
-ZZ BE 5 NOTEQUALS 5
-ZZZ BE 4 GREATER 6
-ZZZZ BE 4 GREATEREQUALS 6
-ZZZZZ BE 5 LESS 4
-ZZZZZZ BE 5 LESSEQUALS 2
+
+PASSTHROC printf("*********COMPARITORS*********\n");
+X BE 0
+Y BE 0
+Z BE X EQUALS Y
+ZZ BE X NOTEQUALS Y
+ZZZ BE X GREATER Y
+ZZZZ BE X GREATEREQUALS Y
+ZZZZZ BE X LESS Y
+ZZZZZZ BE X LESSEQUALS Y
 PASSTHROC printf("%d\n", Z[0].data);
 PASSTHROC printf("%d\n", ZZ[0].data);
 PASSTHROC printf("%d\n", ZZZ[0].data);
@@ -174,14 +184,46 @@ PASSTHROC printf("%d\n", ZZZZ[0].data);
 PASSTHROC printf("%d\n", ZZZZZ[0].data);
 PASSTHROC printf("%d\n\n\n", ZZZZZZ[0].data);
 
+X BE 0
+Y BE 1
+Z BE X EQUALS Y
+ZZ BE X NOTEQUALS Y
+ZZZ BE X GREATER Y
+ZZZZ BE X GREATEREQUALS Y
+ZZZZZ BE X LESS Y
+ZZZZZZ BE X LESSEQUALS Y
+PASSTHROC printf("%d\n", Z[0].data);
+PASSTHROC printf("%d\n", ZZ[0].data);
+PASSTHROC printf("%d\n", ZZZ[0].data);
+PASSTHROC printf("%d\n", ZZZZ[0].data);
+PASSTHROC printf("%d\n", ZZZZZ[0].data);
+PASSTHROC printf("%d\n\n\n", ZZZZZZ[0].data);
+
+X BE 1
+Y BE 0
+Z BE X EQUALS Y
+ZZ BE X NOTEQUALS Y
+ZZZ BE X GREATER Y
+ZZZZ BE X GREATEREQUALS Y
+ZZZZZ BE X LESS Y
+ZZZZZZ BE X LESSEQUALS Y
+PASSTHROC printf("%d\n", Z[0].data);
+PASSTHROC printf("%d\n", ZZ[0].data);
+PASSTHROC printf("%d\n", ZZZ[0].data);
+PASSTHROC printf("%d\n", ZZZZ[0].data);
+PASSTHROC printf("%d\n", ZZZZZ[0].data);
+PASSTHROC printf("%d\n\n\n", ZZZZZZ[0].data);
+
+
+PASSTHROC printf("*********CONDITIONALS*********\n");
 Z BE 1
 ZZ BE 0
 IF Z
-PASSTHROC printf("FIRST IF\n");
+PASSTHROC printf("1 IF\n");
 ELSEIF ZZ
-PASSTHROC printf("FIRST ELSEIF\n");
+PASSTHROC printf("1 ELSEIF\n");
 ELSE
-PASSTHROC printf("FIRST ELSE\n");
+PASSTHROC printf("1 ELSE\n");
 ENDIF
 
 Z BE 0
@@ -201,13 +243,12 @@ PASSTHROC printf("3 IF\n");
 ELSEIF ZZ
 PASSTHROC printf("3 ELSEIF\n");
 ELSE
-PASSTHROC printf("3 ELSE\n");
+PASSTHROC printf("3 ELSE\n\n\n");
 ENDIF
 
 Z BE 3
 LOOPWHILE Z
 PASSTHROC printf("%d\n", Z[0].data);
-
 Z BE DECREMENT Z
 ENDLOOP
 
@@ -227,6 +268,8 @@ ENDIF
 Z BE DECREMENT Z
 ENDLOOP
 
+PASSTHROC printf("\n");
+
 Z BE 3
 LOOPWHILE Z
 PASSTHROC printf("%d\n\n\n", Z[0].data);
@@ -237,9 +280,10 @@ Z BE 1
 IF Z
 PASSTHROC printf("%d\n\n\n", Z[0].data);
 EXITIF
-PASSTHROC printf("%d\n\n\n", Z[0].data);
+PASSTHROC printf("PASSTHROC FAILED\n\n\n");
 ENDIF
 
+PASSTHROC printf("********GOTO/LABELS*********\n");
 Z BE 1
 LABEL LAB
 PASSTHROC printf("LAB\n");
@@ -250,6 +294,7 @@ PASSTHROC printf("GOTO LAB\n");
 GOTO LAB
 ENDIF
 
+PASSTHROC printf("*********FUNCTIONS*********\n");
 PASSTHROC printf("B4 FUNC1\n");
 CALL F1
 PASSTHROC printf("AFTER FUNC1\n\n\n");
@@ -260,23 +305,51 @@ PASSTHROC printf("AFTER NESTED FUNC\n\n\n");
 
 Z BE 3
 CALL FTAKES Z
-PASSTHROC printf("%d\n\n\n", Z[0].data);
+PASSTHROC printf("%d should be 3\n\n\n", Z[0].data);
 
 ZZ BE 1
 CALL FTAKES2 Z ASWELL ZZ ASWELL ZZZ
-PASSTHROC printf("%d\n\n\n", ZZ[0].data);
+PASSTHROC printf("%d should be 1\n\n\n", ZZ[0].data);
 
 CALL R RETURNS Z
-PASSTHROC printf("%d\n\n\n", Z[0].data);
+PASSTHROC printf("%d should be 5\n\n\n", Z[0].data);
 
+Z BE 2
+ZZ BE 1
 CALL R2 RETURNS Z TAKES Z ASWELL ZZ
-PASSTHROC printf("%d\n\n\n", Z[0].data);
+PASSTHROC printf("%d should be 1\n", ZZ[0].data);
+PASSTHROC printf("%d should be 2\n\n\n", Z[0].data);
 
-CALL TESTERBEEP
+#CALL TESTERBEEP
+
+PASSTHROC printf("*********FILES*********\n");
+LET F AS 2
+FILESIZE F FILETEST.1
+PASSTHROC printf("%lu\n", ftell(file166));
+
+PASSTHROC printf("%d\n", F[0].data);
+PASSTHROC printf("%d\n\n\n", F[1].data);
+
+
+PASSTHROC printf("*********DAFUQ*********\n");
+/#This doesnt seem right to me...
+Shouldnt it being as 1 mean i can only assign 1 thing to it?
+#/
+
+LET P AS 1
+PASSTHROC printf("%d\n", P[0].data);
+PASSTHROC printf("%d\n\n\n", P[1].data);
+PASSTHROC printf("%d\n", P[3].data);
+PASSTHROC P[4].data = 12;
+PASSTHROC printf("%d\n\n\n", P[4].data);
+PASSTHROC P[8].data = 12;
+PASSTHROC printf("%d\n\n\n", P[8].data);
+
+
 
 PASSTHROC printf("B4 EARLYEND\n");
 EARLYEND
-PASSTHROC printf("AFTER EARLYEND\n");
+PASSTHROC printf("EARLYEND FAILED\n");
 
 
 END
@@ -298,7 +371,6 @@ PASSTHROC printf("IN FUNC3\n");
 ENDFUNCTION
 
 FUNCTION FTAKES TAKES Z 
-#LET Y
 PASSTHROC printf("%d\n", Z[0].data);
 Z BE 1
 PASSTHROC printf("%d\n", Z[0].data);
@@ -311,11 +383,13 @@ ENDFUNCTION
 
 FUNCTION R RETURNS Z
 LET G BE 5
+PASSTHROC printf("%d\n", G[0].data);
 RETURN G
 ENDFUNCTION
 
 FUNCTION R2 RETURNS Z TAKES Z ASWELL ZZ
-PASSTHROC printf("%d\n\n\n", ZZ[0].data);
+ZZ BE 9
+PASSTHROC printf("%d\n", ZZ[0].data);
 RETURN Z
 ENDFUNCTION
 
