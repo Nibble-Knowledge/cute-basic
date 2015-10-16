@@ -160,10 +160,24 @@ I/O:
 
 NOHEADER: Remove CUTE BASIC header output
 
+FILESIZE (variable) (file name): Get the size of (file name) and store it in (variable)
+
+//ATs still needs work
+CALL GETCHAR (variable) [AT (nib index)] (file name or STDIN) [AT (index)] [FOR #]: Gets a character from file or STDIN(keyboard) for # chars 
+CALL PUTCHAR (variable) [AT (nib index)] (file name or STDOUT) [AT (index)] [FOR #]: Writes a character to file or STDOUT(screen) for # chars   
+GETCHAR and PUTCHAR use nib indexes of 0 and number of 1 by default
+GETCHAR returns FF as the cahracter if the file is ended
+IMPORTANT: When using GETCHAR for stdin it counts each "enter" as a newline char (including "enters" from previous input values)
+If you try to FOR X in PUTCHAR where X is grater than the number of chars you have stored it breaks the file
+
+#:  Single line comment indicator
+/#: Start of multi line comment
+#/: End of multi line comment
+
+
+Not Completed (Maybe redundent because of GETCHAR/PUTCHAR)
 /*PRINT (size in nibbles) (variable type) (variable): Print (variable) of size (size in nibbles) and type (variable type)
 PRINT (size in nibbles) (variable type) (immmediate variable type) (immmediate): print immediate value of value (immmediate) of type (immmediate variable type) of size (size in nibbles) and type (variable type)
-
-GETKEY (variable): Get a character from the keyboard and store it in (variable)
 
 FILEIN (variable) (file name): Read character from file into variable
 FILEIN (variable) (file name) AT (offset variable): Read character at offset (offset variable) into (variable) form (file name)
@@ -174,12 +188,3 @@ FILEOUT (variable) (file name) AT (offset variable): Write (variable) at offset 
 FILEOUT (type) (value) (file name) AT (offset variable): Write (value) of (type) at offset (value) to (file name)
 FILEOUT (variable) (file name) AT (offset value): Write (variable) at offset (offset value) to (file name)
 FILEOUT (type) (value) (file name) AT (offset value): Write (value) of (type) at offset (offset value) to (file name)
-
-FILESIZE (variable) (file name): Get the size of (file name) and store it in (variable)*/
-
-CALL GETCHAR (variable) [AT (nib index)] (file name or STDIN) [AT (index)]: Gets a character from file or STDIN(keyboard)  
-CALL PUTCHAR (variable) [AT (nib index)] (file name or STDOUT) [AT (index)]: Writes a character to file or STDOUT(screen)    
-
-#:  Single line comment indicator
-/#: Start of multi line comment
-#/: End of multi line comment

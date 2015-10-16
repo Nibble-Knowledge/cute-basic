@@ -364,6 +364,8 @@ def functionProperties(splitline):
 def getchar(splitline, linenum):
 	#assume we're starting at index 0, unless told otherwise
 	startindex = 0
+	secondindex = 0
+	fornum = 1
 	readlocation = "stdin"
 	
 	#this is how they can tell us otherwise
@@ -371,16 +373,43 @@ def getchar(splitline, linenum):
 		startindex = splitline[4]
 		splitline.remove(splitline[3])
 		splitline.remove(splitline[3])
-	if len(splitline) > 3:
+	
+	#find the second index if available	
+	if len(splitline) > 4 and splitline[4] == "AT":
+		startindex = splitline[5]
+		splitline.remove(splitline[4])
+		splitline.remove(splitline[4])
+		
+	#Check how many chars we should read in
+	if len(splitline) > 5 and splitline[4] == "FOR":
+		fornum = int(splitline[5])
+		splitline.remove(splitline[4])
+		splitline.remove(splitline[4])
+
+	elif len(splitline) > 4 and splitline[3] == "FOR":
+		fornum = int(splitline[4])
+		splitline.remove(splitline[3])
+		splitline.remove(splitline[3])
+
+		
+	if len(splitline) > 3 and splitline[3]:
 		readlocation = splitline[3]
 		
 	#output.append(splitline[1] + ".extdata[0] = getchar();")
 	if readlocation != "stdin":
 		output.append("FILE *file" + str(linenum) + "= fopen(\"" + readlocation + "\", \"r\");")
 		readlocation = "file" + str(linenum)
-	output.append("char tempc" + str(linenum) + " = getc(" + readlocation + ");")
-	output.append(splitline[2] + "[" + str(startindex) + "].data = tempc" + str(linenum) + ";")
-	output.append(splitline[2] + "[" + str(int(startindex) + 1) + "].data = tempc" + str(linenum) + " >> 4;")
+	
+	output.append("char tempc" + str(linenum)+ "[" + str(fornum) + "]; ")#= getc(" + readlocation + ");")
+	
+	counter = 0	
+	while(counter < fornum):	
+		output.append("tempc" + str(linenum) + "[" + str(counter) + "] = getc(" + readlocation + ");")
+		output.append(splitline[2] + "[" + str(startindex) + "].data = tempc" + str(linenum) + "[" + str(counter) + "]" + ";")
+		output.append(splitline[2] + "[" + str(int(startindex) + 1) + "].data = tempc" + str(linenum) + "[" + str(counter) + "]" + " >> 4;")
+		counter = counter + 1
+		startindex = startindex + 2
+	
 	if readlocation != "stdin":
 		output.append("fclose(file" + str(linenum) + ");")	
 	
@@ -390,6 +419,8 @@ def getchar(splitline, linenum):
 def putchar(splitline, linenum):	
 	#assume we're starting at index 0, unless told otherwise
 	startindex = 0
+	secondindex = 0
+	fornum = 1
 	writelocation = "stdout"
 	
 	#this is how they can tell us otherwise
@@ -397,16 +428,44 @@ def putchar(splitline, linenum):
 		startindex = splitline[4]
 		splitline.remove(splitline[3])
 		splitline.remove(splitline[3])
+		
+	#find the second index if available	
+	if len(splitline) > 4 and splitline[4] == "AT":
+		startindex = splitline[5]
+		splitline.remove(splitline[4])
+		splitline.remove(splitline[4])
+		
+	#Check how many chars we should read in
+	if len(splitline) > 5 and splitline[4] == "FOR":
+		fornum = int(splitline[5])
+		splitline.remove(splitline[4])
+		splitline.remove(splitline[4])
+
+	elif len(splitline) > 4 and splitline[3] == "FOR":
+		fornum = int(splitline[4])
+		splitline.remove(splitline[3])
+		splitline.remove(splitline[3])
+		
 	if len(splitline) > 3:
 		writelocation = splitline[3]
 	
-	output.append("char ch" + str(linenum) + " = 0;")
-	output.append("ch" + str(linenum) + " = (ch" + str(linenum) + " & 0xF0) | (" + str(splitline[2]) + "[" + str(startindex) + "].data & 0xF);")
-	output.append("ch" + str(linenum) + " = (ch" + str(linenum) + " & 0x0F) | ((" + str(splitline[2]) + "[" + str(int(startindex) + 1) + "].data & 0xF) << 4);")
 	if writelocation != "stdout":
 		output.append("FILE *file" + str(linenum) + "= fopen(\"" + writelocation + "\", \"a\");")
 		writelocation = "file" + str(linenum)
-	output.append("putc(ch" + str(linenum) + ", " + writelocation + ");")
+
+	counter = 0
+	output.append("char ch" + str(linenum) + " = 0;")
+	
+	while(counter < fornum):
+		output.append("ch" + str(linenum) + " = 0;")
+		output.append("ch" + str(linenum) + " = (ch" + str(linenum) + " & 0xF0) | (" + str(splitline[2]) + "[" + str(startindex) + "].data & 0xF);")
+		output.append("ch" + str(linenum) + " = (ch" + str(linenum) + " & 0x0F) | ((" + str(splitline[2]) + "[" + str(int(startindex) + 1) + "].data & 0xF) << 4);")
+	
+		output.append("putc(ch" + str(linenum) + ", " + writelocation + ");")
+		
+		counter = counter + 1
+		startindex = startindex + 2
+	
 	if writelocation != "stdout":				
 		output.append("fclose(file" + str(linenum) + ");")
 		
@@ -446,8 +505,11 @@ def files(splitline, linenum):
 		
 		if splitline[0] == "FILEIN":
 			pass
+			
 		elif splitline[0] == "FILEOUT":
 			pass
+		
+		#Checks for the size of a file in bits (Needs two nibbles to store value)
 		elif splitline[0] == "FILESIZE":
 			output.append("FILE *file" + str(linenum) + "= fopen(\"" + filename + "\", \"r\");")
 			readlocation = "file" + str(linenum)

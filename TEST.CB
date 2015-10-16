@@ -320,16 +320,19 @@ CALL R2 RETURNS Z TAKES Z ASWELL ZZ
 PASSTHROC printf("%d should be 1\n", ZZ[0].data);
 PASSTHROC printf("%d should be 2\n\n\n", Z[0].data);
 
-#CALL TESTERBEEP
+
+
+
+PASSTHROC printf("*********TEST I/O*********\n");
+CALL TESTREADWRITE
+
+CALL TESTERBEEP
 
 PASSTHROC printf("*********FILES*********\n");
 LET F AS 2
-FILESIZE F FILETEST.1
-PASSTHROC printf("%lu\n", ftell(file166));
-
+FILESIZE F FILETEST
 PASSTHROC printf("%d\n", F[0].data);
 PASSTHROC printf("%d\n\n\n", F[1].data);
-
 
 PASSTHROC printf("*********DAFUQ*********\n");
 /#This doesnt seem right to me...
@@ -337,6 +340,7 @@ Shouldnt it being as 1 mean i can only assign 1 thing to it?
 #/
 
 LET P AS 1
+
 PASSTHROC printf("%d\n", P[0].data);
 PASSTHROC printf("%d\n\n\n", P[1].data);
 PASSTHROC printf("%d\n", P[3].data);
@@ -344,7 +348,6 @@ PASSTHROC P[4].data = 12;
 PASSTHROC printf("%d\n\n\n", P[4].data);
 PASSTHROC P[8].data = 12;
 PASSTHROC printf("%d\n\n\n", P[8].data);
-
 
 
 PASSTHROC printf("B4 EARLYEND\n");
@@ -393,16 +396,42 @@ PASSTHROC printf("%d\n", ZZ[0].data);
 RETURN Z
 ENDFUNCTION
 
-
 FUNCTION TESTERBEEP
     LET OUT AS 2 SIGNED
     LET IN AS 2 SIGNED
+    LET NEW AS 10 SIGNED
 
 	#PASSTHROC puts("derp");
     CALL GETCHAR OUT
 	CALL PUTCHAR OUT FILETEST
-	CALL GETCHAR IN FILETEST
-	CALL PUTCHAR IN
 
+	CALL GETCHAR IN FILETEST.1 FOR 7
+	CALL PUTCHAR IN
+	
+	#Print first 5 chars to FILETEST.2
+	CALL PUTCHAR IN FILETEST.2 FOR 5
+
+	PASSTHROC printf("\n");
+	CALL GETCHAR NEW FOR 5
+	CALL PUTCHAR NEW FOR 5
+	PASSTHROC printf("\n");
+
+	PASSTHROC int cntr = 0;
+	PASSTHROC while(cntr < 10){
+	PASSTHROC printf("\n%d\n", NEW[cntr].data);
+	PASSTHROC printf("%d\n", NEW[cntr+1].data);
+	PASSTHROC cntr = cntr + 2;
+	PASSTHROC }
+
+
+ENDFUNCTION
+
+FUNCTION TESTREADWRITE
+	LET TEST AS 20
+	
+	#Causes error if >=13
+	CALL GETCHAR TEST FILETEST FOR 12
+	CALL PUTCHAR TEST FOR 12
+	
 ENDFUNCTION
 
