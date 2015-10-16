@@ -427,11 +427,14 @@ FUNCTION TESTERBEEP
 ENDFUNCTION
 
 FUNCTION TESTREADWRITE
-	LET TEST AS 20
+	LET TEST AS 40
 	
 	#Causes error if >=13
-	CALL GETCHAR TEST FILETEST FOR 12
-	CALL PUTCHAR TEST FOR 12
-	
+	#CALL GETCHAR is the line that kills it 
+	#Changed size of test to 40 and now it seems to be working
+	#I may just be dumb and tried to add to many values for the size of 20...
+	CALL GETCHAR TEST FILETEST FOR 18
+	CALL PUTCHAR TEST FOR 18
+	PASSTHROC printf("\n");
 ENDFUNCTION
 
