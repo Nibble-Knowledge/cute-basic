@@ -370,13 +370,13 @@ def getchar(splitline, linenum):
 	
 	#this is how they can tell us otherwise
 	if len(splitline) > 3 and splitline[3] == "AT":
-		startindex = splitline[4]
+		startindex = int(splitline[4])
 		splitline.remove(splitline[3])
 		splitline.remove(splitline[3])
 	
-	#find the second index if available	
+	#find the index of where to start to read from the file
 	if len(splitline) > 4 and splitline[4] == "AT":
-		startindex = splitline[5]
+		secondindex = int(splitline[5])
 		splitline.remove(splitline[4])
 		splitline.remove(splitline[4])
 		
@@ -403,6 +403,11 @@ def getchar(splitline, linenum):
 	output.append("char tempc" + str(linenum)+ "[" + str(fornum) + "]; ")#= getc(" + readlocation + ");")
 	
 	counter = 0	
+	
+	#Check which index to begin reading from file
+	if secondindex != 0:
+		output.append("fseek( " + readlocation + ", " + str(secondindex) + ", SEEK_SET );")
+	
 	while(counter < fornum):	
 		output.append("tempc" + str(linenum) + "[" + str(counter) + "] = getc(" + readlocation + ");")
 		output.append(splitline[2] + "[" + str(startindex) + "].data = tempc" + str(linenum) + "[" + str(counter) + "]" + ";")
@@ -425,13 +430,13 @@ def putchar(splitline, linenum):
 	
 	#this is how they can tell us otherwise
 	if len(splitline) > 3 and splitline[3] == "AT":
-		startindex = splitline[4]
+		startindex = int(splitline[4])
 		splitline.remove(splitline[3])
 		splitline.remove(splitline[3])
 		
 	#find the second index if available	
 	if len(splitline) > 4 and splitline[4] == "AT":
-		startindex = splitline[5]
+		secondindex = int(splitline[5])
 		splitline.remove(splitline[4])
 		splitline.remove(splitline[4])
 		
@@ -449,12 +454,25 @@ def putchar(splitline, linenum):
 	if len(splitline) > 3:
 		writelocation = splitline[3]
 	
+	#	buffer1 = 0
+	#if secondindex != 0:
+	#	#output.append("fseek( " + writelocation + ", " + str(secondindex) + ", SEEK_SET );")
+	#	buffer1 = 1
+	#	output.append("FILE *fileRead= fopen(\"" + writelocation + "\", \"r\");")
+	#	fname = "fileRead"
+	#	output.append("fseek("+ fname + ", 0L, SEEK_END);")
+	#	output.append("long size = ftell(" + fname + ");")
+	#	output.append("char * buffer = (char*) malloc (sizeof(char)*size);")
+	#	output.append("fread (buffer,1,size," + fname + ");")
+	#	output.append("fclose(fileRead);")
+	
 	if writelocation != "stdout":
 		output.append("FILE *file" + str(linenum) + "= fopen(\"" + writelocation + "\", \"a\");")
 		writelocation = "file" + str(linenum)
 
 	counter = 0
 	output.append("char ch" + str(linenum) + " = 0;")
+	
 	
 	while(counter < fornum):
 		output.append("ch" + str(linenum) + " = 0;")
