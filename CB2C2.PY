@@ -454,21 +454,23 @@ def putchar(splitline, linenum):
 	if len(splitline) > 3:
 		writelocation = splitline[3]
 	
-	#	buffer1 = 0
-	#if secondindex != 0:
-	#	#output.append("fseek( " + writelocation + ", " + str(secondindex) + ", SEEK_SET );")
-	#	buffer1 = 1
-	#	output.append("FILE *fileRead= fopen(\"" + writelocation + "\", \"r\");")
-	#	fname = "fileRead"
-	#	output.append("fseek("+ fname + ", 0L, SEEK_END);")
-	#	output.append("long size = ftell(" + fname + ");")
-	#	output.append("char * buffer = (char*) malloc (sizeof(char)*size);")
-	#	output.append("fread (buffer,1,size," + fname + ");")
-	#	output.append("fclose(fileRead);")
+
 	
 	if writelocation != "stdout":
-		output.append("FILE *file" + str(linenum) + "= fopen(\"" + writelocation + "\", \"a\");")
-		writelocation = "file" + str(linenum)
+		buffer1 = 0
+		if secondindex != 0:
+			#output.append("fseek( " + writelocation + ", " + str(secondindex) + ", SEEK_SET );")
+			buffer1 = 1
+			output.append("FILE *file" + str(linenum) + "= fopen(\"" + writelocation + "\", \"r+\");")
+			writelocation = "file" + str(linenum)
+			output.append("fseek("+ writelocation + ", "+ str(secondindex) +", SEEK_SET);")
+			#output.append("long size = ftell(" + writelocation + ");")
+			#output.append("char * buffer = (char*) malloc (sizeof(char)*size);")
+			#output.append("fread (buffer,1,size," + writelocation + ");")
+			#output.append("printf(\"%ld\\n\", size);")
+		if buffer1 == 0:
+			output.append("FILE *file" + str(linenum) + "= fopen(\"" + writelocation + "\", \"a\");")
+			writelocation = "file" + str(linenum)
 
 	counter = 0
 	output.append("char ch" + str(linenum) + " = 0;")
@@ -484,7 +486,10 @@ def putchar(splitline, linenum):
 		counter = counter + 1
 		startindex = startindex + 2
 	
-	if writelocation != "stdout":				
+	if writelocation != "stdout":		
+		#if buffer1 == 1:
+		#	output.append("fwrite(buffer, sizeof(char), sizeof(buffer), "+ writelocation +");")
+		#	output.append("free(buffer);")
 		output.append("fclose(file" + str(linenum) + ");")
 		
 
