@@ -337,7 +337,9 @@ PASSTHROC printf("%d\n", F[0].data);
 PASSTHROC printf("%d\n\n\n", F[1].data);
 
 PASSTHROC printf("*********GETC/PUTC AT TEST*********\n");
-CALL GETAT
+#CALL GETAT
+#CALL VARAT
+CALL FILEIO
 
 PASSTHROC printf("*********DAFUQ*********\n");
 /#This doesnt seem right to me...
@@ -449,9 +451,98 @@ FUNCTION GETAT
 	PASSTHROC printf("\n");
 	
 	LET REC AS 10
-	CALL GETCHAR REC FOR 5
+	CALL GETCHAR REC FILETEST FOR 5
 	CALL PUTCHAR REC FILETEST.3 AT 2 FOR 5
-	
 ENDFUNCTION
 
+FUNCTION VARAT
+	LET VAR AS 6
+	CALL GETCHAR VAR AT 2 
+	CALL PUTCHAR VAR AT 2
 
+	PASSTHROC printf("\n");
+	
+	PASSTHROC int cntr = 0;
+	PASSTHROC while(cntr < 6){
+	PASSTHROC printf("\n%d\n", VAR[cntr].data);
+	PASSTHROC printf("%d\n", VAR[cntr+1].data);
+	PASSTHROC cntr = cntr + 2;
+	PASSTHROC }	
+ENDFUNCTION
+
+#test all of the file io options available
+FUNCTION FILEIO
+	LET IO AS 10
+	LET IO2 AS 10
+	LET SZ AS 2
+	
+	FILESIZE SZ FILETEST
+	
+	CALL GETCHAR IO FILETEST
+	CALL PUTCHAR IO
+	PASSTHROC printf("\n");
+	PASSTHROC printf("%d\n", IO[0].data);
+	PASSTHROC printf("%d\n", IO[1].data);
+	PASSTHROC printf("\n");
+	
+	CALL GETCHAR IO AT 2 FILETEST
+	CALL PUTCHAR IO AT 2
+	PASSTHROC printf("\n");
+	PASSTHROC printf("%d\n", IO[2].data);
+	PASSTHROC printf("%d\n", IO[3].data);
+	PASSTHROC printf("\n");
+	
+	CALL PUTCHAR IO NEWFILE
+	CALL GETCHAR IO2 NEWFILE
+	PASSTHROC printf("\n");
+	PASSTHROC printf("%d\n", IO2[0].data);
+	PASSTHROC printf("%d\n", IO2[1].data);
+	PASSTHROC printf("\n");
+	
+	CALL GETCHAR IO FILETEST FOR 3
+	CALL PUTCHAR IO FOR 3
+	PASSTHROC printf("\n");
+	PASSTHROC printf("%d\n", IO[0].data);
+	PASSTHROC printf("%d\n", IO[1].data);
+	PASSTHROC printf("%d\n", IO[2].data);
+	PASSTHROC printf("%d\n", IO[3].data);
+	PASSTHROC printf("%d\n", IO[4].data);
+	PASSTHROC printf("%d\n", IO[5].data);
+	PASSTHROC printf("\n");
+	
+	CALL PUTCHAR IO AT 2 NEWFILE
+	CALL GETCHAR IO2 AT 2 NEWFILE
+	PASSTHROC printf("\n");
+	PASSTHROC printf("%d\n", IO2[2].data);
+	PASSTHROC printf("%d\n", IO2[3].data);
+	PASSTHROC printf("\n");
+	
+	CALL PUTCHAR IO NEWFILE AT 2
+	CALL GETCHAR IO NEWFILE AT 2
+	PASSTHROC printf("\n");
+	PASSTHROC printf("%d\n", IO[0].data);
+	PASSTHROC printf("%d\n", IO[1].data);
+	PASSTHROC printf("\n");
+	
+	CALL PUTCHAR IO AT 2 NEWFILE AT 2 FOR 2
+	CALL GETCHAR IO2 AT 3 FILETEST AT 3 FOR 3
+	PASSTHROC printf("\n");
+	PASSTHROC printf("%d\n", IO2[6].data);
+	PASSTHROC printf("%d\n", IO2[7].data);
+	PASSTHROC printf("%d\n", IO2[8].data);
+	PASSTHROC printf("%d\n", IO2[9].data);
+	PASSTHROC printf("%d\n", IO2[10].data);
+	PASSTHROC printf("%d\n", IO2[11].data);
+	PASSTHROC printf("\n");
+	
+	CALL GETCHAR IO2 FILETEST AT 3 FOR 3
+	PASSTHROC printf("\n");
+	PASSTHROC printf("%d\n", IO2[0].data);
+	PASSTHROC printf("%d\n", IO2[1].data);
+	PASSTHROC printf("%d\n", IO2[2].data);
+	PASSTHROC printf("%d\n", IO2[3].data);
+	PASSTHROC printf("%d\n", IO2[4].data);
+	PASSTHROC printf("%d\n", IO2[5].data);
+	PASSTHROC printf("\n");
+
+ENDFUNCTION

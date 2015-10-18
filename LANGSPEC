@@ -163,8 +163,8 @@ NOHEADER: Remove CUTE BASIC header output
 FILESIZE (variable) (file name): Get the size of (file name) and store it in (variable)
 
 //ATs still needs work
-CALL GETCHAR (variable) [AT (nib index)] (file name or STDIN) [AT (index)] [FOR #]: Gets a character from file or STDIN(keyboard) for # chars 
-CALL PUTCHAR (variable) [AT (nib index)] (file name or STDOUT) [AT (index)] [FOR #]: Writes a character to file or STDOUT(screen) for # chars   
+CALL GETCHAR (variable) [AT (index)] (file name or STDIN if blank) [AT (index)] [FOR #]: Gets a character from file or STDIN(keyboard) for # chars 
+CALL PUTCHAR (variable) [AT (index)] (file name or STDOUT if blank) [AT (index)] [FOR #]: Writes a character to file or STDOUT(screen) for # chars   
 GETCHAR and PUTCHAR use nib indexes of 0 and number of 1 by default
 GETCHAR returns FF as the cahracter if the file is ended
 IMPORTANT:

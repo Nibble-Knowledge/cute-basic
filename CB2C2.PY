@@ -370,7 +370,7 @@ def getchar(splitline, linenum):
 	
 	#this is how they can tell us otherwise
 	if len(splitline) > 3 and splitline[3] == "AT":
-		startindex = int(splitline[4])
+		startindex = int(splitline[4]) * 2
 		splitline.remove(splitline[3])
 		splitline.remove(splitline[3])
 	
@@ -430,7 +430,7 @@ def putchar(splitline, linenum):
 	
 	#this is how they can tell us otherwise
 	if len(splitline) > 3 and splitline[3] == "AT":
-		startindex = int(splitline[4])
+		startindex = int(splitline[4]) * 2
 		splitline.remove(splitline[3])
 		splitline.remove(splitline[3])
 		
@@ -466,14 +466,14 @@ def putchar(splitline, linenum):
 			writelocation = "file" + str(linenum)
 			#output.append("fseek("+ writelocation + ", "+ str(secondindex) +", SEEK_SET);") This performs overwrite if you comment out rest of block below here
 			output.append("fseek("+ writelocation + ", 0, SEEK_END);")
-			output.append("long size = ftell(" + writelocation + ");")
+			output.append("long size"+str(linenum)+" = ftell(" + writelocation + ");")
 			output.append("fseek("+ writelocation + ", 0, SEEK_SET);")
-			output.append("char * buffer = (char*) malloc (sizeof(char)*size);")
-			output.append("fread (buffer,sizeof(char),size," + writelocation + ");")
+			output.append("char * buffer"+str(linenum)+" = (char*) malloc (sizeof(char)*size"+str(linenum)+");")
+			output.append("fread (buffer"+str(linenum)+",sizeof(char),size"+str(linenum)+"," + writelocation + ");")
 			output.append("freopen(\"" + filename + "\", \"w\", file" + str(linenum) + ");")
-			output.append("fwrite(buffer, sizeof(char),"+ str(secondindex) +","+ writelocation +" );")
-			output.append("printf(\"%ld\\n\", size);")
-			output.append("printf(\"%s\\n\", buffer);")
+			output.append("fwrite(buffer"+str(linenum)+", sizeof(char),"+ str(secondindex) +","+ writelocation +" );")
+			#output.append("printf(\"%ld\\n\", size);")
+			#output.append("printf(\"%s\\n\", buffer);")
 			
 		if buffer1 == 0:
 			output.append("FILE *file" + str(linenum) + "= fopen(\"" + writelocation + "\", \"a\");")
@@ -495,9 +495,9 @@ def putchar(splitline, linenum):
 	
 	if writelocation != "stdout":		
 		if buffer1 == 1:
-			output.append("fwrite(buffer+"+str(secondindex)+", sizeof(char), size-"+str(secondindex)+", "+ writelocation +");")
+			output.append("fwrite(buffer"+str(linenum)+"+"+str(secondindex)+", sizeof(char), size"+str(linenum)+"-"+str(secondindex)+", "+ writelocation +");")
 			#output.append("fwrite(buffer+"+str(secondindex)+", sizeof(char), sizeof(buffer)-"+str(secondindex)+", "+ writelocation +");")
-			output.append("free(buffer);")
+			output.append("free(buffer"+str(linenum)+");")
 		output.append("fclose(file" + str(linenum) + ");")
 	
 #Checks for and performs function calls
