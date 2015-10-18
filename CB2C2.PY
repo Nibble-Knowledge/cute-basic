@@ -458,16 +458,23 @@ def putchar(splitline, linenum):
 	
 	if writelocation != "stdout":
 		buffer1 = 0
+		#If the user wants to putc chars into the middle of the file - get length of file, save current file in buffer, print buffer into file up to index, putc, then put rest of buffer into file
 		if secondindex != 0:
-			#output.append("fseek( " + writelocation + ", " + str(secondindex) + ", SEEK_SET );")
 			buffer1 = 1
 			output.append("FILE *file" + str(linenum) + "= fopen(\"" + writelocation + "\", \"r+\");")
+			filename = writelocation
 			writelocation = "file" + str(linenum)
-			output.append("fseek("+ writelocation + ", "+ str(secondindex) +", SEEK_SET);")
-			#output.append("long size = ftell(" + writelocation + ");")
-			#output.append("char * buffer = (char*) malloc (sizeof(char)*size);")
-			#output.append("fread (buffer,1,size," + writelocation + ");")
-			#output.append("printf(\"%ld\\n\", size);")
+			#output.append("fseek("+ writelocation + ", "+ str(secondindex) +", SEEK_SET);") This performs overwrite if you comment out rest of block below here
+			output.append("fseek("+ writelocation + ", 0, SEEK_END);")
+			output.append("long size = ftell(" + writelocation + ");")
+			output.append("fseek("+ writelocation + ", 0, SEEK_SET);")
+			output.append("char * buffer = (char*) malloc (sizeof(char)*size);")
+			output.append("fread (buffer,sizeof(char),size," + writelocation + ");")
+			output.append("freopen(\"" + filename + "\", \"w\", file" + str(linenum) + ");")
+			output.append("fwrite(buffer, sizeof(char),"+ str(secondindex) +","+ writelocation +" );")
+			output.append("printf(\"%ld\\n\", size);")
+			output.append("printf(\"%s\\n\", buffer);")
+			
 		if buffer1 == 0:
 			output.append("FILE *file" + str(linenum) + "= fopen(\"" + writelocation + "\", \"a\");")
 			writelocation = "file" + str(linenum)
@@ -487,12 +494,12 @@ def putchar(splitline, linenum):
 		startindex = startindex + 2
 	
 	if writelocation != "stdout":		
-		#if buffer1 == 1:
-		#	output.append("fwrite(buffer, sizeof(char), sizeof(buffer), "+ writelocation +");")
-		#	output.append("free(buffer);")
+		if buffer1 == 1:
+			output.append("fwrite(buffer+"+str(secondindex)+", sizeof(char), size-"+str(secondindex)+", "+ writelocation +");")
+			#output.append("fwrite(buffer+"+str(secondindex)+", sizeof(char), sizeof(buffer)-"+str(secondindex)+", "+ writelocation +");")
+			output.append("free(buffer);")
 		output.append("fclose(file" + str(linenum) + ");")
-		
-
+	
 #Checks for and performs function calls
 #Takes: splitline, current line number
 def functionCall(splitline, linenum):

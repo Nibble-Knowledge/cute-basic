@@ -171,6 +171,7 @@ IMPORTANT:
 When using GETCHAR for stdin it counts each "enter" as a newline char (including "enters" from previous input values)
 If you try to FOR X in PUTCHAR where X is grater than the number of chars you have stored it breaks the file
 Remeber that chars need two nibs each! (Otherwise you get munmap chunk errors that take to long to figure out...)
+FOR PUTCHAR FILENAME AT X if X is greater than # of chars in the file it breaks the file
 
 #:  Single line comment indicator
 /#: Start of multi line comment
