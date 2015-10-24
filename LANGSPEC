@@ -43,6 +43,13 @@ Assignment:
 (var1) BE (var2) UNSIGNED : assigns value of var2 to var1. Truncates or zero-extends
 (var1) BE (var2) SIGNED : assigns value of var2 to var1. Truncates (maintaining value of MSB) or sign-extends
 
+Values are stored in 4 bit int chunks, so for example lets try to store 268 (0000 0001 0000 1100) in a 4 nibble chunk:
+LET A AS 4 BE 268 
+Will store values:
+A[0].data = 0
+A[1].data = 1
+A[2].data = 0
+A[3].data = 12
 
 
 Unary mathematical operators:

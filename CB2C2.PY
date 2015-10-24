@@ -107,12 +107,21 @@ def convert2bin(var ,size, value):
 	lenbin = len(binval)
 	
 	while cnt < int(size):
-		a = lenbin - cnt*4 - 4
-		b = lenbin - cnt*4 
+		a = cnt*4
+		b = cnt*4 + 4
 		num = int(binval[a:b],2)
 		output.append(var + "["+str(cnt)+"].data = " + str(num) + ";")
 		cnt += 1
+		
 
+#Checks the nibble length of the variable
+#Takes name of variable
+#Returns length of variable 
+def varLength(varname):
+	index = varnames.index(varname)
+	#print varname
+	length = varsizes[index]
+	return length
 	
 #Checks if variable declaration is being performed
 #Takes: a splitline
@@ -142,9 +151,9 @@ def variableDeclaration(splitline):
 			
 		else:
 			output.append("nib *" + splitline[1] + " = malloc(sizeof(nib));")
+			varsizes.append(1)
 			if len(splitline) > 2 and splitline[2] == "BE":
 				output.append(splitline[1] + "[0].data = " + splitline[3] + ";")
-				varsizes.append(1)
 
 #Checks which vartype is being used, removes the unnecarry word and performs required update to line
 #Takes: A splitline
@@ -287,11 +296,30 @@ def binarymath(splitline):
 #Checks if assigning a variable to another variable
 #Takes: a splitline
 def assignment(splitline):					
-	if ((splitline[0] in varnames) and (len(splitline) == 3)): 
+	if ((splitline[0] in varnames) and (len(splitline) == 3)):
+		length = varLength(splitline[0])
+		
+		#If assigning a variable to antoehr variable
 		if(splitline[2] in varnames):
-			output.append(splitline[0] + "[0].data = " + splitline[2] + "[0].data;")
+			length1 = varLength(splitline[0])
+			length2 = varLength(splitline[2])
+			length = min(length1, length2)
+			cnt = 0
+			
+			#Set the value back to zero so that it doesnt accidently be wrong
+			while cnt < length1:
+				output.append(splitline[0]+"["+str(cnt)+"].data = 0;")
+				cnt += 1
+			cnt = 0
+			
+			#Set the 1st var to the value of the 2nd var
+			while cnt < length:
+				output.append(splitline[0] + "["+str(length1 - cnt - 1)+"].data = " + splitline[2] + "["+str(length2 - cnt - 1)+"].data;")
+				cnt += 1
+		#assigning a value to a variable
 		else:
-			output.append(splitline[0] + "[0].data = " + splitline[2] + ";")
+			convert2bin(splitline[0], length, splitline[2])
+			#output.append(splitline[0] + "[0].data = " + splitline[2] + ";")
 
 #Checks a line for any conditionals
 #Takes: a splitline, linenum
