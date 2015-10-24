@@ -89,6 +89,31 @@ def asm_passthroc(splitline):
 	return cont
 
 
+#Converts a decimal number to a binary value 
+#Takes the variable name, the length as number of nibbles and the value that is being turned into binary
+def convert2bin(var ,size, value):
+	cnt = 0 #Attempting stuff here
+	binval = bin(int(value))
+	binval = binval[2:]
+	lenbin = len(binval)
+	temp = ""
+	while cnt < int(size):
+		temp = temp + "0000"
+		cnt += 1
+	cnt = 0
+	temp = temp[:-lenbin]
+	temp = temp + binval
+	binval = temp
+	lenbin = len(binval)
+	
+	while cnt < int(size):
+		a = lenbin - cnt*4 - 4
+		b = lenbin - cnt*4 
+		num = int(binval[a:b],2)
+		output.append(var + "["+str(cnt)+"].data = " + str(num) + ";")
+		cnt += 1
+
+	
 #Checks if variable declaration is being performed
 #Takes: a splitline
 def variableDeclaration(splitline):
@@ -104,19 +129,22 @@ def variableDeclaration(splitline):
 			# Firstly, check if we're using SIGNED or UNSIGNED - if neither, UNSIGNED.
 			if len(splitline) <= 6 or splitline[6] == "UNSIGNED":
 				output.append("nib *" + splitline[1] + " = malloc(sizeof(nib) * " + splitline[3] + ");")
+				varsizes.append(int(splitline[3]))
 				varstofree.append(splitline[1])
 			elif len(splitline) > 6 and splitline[6] == "SIGNED":
 				output.append("snib *" + splitline[1] + " = malloc(sizeof(snib) * " + splitline[3] + ");")
+				varsizes.append(int(splitline[3]))
 				varstofree.append(splitline[1])
 				
 			if len(splitline) > 4 and splitline[4] == "BE":
-				output.append(splitline[1] + "[0].data = " + splitline[5] + ";")
+				convert2bin(splitline[1],splitline[3],splitline[5])
+				#output.append(splitline[1] + "[0].data = " + splitline[5] + ";")
 			
 		else:
 			output.append("nib *" + splitline[1] + " = malloc(sizeof(nib));")
 			if len(splitline) > 2 and splitline[2] == "BE":
 				output.append(splitline[1] + "[0].data = " + splitline[3] + ";")
-
+				varsizes.append(1)
 
 #Checks which vartype is being used, removes the unnecarry word and performs required update to line
 #Takes: A splitline
