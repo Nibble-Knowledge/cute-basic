@@ -1,3 +1,5 @@
+TODO: Conditionals, all of the negated values, signed values, fix bug where var0 = var0 op var 1 hen should be var0 = var 1 op var 2
+
 Cute BASIC uses all uppercase keywords. 
  
  
@@ -52,7 +54,6 @@ A[1].data = 1
 A[2].data = 0
 A[3].data = 12
 
-TODO : Coming back to after math
 Unary mathematical operators:
 (var0) BE NEGATE (var1) : var(0) evaluates to -(var1). In 2's complement, so (COMPLEMENT var1) ADD 1
 (var0) BE INCREMENT (var1) : var(0) evaluates to (var1 + 1)

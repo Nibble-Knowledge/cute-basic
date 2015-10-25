@@ -38,7 +38,8 @@ PASSTHROC printf("%d\n\n", A[3].data);
 
 PASSTHROC printf("A is 300+200+4296\n");
 A BE 300
-A BE A ADD 200
+B BE 200
+A BE A ADD B
 A BE A ADD 4296
 PASSTHROC printf("\n%d\n", A[0].data);
 PASSTHROC printf("%d\n", A[1].data);
@@ -109,6 +110,7 @@ PASSTHROC printf("%d\n", A[1].data);
 PASSTHROC printf("%d\n", A[2].data);
 PASSTHROC printf("%d\n\n", A[3].data);
 
+#TODO MAKE THIS WORK
 PASSTHROC printf("A is 204 ~& 153 (should result in 119)\n");
 A BE 204
 A BE A NAND 153
@@ -117,6 +119,7 @@ PASSTHROC printf("%d\n", A[1].data);
 PASSTHROC printf("%d\n", A[2].data);
 PASSTHROC printf("%d\n\n", A[3].data);
 
+#TODO MAKE THIS WORK
 PASSTHROC printf("A is 204 ~| 153 (should result in 34)\n");
 A BE 204
 A BE A NOR 153
@@ -125,6 +128,7 @@ PASSTHROC printf("%d\n", A[1].data);
 PASSTHROC printf("%d\n", A[2].data);
 PASSTHROC printf("%d\n\n", A[3].data);
 
+#TODO MAKE THIS WORK
 PASSTHROC printf("A is 204 ~^ 153 (should result in 170)\n");
 A BE 204
 A BE A XNOR 153
@@ -132,5 +136,245 @@ PASSTHROC printf("\n%d\n", A[0].data);
 PASSTHROC printf("%d\n", A[1].data);
 PASSTHROC printf("%d\n", A[2].data);
 PASSTHROC printf("%d\n\n", A[3].data);
+
+PASSTHROC printf("A is 100 == 100 (should result in 1)\n");
+A BE 100
+A BE A EQUALS 100
+PASSTHROC printf("\n%d\n", A[0].data);
+PASSTHROC printf("%d\n", A[1].data);
+PASSTHROC printf("%d\n", A[2].data);
+PASSTHROC printf("%d\n\n", A[3].data);
+
+PASSTHROC printf("A is 100 == 101 (should result in 0)\n");
+A BE 100
+A BE A EQUALS 101
+PASSTHROC printf("\n%d\n", A[0].data);
+PASSTHROC printf("%d\n", A[1].data);
+PASSTHROC printf("%d\n", A[2].data);
+PASSTHROC printf("%d\n\n", A[3].data);
+
+PASSTHROC printf("A is 100 != 100 (should result in 0)\n");
+A BE 100
+A BE A NOTEQUALS 100
+PASSTHROC printf("\n%d\n", A[0].data);
+PASSTHROC printf("%d\n", A[1].data);
+PASSTHROC printf("%d\n", A[2].data);
+PASSTHROC printf("%d\n\n", A[3].data);
+
+PASSTHROC printf("A is 100 != 101 (should result in 1)\n");
+A BE 100
+A BE A NOTEQUALS 101
+PASSTHROC printf("\n%d\n", A[0].data);
+PASSTHROC printf("%d\n", A[1].data);
+PASSTHROC printf("%d\n", A[2].data);
+PASSTHROC printf("%d\n\n", A[3].data);
+
+PASSTHROC printf("A is 100 > 100 (should result in 0)\n");
+A BE 100
+A BE A GREATER 100
+PASSTHROC printf("\n%d\n", A[0].data);
+PASSTHROC printf("%d\n", A[1].data);
+PASSTHROC printf("%d\n", A[2].data);
+PASSTHROC printf("%d\n\n", A[3].data);
+
+PASSTHROC printf("A is 100 > 101 (should result in 0)\n");
+A BE 100
+A BE A GREATER 101
+PASSTHROC printf("\n%d\n", A[0].data);
+PASSTHROC printf("%d\n", A[1].data);
+PASSTHROC printf("%d\n", A[2].data);
+PASSTHROC printf("%d\n\n", A[3].data);
+
+PASSTHROC printf("A is 101 > 100 (should result in 1)\n");
+A BE 101
+A BE A GREATER 100
+PASSTHROC printf("\n%d\n", A[0].data);
+PASSTHROC printf("%d\n", A[1].data);
+PASSTHROC printf("%d\n", A[2].data);
+PASSTHROC printf("%d\n\n", A[3].data);
+
+PASSTHROC printf("A is 100 >= 100 (should result in 1)\n");
+A BE 100
+A BE A GREATEREQUALS 100
+PASSTHROC printf("\n%d\n", A[0].data);
+PASSTHROC printf("%d\n", A[1].data);
+PASSTHROC printf("%d\n", A[2].data);
+PASSTHROC printf("%d\n\n", A[3].data);
+
+PASSTHROC printf("A is 100 >= 101 (should result in 0)\n");
+A BE 100
+A BE A GREATEREQUALS 101
+PASSTHROC printf("\n%d\n", A[0].data);
+PASSTHROC printf("%d\n", A[1].data);
+PASSTHROC printf("%d\n", A[2].data);
+PASSTHROC printf("%d\n\n", A[3].data);
+
+PASSTHROC printf("A is 101 >= 100 (should result in 1)\n");
+A BE 101
+A BE A GREATEREQUALS 100
+PASSTHROC printf("\n%d\n", A[0].data);
+PASSTHROC printf("%d\n", A[1].data);
+PASSTHROC printf("%d\n", A[2].data);
+PASSTHROC printf("%d\n\n", A[3].data);
+
+PASSTHROC printf("A is 100 < 100 (should result in 0)\n");
+A BE 100
+A BE A LESS 100
+PASSTHROC printf("\n%d\n", A[0].data);
+PASSTHROC printf("%d\n", A[1].data);
+PASSTHROC printf("%d\n", A[2].data);
+PASSTHROC printf("%d\n\n", A[3].data);
+
+PASSTHROC printf("A is 100 < 101 (should result in 1)\n");
+A BE 100
+A BE A LESS 101
+PASSTHROC printf("\n%d\n", A[0].data);
+PASSTHROC printf("%d\n", A[1].data);
+PASSTHROC printf("%d\n", A[2].data);
+PASSTHROC printf("%d\n\n", A[3].data);
+
+PASSTHROC printf("A is 101 < 100 (should result in 0)\n");
+A BE 101
+A BE A LESS 100
+PASSTHROC printf("\n%d\n", A[0].data);
+PASSTHROC printf("%d\n", A[1].data);
+PASSTHROC printf("%d\n", A[2].data);
+PASSTHROC printf("%d\n\n", A[3].data);
+
+PASSTHROC printf("A is 100 <= 100 (should result in 1)\n");
+A BE 100
+A BE A LESSEQUALS 100
+PASSTHROC printf("\n%d\n", A[0].data);
+PASSTHROC printf("%d\n", A[1].data);
+PASSTHROC printf("%d\n", A[2].data);
+PASSTHROC printf("%d\n\n", A[3].data);
+
+PASSTHROC printf("A is 100 <= 101 (should result in 1)\n");
+A BE 100
+A BE A LESSEQUALS 101
+PASSTHROC printf("\n%d\n", A[0].data);
+PASSTHROC printf("%d\n", A[1].data);
+PASSTHROC printf("%d\n", A[2].data);
+PASSTHROC printf("%d\n\n", A[3].data);
+
+PASSTHROC printf("A is 101 <= 100 (should result in 0)\n");
+A BE 101
+A BE A LESSEQUALS 100
+PASSTHROC printf("\n%d\n", A[0].data);
+PASSTHROC printf("%d\n", A[1].data);
+PASSTHROC printf("%d\n", A[2].data);
+PASSTHROC printf("%d\n\n", A[3].data);
+
+PASSTHROC printf("A is 101 <= 100 (should result in 0)\n");
+A BE 101
+A BE A LESSEQUALS 100
+PASSTHROC printf("\n%d\n", A[0].data);
+PASSTHROC printf("%d\n", A[1].data);
+PASSTHROC printf("%d\n", A[2].data);
+PASSTHROC printf("%d\n\n", A[3].data);
+
+PASSTHROC printf("A is 100 >> 1 (should result in 50)\n");
+A BE 100
+A BE A RSHIFT 1
+PASSTHROC printf("\n%d\n", A[0].data);
+PASSTHROC printf("%d\n", A[1].data);
+PASSTHROC printf("%d\n", A[2].data);
+PASSTHROC printf("%d\n\n", A[3].data);
+
+PASSTHROC printf("A is 100 << 1 (should result in 200)\n");
+A BE 100
+A BE A LSHIFT 1
+PASSTHROC printf("\n%d\n", A[0].data);
+PASSTHROC printf("%d\n", A[1].data);
+PASSTHROC printf("%d\n", A[2].data);
+PASSTHROC printf("%d\n\n", A[3].data);
+
+PASSTHROC printf("A is 100 >> 4 (should result in 6)\n");
+A BE 100
+A BE A RROTATE 4
+PASSTHROC printf("\n%d\n", A[0].data);
+PASSTHROC printf("%d\n", A[1].data);
+PASSTHROC printf("%d\n", A[2].data);
+PASSTHROC printf("%d\n\n", A[3].data);
+
+#TODO MAKE THIS WORK
+PASSTHROC printf("A is ~A (should result in )\n");
+A BE 100
+A BE COMPLEMENT A
+PASSTHROC printf("\n%d\n", A[0].data);
+PASSTHROC printf("%d\n", A[1].data);
+PASSTHROC printf("%d\n", A[2].data);
+PASSTHROC printf("%d\n\n", A[3].data);
+
+#TODO MAKE THIS WORK
+PASSTHROC printf("A is -A (should result in -100)\n");
+A BE 100
+A BE NEGATE A
+PASSTHROC printf("\n%d\n", A[0].data);
+PASSTHROC printf("%d\n", A[1].data);
+PASSTHROC printf("%d\n", A[2].data);
+PASSTHROC printf("%d\n\n", A[3].data);
+
+
+PASSTHROC printf("A is A++ (should result in 101)\n");
+A BE 100
+A BE INCREMENT A
+PASSTHROC printf("\n%d\n", A[0].data);
+PASSTHROC printf("%d\n", A[1].data);
+PASSTHROC printf("%d\n", A[2].data);
+PASSTHROC printf("%d\n\n", A[3].data);
+
+PASSTHROC printf("A is A-- (should result in 99)\n");
+A BE 100
+A BE DECREMENT A
+PASSTHROC printf("\n%d\n", A[0].data);
+PASSTHROC printf("%d\n", A[1].data);
+PASSTHROC printf("%d\n", A[2].data);
+PASSTHROC printf("%d\n\n", A[3].data);
+
+PASSTHROC printf("(A = 100) A is !A (should result in 0)\n");
+A BE 100
+A BE NOT A
+PASSTHROC printf("\n%d\n", A[0].data);
+PASSTHROC printf("%d\n", A[1].data);
+PASSTHROC printf("%d\n", A[2].data);
+PASSTHROC printf("%d\n\n", A[3].data);
+
+PASSTHROC printf("(A = 0) A is !A (should result in 1)\n");
+A BE 0
+A BE NOT A
+PASSTHROC printf("\n%d\n", A[0].data);
+PASSTHROC printf("%d\n", A[1].data);
+PASSTHROC printf("%d\n", A[2].data);
+PASSTHROC printf("%d\n\n", A[3].data);
+
+/# TODO
+LET ADDR AS 8
+PASSTHROC printf("ADDR = &(A) (should result in ?)\n");
+A BE 100
+ADDR BE ADDRESSOF A
+PASSTHROC printf("\n%d\n", ADDR[0].data);
+PASSTHROC printf("%d\n", ADDR[1].data);
+PASSTHROC printf("%d\n", ADDR[2].data);
+PASSTHROC printf("%d\n\n", ADDR[3].data);
+
+LET CONT AS 4
+PASSTHROC printf("CONT = *(ADDR) (should result in 100?)\n");
+CONT BE CONTENTOF ADDR
+PASSTHROC printf("\n%d\n", CONT[0].data);
+PASSTHROC printf("%d\n", CONT[1].data);
+PASSTHROC printf("%d\n", CONT[2].data);
+PASSTHROC printf("%d\n\n", CONT[3].data);
+#/
+
+A BE 100
+B BE 100
+LET I 
+A BE A EQUALS B
+PASSTHROC printf("%d\n", A[0].data);
+PASSTHROC printf("\nIF I\n");
+IF A
+PASSTHROC printf("\n(A==B) IF A WORKED\n");
+ENDIF
 
 END

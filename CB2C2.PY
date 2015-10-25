@@ -236,12 +236,16 @@ def checkVartype(splitline, index):
 
 #Checks if unary math operations are being performed with assignments as the first thing on the line
 #Takes: a splitline
-def unarymath(splitline):	
+def unarymath(splitline, linenum):	
 	if ((splitline[0] in varnames) and (splitline[2] in ["COMPLEMENT", "NEGATE", "INCREMENT", "DECREMENT", "NOT", "ADDRESSOF", "CONTENTOF"])): 
 	#unary operations
-		length = varLength(splitline[0])
 		indexright = 0
 		indexleft = 0
+		
+		length = varLength(splitline[0])
+		cvar = "var" + str(linenum)
+		hex2int(splitline[0], cvar)
+		cvar2 = "varr" + str(linenum)
 
 		if splitline[1] == "AT":
 			indexright = int(splitline[2])
@@ -256,24 +260,39 @@ def unarymath(splitline):
 			splitline = checkVartype(splitline, 3)
 			
 		elif splitline[3] in varnames:
-			splitline[3] = splitline[3] + "[" + str(indexleft) + "].data"
+			hex2int(splitline[3],cvar2)
+			#splitline[3] = splitline[3] + "[" + str(indexleft) + "].data"
 			
-		splitline[0] += "[" + str(indexright) + "]"
+		#splitline[0] += "[" + str(indexright) + "]"
 		#unary math/bit/logic operators
 		if splitline[2] == "COMPLEMENT":
-			output.append(splitline[0] + ".data = ~" + splitline[3] + ";")
+			output.append(cvar +" = ~"+cvar2+";")
+			convert2binC(splitline[0], length, cvar, linenum)
+			#output.append(splitline[0] + ".data = ~" + splitline[3] + ";")
 		elif splitline[2] == "NEGATE":
-			output.append(splitline[0] + ".data = -" + splitline[3] + ";")
+			output.append(cvar +" = -"+cvar2+";")
+			convert2binC(splitline[0], length, cvar, linenum)
+			#output.append(splitline[0] + ".data = -" + splitline[3] + ";")
 		elif splitline[2] == "INCREMENT":
-			output.append(splitline[0] + ".data = " + splitline[3] + " + 1;")
+			output.append(cvar +" = "+cvar2+" + 1;")
+			convert2binC(splitline[0], length, cvar, linenum)
+			#output.append(splitline[0] + ".data = " + splitline[3] + " + 1;")
 		elif splitline[2] == "DECREMENT":
-			output.append(splitline[0] + ".data = " + splitline[3] + " - 1;")
+			output.append(cvar +" = "+cvar2+" - 1;")
+			convert2binC(splitline[0], length, cvar, linenum)
+			#output.append(splitline[0] + ".data = " + splitline[3] + " - 1;")
 		elif splitline[2] == "NOT":
-			output.append(splitline[0] + ".data = !" + splitline[3] + ";")
+			output.append(cvar +" = !"+cvar2+";")
+			convert2binC(splitline[0], length, cvar, linenum)
+			#output.append(splitline[0] + ".data = !" + splitline[3] + ";")
 		elif splitline[2] == "ADDRESSOF":
-			output.append(splitline[0] + ".data = &(" + splitline[3] + ");")
+			output.append(cvar +" = &("+cvar2+");")
+			convert2binC(splitline[0], length, cvar, linenum)
+			#output.append(splitline[0] + ".data = &(" + splitline[3] + ");")
 		elif splitline[2] == "CONTENTOF":
-			output.append(splitline[0] + ".data = *(" + splitline[3] + ");")
+			output.append(cvar +" = *("+cvar2+");")
+			convert2binC(splitline[0], length, cvar, linenum)
+			#output.append(splitline[0] + ".data = *(" + splitline[3] + ");")
 	
 
 #Checks if binary math operations are being performed with assignments as the first thing on the line
@@ -365,29 +384,49 @@ def binarymath(splitline, linenum):
 		
 		#binary bitshifting
 		elif (splitline[3] == "RROTATE" or splitline[3] == "RSHIFT"):
-			output.append(splitline[0] + "[0].data = " + splitline[2] + " >> " + splitline[4] + ";")
+			output.append(cvar +" = "+cvar+" >> "+cvar2+";")
+			convert2binC(splitline[0], length, cvar, linenum)
+			#output.append(splitline[0] + "[0].data = " + splitline[2] + " >> " + splitline[4] + ";")
 		elif (splitline[3] == "LROTATE" or splitline[3] == "LSHIFT"):
-			output.append(splitline[0] + "[0].data = " + splitline[2] + " << " + splitline[4] + ";")
+			output.append(cvar +" = "+cvar+" << "+cvar2+";")
+			convert2binC(splitline[0], length, cvar, linenum)
+			#output.append(splitline[0] + "[0].data = " + splitline[2] + " << " + splitline[4] + ";")
 		
 		#binary logical operators
 		elif splitline[3] == "ALSO":
-			output.append(splitline[0] + "[0].data = " + splitline[2] + " && " + splitline[4] + ";")
+			output.append(cvar +" = "+cvar+" && "+cvar2+";")
+			convert2binC(splitline[0], length, cvar, linenum)
+			#output.append(splitline[0] + "[0].data = " + splitline[2] + " && " + splitline[4] + ";")
 		elif splitline[3] == "EITHER":
-			output.append(splitline[0] + "[0].data = " + splitline[2] + " || " + splitline[4] + ";")
+			output.append(cvar +" = "+cvar+" || "+cvar2+";")
+			convert2binC(splitline[0], length, cvar, linenum)
+			#output.append(splitline[0] + "[0].data = " + splitline[2] + " || " + splitline[4] + ";")
 		
 		#Logical tests
 		elif splitline[3] == "EQUALS":
-			output.append(splitline[0] + "[0].data = " + splitline[2] + " == " + splitline[4] + ";")
+			output.append(cvar +" = "+cvar+" == "+cvar2+";")
+			convert2binC(splitline[0], length, cvar, linenum)
+			#output.append(splitline[0] + "[0].data = " + splitline[2] + " == " + splitline[4] + ";")
 		elif splitline[3] == "NOTEQUALS":
-			output.append(splitline[0] + "[0].data = " + splitline[2] + " != " + splitline[4] + ";")
+			output.append(cvar +" = "+cvar+" != "+cvar2+";")
+			convert2binC(splitline[0], length, cvar, linenum)
+			#output.append(splitline[0] + "[0].data = " + splitline[2] + " != " + splitline[4] + ";")
 		elif splitline[3] == "GREATER":
-			output.append(splitline[0] + "[0].data = " + splitline[2] + " > " + splitline[4] + ";")
+			output.append(cvar +" = "+cvar+" > "+cvar2+";")
+			convert2binC(splitline[0], length, cvar, linenum)
+			#output.append(splitline[0] + "[0].data = " + splitline[2] + " > " + splitline[4] + ";")
 		elif splitline[3] == "GREATEREQUALS":
-			output.append(splitline[0] + "[0].data = " + splitline[2] + " >= " + splitline[4] + ";")
+			output.append(cvar +" = "+cvar+" >= "+cvar2+";")
+			convert2binC(splitline[0], length, cvar, linenum)
+			#output.append(splitline[0] + "[0].data = " + splitline[2] + " >= " + splitline[4] + ";")
 		elif splitline[3] == "LESS":
-			output.append(splitline[0] + "[0].data = " + splitline[2] + " < " + splitline[4] + ";")
+			output.append(cvar +" = "+cvar+" < "+cvar2+";")
+			convert2binC(splitline[0], length, cvar, linenum)
+			#output.append(splitline[0] + "[0].data = " + splitline[2] + " < " + splitline[4] + ";")
 		elif splitline[3] == "LESSEQUALS":
-			output.append(splitline[0] + "[0].data = " + splitline[2] + " <= " + splitline[4] + ";")
+			output.append(cvar +" = "+cvar+" <= "+cvar2+";")
+			convert2binC(splitline[0], length, cvar, linenum)
+			#output.append(splitline[0] + "[0].data = " + splitline[2] + " <= " + splitline[4] + ";")
 
 
 #Checks if assigning a variable to another variable
@@ -422,6 +461,8 @@ def assignment(splitline):
 #Takes: a splitline, linenum
 def conditionals(splitline, linenum):
 	if(splitline[0] in ["IF", "ELSEIF", "ELSE", "ENDIF", "LOOPWHILE", "ENDLOOP", "LOOPAGAIN", "EXITLOOP", "EXITIF", "EARLYEND"]):
+		
+		
 		vartype = ""
 		boolindex = 0
 		if len(splitline) > 1 and splitline[1] in vartypes:
@@ -760,7 +801,7 @@ def main():
 		variableDeclaration(splitline)
 		
 		#Check for unary math being performed
-		unarymath(splitline)
+		unarymath(splitline, linenum)
 		
 		#Check for binary math being performed
 		binarymath(splitline, linenum)
