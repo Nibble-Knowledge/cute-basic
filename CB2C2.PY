@@ -15,6 +15,7 @@ variables = []
 varnames = []
 vartypes = ["BINARY", "HEX", "CHAR"]
 varsizes = []
+varvals = []
 varstofree = []
 
 #flags
@@ -112,7 +113,51 @@ def convert2bin(var ,size, value):
 		num = int(binval[a:b],2)
 		output.append(var + "["+str(cnt)+"].data = " + str(num) + ";")
 		cnt += 1
-		
+
+#Converts an integer to hex values in C and assigns them to the passed in variable
+#Takes variable name, size of variable, name of c variable so it isnt repeated, and linennum
+def convert2binC(var, size, cvar, linenum):
+	#dec2binC(cvar)
+	linenum = str(linenum)
+	output.append("char buffer"+linenum+"["+str(size)+"];")
+	output.append("sprintf(buffer"+linenum+", \"%X\", "+cvar+");")
+	#output.append("printf(\"%s\\n\\n\", buffer);")
+	output.append("int temp"+linenum+";")
+	cnt = 0
+	
+	while cnt < size:
+		output.append(var+"["+str(cnt)+"].data = 0;")
+		cnt += 1
+
+	#cnt = size - 1
+	#bufcnt = 0
+	#while cnt >= 0:
+	output.append("int flag"+linenum+" = 0;")
+	output.append("int tempcount"+linenum+" = "+str(size - 1)+";")
+	output.append("int bufcount"+linenum+" = "+str(size-1)+";")
+	output.append("while(tempcount"+linenum+" >= 0){")
+	#output.append("printf(\"%d\\n\", buffer["+str(cnt)+"] - '0');")
+	output.append("temp"+linenum+" = buffer"+linenum+"[bufcount"+linenum+"] - '0';")
+	output.append("if (temp"+linenum+" >= 0){")
+	output.append("if (temp"+linenum+" >= 16){")
+	output.append("temp"+linenum+" = temp"+linenum+" - 7;")
+	output.append("}")
+	output.append(var + "[tempcount"+linenum+"].data = temp"+linenum+";")
+	output.append("bufcount"+linenum+"--;")
+	output.append("tempcount"+linenum+"--;")
+	output.append("flag"+linenum+" = 1;")
+	output.append("}")
+	output.append("else{")
+	output.append("if(flag"+linenum+" == 1)")
+	output.append("break;")
+	output.append("bufcount"+linenum+"--;")
+	output.append("}")
+	#output.append("printf(\"%d\\n\", temp"+linenum+");")
+	output.append("}")
+
+
+def dec2binC(cvar):
+	a
 
 #Checks the nibble length of the variable
 #Takes name of variable
@@ -122,6 +167,22 @@ def varLength(varname):
 	#print varname
 	length = varsizes[index]
 	return length
+	
+
+#Takes a series of values between 0 and 15 and adds them together in C
+#Takes name of variable holding values, name of new c value created
+def hex2int(varname, cvar):
+		length1 = int(varLength(varname))
+		cnt = length1 - 1
+		cnt2 = 0
+		output.append("int "+cvar+" = 0;")
+		while cnt >= 0:
+			output.append(cvar+" = "+cvar+" + ("+varname+"["+str(cnt)+"].data * (pow(16.0,  "+str(cnt2)+"))) ;")
+			cnt -= 1
+			cnt2 += 1
+		#output.append("printf(\"%d\\n\", "+cvar+");")
+
+
 	
 #Checks if variable declaration is being performed
 #Takes: a splitline
@@ -175,7 +236,7 @@ def checkVartype(splitline, index):
 def unarymath(splitline):	
 	if ((splitline[0] in varnames) and (splitline[2] in ["COMPLEMENT", "NEGATE", "INCREMENT", "DECREMENT", "NOT", "ADDRESSOF", "CONTENTOF"])): 
 	#unary operations
-	
+		length = varLength(splitline[0])
 		indexright = 0
 		indexleft = 0
 
@@ -213,21 +274,30 @@ def unarymath(splitline):
 	
 
 #Checks if binary math operations are being performed with assignments as the first thing on the line
-#Takes: a splitline
-def binarymath(splitline):					
+#Takes: a splitline, linenumber
+def binarymath(splitline, linenum):					
 	if ((splitline[0] in varnames) and len(splitline) > 4): 
 	
 		binopindexright = 0			
 		binopindexleft = 0	
+		
+		length = varLength(splitline[0])
+		cvar = "var" + str(linenum)
+		hex2int(splitline[0], cvar)
+		cvar2 = "var2" + str(linenum)
+
+			
 	
 		if splitline[2] in vartypes:
 			splitline = checkVartype(splitline, 2)
+
 		else:
 			if len(splitline) > 3 and splitline[3] == "AT":
 				binopindexright = int(splitline[3])
 				del splitline[3:4]
 			if splitline[2] in varnames:
-				splitline[2] = splitline[2] + "[" + str(binopindexright) + "].data"
+				length2 = varLength(splitline[2])
+				#splitline[2] = splitline[2] + "[" + str(binopindexright) + "].data"
 			
 		if len(splitline) > 4:
 			if splitline[4] in vartypes:
@@ -237,12 +307,16 @@ def binarymath(splitline):
 					binopindexright = int(splitline[6])
 					del splitline[5:6]
 				if splitline[4] in varnames:
-					splitline[4] = splitline[4] + "[" + str(binopindexleft) + "].data"
-
-
+					hex2int(splitline[4],cvar2)
+					#splitline[4] = splitline[4] + "[" + str(binopindexleft) + "].data"
+				else:
+					output.append("int "+cvar2+" = "+splitline[4]+";")
 
 		if splitline[3] == "ADD":
-			output.append(splitline[0] + "[0].data = " + splitline[2] + " + " + splitline[4] + " ;")
+			output.append(cvar +" = "+cvar+" + "+cvar2+";")
+			output.append("printf(\"%d\\n\", "+cvar+");")
+			convert2binC(splitline[0], length, cvar, linenum)
+			#output.append(splitline[0] + "[0].data = " + splitline[2] + " + " + splitline[4] + " ;")
 		elif splitline[3] == "SUBTRACT":
 			output.append(splitline[0] + "[0].data = " + splitline[2] + " - " + splitline[4] + " ;")
 		elif splitline[3] == "MULTIPLY":
@@ -407,6 +481,7 @@ def functionProperties(splitline):
 		temp2 += ");"
 		functionindex = output.index("/*Function declarations go here*/")
 		output.insert(functionindex + 1, temp2)
+		
 		temp += "){"
 		output.append(temp)
 	elif splitline[0] == "ENDFUNCTION":
@@ -665,7 +740,7 @@ def main():
 		unarymath(splitline)
 		
 		#Check for binary math being performed
-		binarymath(splitline)
+		binarymath(splitline, linenum)
 		
 		#Check for assignment
 		assignment(splitline)

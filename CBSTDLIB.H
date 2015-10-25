@@ -10,6 +10,7 @@
 #include <string.h>
 #include <time.h>
 #include <stdint.h>
+#include <math.h>
 
 #define STRING 0
 #define CHAR 1
