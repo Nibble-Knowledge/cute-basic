@@ -1,0 +1,136 @@
+START
+
+PASSTHROC printf("A is 268\n");
+LET A AS 4 BE 268
+PASSTHROC printf("%d\n", A[0].data);
+PASSTHROC printf("%d\n", A[1].data);
+PASSTHROC printf("%d\n", A[2].data);
+PASSTHROC printf("%d\n\n", A[3].data);
+
+PASSTHROC printf("A is 85\n");
+A BE 85
+PASSTHROC printf("%d\n", A[0].data);
+PASSTHROC printf("%d\n", A[1].data);
+PASSTHROC printf("%d\n", A[2].data);
+PASSTHROC printf("%d\n\n", A[3].data);
+
+PASSTHROC printf("C is 15 then 10\n");
+LET C BE 15
+PASSTHROC printf("%d\n", C[0].data);
+C BE 10
+PASSTHROC printf("%d\n\n", C[0].data);
+
+PASSTHROC printf("B is 10000\n");
+LET B AS 6 BE 10000
+A BE B
+PASSTHROC printf("%d\n", A[0].data);
+PASSTHROC printf("%d\n", A[1].data);
+PASSTHROC printf("%d\n", A[2].data);
+PASSTHROC printf("%d\n\n", A[3].data);
+
+PASSTHROC printf("D is 28\n");
+LET D AS 2 BE 28
+A BE D
+PASSTHROC printf("%d\n", A[0].data);
+PASSTHROC printf("%d\n", A[1].data);
+PASSTHROC printf("%d\n", A[2].data);
+PASSTHROC printf("%d\n\n", A[3].data);
+
+PASSTHROC printf("A is 300+200+4296\n");
+A BE 300
+A BE A ADD 200
+A BE A ADD 4296
+PASSTHROC printf("\n%d\n", A[0].data);
+PASSTHROC printf("%d\n", A[1].data);
+PASSTHROC printf("%d\n", A[2].data);
+PASSTHROC printf("%d\n\n", A[3].data);
+
+PASSTHROC printf("A is 300-200\n");
+A BE 300
+A BE A SUBTRACT 200
+PASSTHROC printf("\n%d\n", A[0].data);
+PASSTHROC printf("%d\n", A[1].data);
+PASSTHROC printf("%d\n", A[2].data);
+PASSTHROC printf("%d\n\n", A[3].data);
+
+PASSTHROC printf("A is 300*2\n");
+A BE 300
+A BE A MULTIPLY 2
+PASSTHROC printf("\n%d\n", A[0].data);
+PASSTHROC printf("%d\n", A[1].data);
+PASSTHROC printf("%d\n", A[2].data);
+PASSTHROC printf("%d\n\n", A[3].data);
+
+PASSTHROC printf("A is 300/100\n");
+A BE 300
+A BE A DIVIDE 100
+PASSTHROC printf("\n%d\n", A[0].data);
+PASSTHROC printf("%d\n", A[1].data);
+PASSTHROC printf("%d\n", A[2].data);
+PASSTHROC printf("%d\n\n", A[3].data);
+
+PASSTHROC printf("A is 300/120\n");
+A BE 300
+A BE A DIVIDE 120
+PASSTHROC printf("\n%d\n", A[0].data);
+PASSTHROC printf("%d\n", A[1].data);
+PASSTHROC printf("%d\n", A[2].data);
+PASSTHROC printf("%d\n\n", A[3].data);
+
+PASSTHROC printf("A is 12%%10\n");
+A BE 12
+A BE A MODULUS 10
+PASSTHROC printf("\n%d\n", A[0].data);
+PASSTHROC printf("%d\n", A[1].data);
+PASSTHROC printf("%d\n", A[2].data);
+PASSTHROC printf("%d\n\n", A[3].data);
+
+PASSTHROC printf("A is 204 & 153 (should result in 136)\n");
+A BE 204
+A BE A AND 153
+PASSTHROC printf("\n%d\n", A[0].data);
+PASSTHROC printf("%d\n", A[1].data);
+PASSTHROC printf("%d\n", A[2].data);
+PASSTHROC printf("%d\n\n", A[3].data);
+
+PASSTHROC printf("A is 204 | 153 (should result in 221)\n");
+A BE 204
+A BE A OR 153
+PASSTHROC printf("\n%d\n", A[0].data);
+PASSTHROC printf("%d\n", A[1].data);
+PASSTHROC printf("%d\n", A[2].data);
+PASSTHROC printf("%d\n\n", A[3].data);
+
+PASSTHROC printf("A is 204 ^ 153 (should result in 85)\n");
+A BE 204
+A BE A XOR 153
+PASSTHROC printf("\n%d\n", A[0].data);
+PASSTHROC printf("%d\n", A[1].data);
+PASSTHROC printf("%d\n", A[2].data);
+PASSTHROC printf("%d\n\n", A[3].data);
+
+PASSTHROC printf("A is 204 ~& 153 (should result in 119)\n");
+A BE 204
+A BE A NAND 153
+PASSTHROC printf("\n%d\n", A[0].data);
+PASSTHROC printf("%d\n", A[1].data);
+PASSTHROC printf("%d\n", A[2].data);
+PASSTHROC printf("%d\n\n", A[3].data);
+
+PASSTHROC printf("A is 204 ~| 153 (should result in 34)\n");
+A BE 204
+A BE A NOR 153
+PASSTHROC printf("\n%d\n", A[0].data);
+PASSTHROC printf("%d\n", A[1].data);
+PASSTHROC printf("%d\n", A[2].data);
+PASSTHROC printf("%d\n\n", A[3].data);
+
+PASSTHROC printf("A is 204 ~^ 153 (should result in 170)\n");
+A BE 204
+A BE A XNOR 153
+PASSTHROC printf("\n%d\n", A[0].data);
+PASSTHROC printf("%d\n", A[1].data);
+PASSTHROC printf("%d\n", A[2].data);
+PASSTHROC printf("%d\n\n", A[3].data);
+
+END

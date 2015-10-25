@@ -117,11 +117,13 @@ def convert2bin(var ,size, value):
 #Converts an integer to hex values in C and assigns them to the passed in variable
 #Takes variable name, size of variable, name of c variable so it isnt repeated, and linennum
 def convert2binC(var, size, cvar, linenum):
-	#dec2binC(cvar)
 	linenum = str(linenum)
-	output.append("char buffer"+linenum+"["+str(size)+"];")
+	#output.append("char buffer"+linenum+"["+str(size)+"];")
+	output.append("char * buffer"+linenum+" = malloc(snprintf(NULL, 0, \"%X\", "+cvar+") + 1);")
+
+	#output.append("printf(\"%d\\n\", "+cvar+");")
 	output.append("sprintf(buffer"+linenum+", \"%X\", "+cvar+");")
-	#output.append("printf(\"%s\\n\\n\", buffer);")
+	output.append("printf(\"%s\\n\\n\", buffer"+linenum+");")
 	output.append("int temp"+linenum+";")
 	cnt = 0
 	
@@ -136,10 +138,12 @@ def convert2binC(var, size, cvar, linenum):
 	output.append("int tempcount"+linenum+" = "+str(size - 1)+";")
 	output.append("int bufcount"+linenum+" = "+str(size-1)+";")
 	output.append("while(tempcount"+linenum+" >= 0){")
-	#output.append("printf(\"%d\\n\", buffer["+str(cnt)+"] - '0');")
+	#output.append("printf(\"%d\\n\", buffer"+linenum+"[bufcount"+linenum+"] - '0');")
 	output.append("temp"+linenum+" = buffer"+linenum+"[bufcount"+linenum+"] - '0';")
-	output.append("if (temp"+linenum+" >= 0){")
-	output.append("if (temp"+linenum+" >= 16){")
+	#output.append("printf(\"%d\\n\", temp"+linenum+");")
+
+	output.append("if (temp"+linenum+" >= 0 && temp"+linenum+" <=22){")
+	output.append("if (temp"+linenum+" > 16){")
 	output.append("temp"+linenum+" = temp"+linenum+" - 7;")
 	output.append("}")
 	output.append(var + "[tempcount"+linenum+"].data = temp"+linenum+";")
@@ -148,16 +152,14 @@ def convert2binC(var, size, cvar, linenum):
 	output.append("flag"+linenum+" = 1;")
 	output.append("}")
 	output.append("else{")
-	output.append("if(flag"+linenum+" == 1)")
+	output.append("if(flag"+linenum+" == 1){")
 	output.append("break;")
+	output.append("}")
 	output.append("bufcount"+linenum+"--;")
 	output.append("}")
-	#output.append("printf(\"%d\\n\", temp"+linenum+");")
 	output.append("}")
+	output.append("free(buffer"+linenum+");")
 
-
-def dec2binC(cvar):
-	a
 
 #Checks the nibble length of the variable
 #Takes name of variable
@@ -216,6 +218,7 @@ def variableDeclaration(splitline):
 			if len(splitline) > 2 and splitline[2] == "BE":
 				output.append(splitline[1] + "[0].data = " + splitline[3] + ";")
 
+#TODO this probably broke
 #Checks which vartype is being used, removes the unnecarry word and performs required update to line
 #Takes: A splitline
 #Returns: The updated splitline
@@ -284,7 +287,7 @@ def binarymath(splitline, linenum):
 		length = varLength(splitline[0])
 		cvar = "var" + str(linenum)
 		hex2int(splitline[0], cvar)
-		cvar2 = "var2" + str(linenum)
+		cvar2 = "varr" + str(linenum)
 
 			
 	
@@ -314,31 +317,51 @@ def binarymath(splitline, linenum):
 
 		if splitline[3] == "ADD":
 			output.append(cvar +" = "+cvar+" + "+cvar2+";")
-			output.append("printf(\"%d\\n\", "+cvar+");")
+			#output.append("printf(\"%d\\n\", "+cvar+");")
 			convert2binC(splitline[0], length, cvar, linenum)
 			#output.append(splitline[0] + "[0].data = " + splitline[2] + " + " + splitline[4] + " ;")
 		elif splitline[3] == "SUBTRACT":
-			output.append(splitline[0] + "[0].data = " + splitline[2] + " - " + splitline[4] + " ;")
+			output.append(cvar +" = "+cvar+" - "+cvar2+";")
+			convert2binC(splitline[0], length, cvar, linenum)
+			#output.append(splitline[0] + "[0].data = " + splitline[2] + " - " + splitline[4] + " ;")
 		elif splitline[3] == "MULTIPLY":
-			output.append(splitline[0] + "[0].data = " + splitline[2] + " * " + splitline[4] + " ;")
+			output.append(cvar +" = "+cvar+" * "+cvar2+";")
+			convert2binC(splitline[0], length, cvar, linenum)
+			#output.append(splitline[0] + "[0].data = " + splitline[2] + " * " + splitline[4] + " ;")
 		elif splitline[3] == "DIVIDE":
-			output.append(splitline[0] + "[0].data = " + splitline[2] + " / " + splitline[4] + " ;")
+			output.append(cvar +" = "+cvar+" / "+cvar2+";")
+			convert2binC(splitline[0], length, cvar, linenum)
+			#output.append(splitline[0] + "[0].data = " + splitline[2] + " / " + splitline[4] + " ;")
 		elif splitline[3] == "MODULUS":
-			output.append(splitline[0] + "[0].data = " + splitline[2] + " % " + splitline[4] + " ;")
+			output.append(cvar +" = "+cvar+" % "+cvar2+";")
+			convert2binC(splitline[0], length, cvar, linenum)
+			#output.append(splitline[0] + "[0].data = " + splitline[2] + " % " + splitline[4] + " ;")
 	
 		#binary bitwise operators
 		elif splitline[3] == "AND":
-			output.append(splitline[0] + "[0].data = " + splitline[2] + " & " + splitline[4] + " ;")
+			output.append(cvar +" = "+cvar+" & "+cvar2+";")
+			convert2binC(splitline[0], length, cvar, linenum)
+			#output.append(splitline[0] + "[0].data = " + splitline[2] + " & " + splitline[4] + " ;")
 		elif splitline[3] == "NAND":
-			output.append(splitline[0] + "[0].data = ~(" + splitline[2] + " & " + splitline[4] + ") ;")
+			output.append(cvar +" = ~("+cvar+" & "+cvar2+");")
+			convert2binC(splitline[0], length, cvar, linenum)
+			#output.append(splitline[0] + "[0].data = ~(" + splitline[2] + " & " + splitline[4] + ") ;")
 		elif splitline[3] == "OR":
-			output.append(splitline[0] + "[0].data = " + splitline[2] + " | " + splitline[4] + " ;")
+			output.append(cvar +" = "+cvar+" | "+cvar2+";")
+			convert2binC(splitline[0], length, cvar, linenum)
+			#output.append(splitline[0] + "[0].data = " + splitline[2] + " | " + splitline[4] + " ;")
 		elif splitline[3] == "NOR":
-			output.append(splitline[0] + "[0].data = ~(" + splitline[2] + " | " + splitline[4] + ") ;")
+			output.append(cvar +" = ~("+cvar+" | "+cvar2+");")
+			convert2binC(splitline[0], length, cvar, linenum)
+			#output.append(splitline[0] + "[0].data = ~(" + splitline[2] + " | " + splitline[4] + ") ;")
 		elif splitline[3] == "XOR":
-			output.append(splitline[0] + "[0].data = " + splitline[2] + " ^ " + splitline[4] + ";")
+			output.append(cvar +" = "+cvar+" ^ "+cvar2+";")
+			convert2binC(splitline[0], length, cvar, linenum)
+			#output.append(splitline[0] + "[0].data = " + splitline[2] + " ^ " + splitline[4] + ";")
 		elif splitline[3] == "XNOR":
-			output.append(splitline[0] + "[0].data = ~(" + splitline[2] + " ^ " + splitline[4] + ") ;")
+			output.append(cvar +" = ~("+cvar+" ^ "+cvar2+");")
+			convert2binC(splitline[0], length, cvar, linenum)
+			#output.append(splitline[0] + "[0].data = ~(" + splitline[2] + " ^ " + splitline[4] + ") ;")
 		
 		#binary bitshifting
 		elif (splitline[3] == "RROTATE" or splitline[3] == "RSHIFT"):
