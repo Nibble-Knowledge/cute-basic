@@ -369,7 +369,6 @@ PASSTHROC printf("%d\n\n", CONT[3].data);
 
 A BE 100
 B BE 100
-LET I 
 A BE A EQUALS B
 PASSTHROC printf("%d\n", A[0].data);
 PASSTHROC printf("\nIF I\n");

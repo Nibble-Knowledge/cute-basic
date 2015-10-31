@@ -123,7 +123,7 @@ def convert2binC(var, size, cvar, linenum):
 
 	#output.append("printf(\"%d\\n\", "+cvar+");")
 	output.append("sprintf(buffer"+linenum+", \"%X\", "+cvar+");")
-	output.append("printf(\"%s\\n\\n\", buffer"+linenum+");")
+	#output.append("printf(\"%s\\n\\n\", buffer"+linenum+");")
 	output.append("int temp"+linenum+";")
 	cnt = 0
 	

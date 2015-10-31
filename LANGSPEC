@@ -1,5 +1,3 @@
-TODO: Conditionals, all of the negated values, signed values, fix bug where var0 = var0 op var 1 hen should be var0 = var 1 op var 2
-
 Cute BASIC uses all uppercase keywords. 
  
  
@@ -39,7 +37,6 @@ LET (variable name) BE (number) : Creates a variable called (variable name) and 
 LET (variable name) AS (size in nibbles) : Creates a variable called (variable name) with a size in nibbles of (size in nibbles) 
 /*LET (variable name) AS (size in nibbles) BE (number) : Creates a variable called (variable name) with a size in nibbles of (size in nibbles) and assigns (number) to it */
 
-TODO
 Assignment:
 (var1) BE (var2) : Assigns value of var2 to var1. UNSIGNED keyword is implied. var2 can be a literal.
 (var1) BE (var2) UNSIGNED : assigns value of var2 to var1. Truncates or zero-extends
@@ -165,7 +162,6 @@ CALL (funcName) (var1) ASWELL (var2)... : var1, var2, are parameters. Evaluates 
 
 I/O:
 
--This section needs work-
 
 NOHEADER: Remove CUTE BASIC header output
 
@@ -187,16 +183,4 @@ FOR PUTCHAR FILENAME AT X if X is greater than # of chars in the file it breaks 
 #/: End of multi line comment
 
 
-Not Completed (Maybe redundent because of GETCHAR/PUTCHAR)
-/*PRINT (size in nibbles) (variable type) (variable): Print (variable) of size (size in nibbles) and type (variable type)
-PRINT (size in nibbles) (variable type) (immmediate variable type) (immmediate): print immediate value of value (immmediate) of type (immmediate variable type) of size (size in nibbles) and type (variable type)
 
-FILEIN (variable) (file name): Read character from file into variable
-FILEIN (variable) (file name) AT (offset variable): Read character at offset (offset variable) into (variable) form (file name)
-FILEIN (variable) (file name) AT (value): Read character at offset (value) into (variable) from (file name)
-
-FILEOUT (variable) (file name): Append (variable) to (file name)
-FILEOUT (variable) (file name) AT (offset variable): Write (variable) at offset (offset variable) to (file name)
-FILEOUT (type) (value) (file name) AT (offset variable): Write (value) of (type) at offset (value) to (file name)
-FILEOUT (variable) (file name) AT (offset value): Write (variable) at offset (offset value) to (file name)
-FILEOUT (type) (value) (file name) AT (offset value): Write (value) of (type) at offset (offset value) to (file name)
