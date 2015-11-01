@@ -368,10 +368,12 @@ PASSTHROC printf("%d\n\n", CONT[3].data);
 #/
 
 A BE 100
+
 B BE 100
+
 A BE A EQUALS B
-PASSTHROC printf("%d\n", A[0].data);
-PASSTHROC printf("\nIF I\n");
+PASSTHROC printf("%d\n", A[3].data);
+PASSTHROC printf("\nIF A\n");
 IF A
 PASSTHROC printf("\n(A==B) IF A WORKED\n");
 ENDIF

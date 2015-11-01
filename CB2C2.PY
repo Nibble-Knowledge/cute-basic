@@ -461,8 +461,7 @@ def assignment(splitline):
 #Takes: a splitline, linenum
 def conditionals(splitline, linenum):
 	if(splitline[0] in ["IF", "ELSEIF", "ELSE", "ENDIF", "LOOPWHILE", "ENDLOOP", "LOOPAGAIN", "EXITLOOP", "EXITIF", "EARLYEND"]):
-		
-		
+
 		vartype = ""
 		boolindex = 0
 		if len(splitline) > 1 and splitline[1] in vartypes:
@@ -470,7 +469,8 @@ def conditionals(splitline, linenum):
 		elif len(splitline) > 2 and splitline[2] == "AT":
 			boolindex = int(splitline[3])
 		if len(splitline) > 1:
-			splitline[1] = splitline[1] + "[" + str(boolindex) + "].data"
+			length = varLength(splitline[1]) - 1
+			splitline[1] = splitline[1] + "[" + str(length) + "].data"
 
 		#If/else/elseif/endif
 		if splitline[0] == "IF":
