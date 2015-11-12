@@ -121,12 +121,13 @@ def convert2binC(var, size, cvar, linenum):
 	#output.append("char buffer"+linenum+"["+str(size)+"];")
 	output.append("char * buffer"+linenum+" = malloc(snprintf(NULL, 0, \"%X\", "+cvar+") + 1);")
 
-	#output.append("printf(\"%d\\n\", "+cvar+");")
+	output.append("printf(\"%d\\n\", "+cvar+");")
 	output.append("sprintf(buffer"+linenum+", \"%X\", "+cvar+");")
-	#output.append("printf(\"%s\\n\\n\", buffer"+linenum+");")
+	output.append("printf(\"%s\\n\\n\", buffer"+linenum+");")
 	output.append("int temp"+linenum+";")
 	cnt = 0
 	
+	output.append("printf(\"Size:%d\\n\", malloc_usable_size(buffer"+linenum+"));")
 	while cnt < size:
 		output.append(var+"["+str(cnt)+"].data = 0;")
 		cnt += 1
@@ -138,7 +139,7 @@ def convert2binC(var, size, cvar, linenum):
 	output.append("int tempcount"+linenum+" = "+str(size - 1)+";")
 	output.append("int bufcount"+linenum+" = "+str(size-1)+";")
 	output.append("while(tempcount"+linenum+" >= 0){")
-	#output.append("printf(\"%d\\n\", buffer"+linenum+"[bufcount"+linenum+"] - '0');")
+	output.append("printf(\"%d\\n\", buffer"+linenum+"[bufcount"+linenum+"] - '0');")
 	output.append("temp"+linenum+" = buffer"+linenum+"[bufcount"+linenum+"] - '0';")
 	#output.append("printf(\"%d\\n\", temp"+linenum+");")
 
