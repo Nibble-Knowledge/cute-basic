@@ -2,6 +2,23 @@
 import sys
 import os
 
+#stack for keeping track of IF statements - holds line numbers of IF
+ifStatementStack = []
+#stack for keeping track of LOOPWHILE statements - holds like numbers of LOOPWHILE
+loopStatementStack = []
+#giant buffer holding output
+output = []
+#list of names of variables
+
+#format: VARNAME SIZE SIGN
+variables = []
+
+varnames = []
+vartypes = ["BINARY", "HEX", "CHAR"]
+varsizes = []
+varvals = []
+varstofree = []
+
 #flags
 hasstart = 0
 hasend = 0
@@ -42,14 +59,7 @@ def startEnd(line):
 			exit(1)
 		else:
 			hasstart = 1
-			
-			#output.append("")
-			#output.append("")
-			#output.append("int main()")
-			#output.append("{")
-			# Some fun
-			#output.append("puts(HEADER);")
-			#output.append("puts(\"\");")
+			output.append("START:")
 			
 	elif line.strip() == "END":
 		if hasend == 1:
@@ -57,12 +67,10 @@ def startEnd(line):
 			exit(1)
 		else:
 			hasend = 1
-			#output.append("END:")
-			#output.append("return 0;")
-			#output.append("}")
+			output.append("END:")
 
 		
-#Checks if a line is asm or passthroc, if it is put it directly into c as is
+#Checks if a line is asm or passthroc, if it is put it directly into output as is
 #Takes: a splitline
 #Returns: 1 if asm or passthroc is found, 0 otherwise 
 def asm_passthroc(splitline):
@@ -77,11 +85,179 @@ def asm_passthroc(splitline):
 		cont = 1
 		
 	return cont			
-		
-		
-		
-			
 
+		
+#Checks if variable declaration is being performed
+#Takes: a splitline
+def variableDeclaration(splitline):
+	if splitline[0] == "LET":
+		for i in varnames:
+			if len(splitline) > 1 and i == splitline[1]:
+				print "Variable name " + splitline[1] + " already declared!"
+				quit(1)
+		# The variable name will be the second whitespace delimited field
+		varnames.append(splitline[1])
+		
+		if len(splitline) > 2 and splitline[2] == "AS":
+			# Firstly, check if we're using SIGNED or UNSIGNED - if neither, UNSIGNED.
+			if len(splitline) <= 6 or splitline[6] == "UNSIGNED":
+				varsizes.append(int(splitline[3]))
+				varstofree.append(splitline[1])
+				
+			elif len(splitline) > 6 and splitline[6] == "SIGNED":
+				#output.append("snib *" + splitline[1] + " = malloc(sizeof(snib) * " + splitline[3] + ");")
+				varsizes.append(int(splitline[3]))
+				varstofree.append(splitline[1])
+				
+			if len(splitline) > 4 and splitline[4] == "BE":
+				
+			
+		else:
+			output.append("nib *" + splitline[1] + " = malloc(sizeof(nib));")
+			varsizes.append(1)
+			if len(splitline) > 2 and splitline[2] == "BE":
+				output.append(splitline[1] + "[0].data = " + splitline[3] + ";")		
+		
+	
+
+#Checks if unary math operations are being performed with assignments as the first thing on the line
+#Takes: a splitline
+def unarymath(splitline, linenum):	
+	if ((splitline[0] in varnames) and (splitline[2] in ["COMPLEMENT", "NEGATE", "INCREMENT", "DECREMENT", "NOT", "ADDRESSOF", "CONTENTOF"])): 
+		#unary math/bit/logic operators
+		if splitline[2] == "COMPLEMENT":
+			output.append("NOT " + splitline[3] + " INTO " + splitline[0])
+		elif splitline[2] == "NEGATE":
+			output.append("NEG " + splitline[3] + " INTO " + splitline[0])
+		elif splitline[2] == "INCREMENT":
+			output.append("INC " + splitline[3] + " INTO " + splitline[0])
+		elif splitline[2] == "DECREMENT":
+			output.append("DEC " + splitline[3] + " INTO " + splitline[0]) #TODO cant tell if implemetned yet outside of accumulator
+		elif splitline[2] == "NOT":
+			output.append("LOGNOT ACC")
+			#TODO Dont think this is right but have to double check
+		elif splitline[2] == "ADDRESSOF":
+			continue
+			#TODO no idea yet
+		elif splitline[2] == "CONTENTOF":
+			continue
+			#TODO no idea yet
+	
+#Checks if binary math operations are being performed with assignments as the first thing on the line
+#Takes: a splitline, linenumber
+def binarymath(splitline, linenum):					
+	if ((splitline[0] in varnames) and len(splitline) > 4): 
+	
+		if splitline[3] == "ADD":
+			output.append("ADD " + splitline[2] + " " + splitline[4] + " INTO " + splitline[0])
+		elif splitline[3] == "SUBTRACT":
+			output.append("SUB " + splitline[2] + " " + splitline[4] + " INTO " + splitline[0])
+		elif splitline[3] == "MULTIPLY":
+			output.append("MULT " + splitline[2] + " " + splitline[4] + " INTO " + splitline[0])
+		elif splitline[3] == "DIVIDE":
+			output.append("DIV " + splitline[2] + " " + splitline[4] + " INTO " + splitline[0]) #TODO This doesnt work yet
+		elif splitline[3] == "MODULUS":
+			output.append("MOD " + splitline[2] + " " + splitline[4] + " INTO " + splitline[0]) #TODO this doesnt work yet
+	
+		#binary bitwise operators
+		elif splitline[3] == "AND":
+			output.append("AND " + splitline[2] + " " + splitline[4] + " INTO " + splitline[0])
+		elif splitline[3] == "NAND":
+			output.append("NAND " + splitline[2] + " " + splitline[4] + " INTO " + splitline[0])
+		elif splitline[3] == "OR":
+			output.append("OR " + splitline[2] + " " + splitline[4] + " INTO " + splitline[0])
+		elif splitline[3] == "NOR":
+			output.append("NOR " + splitline[2] + " " + splitline[4] + " INTO " + splitline[0])
+		elif splitline[3] == "XOR":
+			output.append("XOR " + splitline[2] + " " + splitline[4] + " INTO " + splitline[0])
+		elif splitline[3] == "XNOR":
+			output.append("XNOR " + splitline[2] + " " + splitline[4] + " INTO " + splitline[0])
+			
+		#TODO Ask naomi about shifting and rotating in her code
+		#binary bitshifting
+		elif (splitline[3] == "RROTATE" or splitline[3] == "RSHIFT"):
+			continue
+			#RROT [label1] into [label2]
+		elif (splitline[3] == "LROTATE" or splitline[3] == "LSHIFT"):
+			continue
+			#RROT [label1] into [label2]
+		
+		#TODO Ask naomi about this too
+		#binary logical operators
+		elif splitline[3] == "ALSO":
+			continue
+		elif splitline[3] == "EITHER":
+			continue
+		
+#Checks a line for any conditionals
+#Takes: a splitline, linenum
+def conditionals(splitline, linenum):
+	if(splitline[0] in ["IF", "ELSEIF", "ELSE", "ENDIF", "LOOPWHILE", "ENDLOOP", "LOOPAGAIN", "EXITLOOP", "EXITIF", "EARLYEND"]):
+		label = splitline[0]+str(linenum)+"jump"
+		if splitline[0] in ["IF", "ELSEIF", "LOOPWHILE"]:
+			staycond = splitline[2]
+			if staycond == "EQUALS":
+				jumptype = "JMPNE"
+			elif staycond == "NOTEQUALS":
+				jumptype = "JMPEQ"
+			elif staycond == "GREATER":
+				jumptype = "JMPLE":
+			elif staycond == "GREATEREQUALS":
+				jumptype = "JMPL"
+			elif staycond == "LESS":
+				jumptype = "JMPGE"
+			elif staycond == "LESSEQUALS":
+				jumptype = "JMPG"
+				
+			if splitline[0] == "IF":
+				ifStatementStack.append(label)
+				output.append(jumptype + " " + splitline[1] + " " + splitline[3] + " TO " + label)#TODO what is this label if there is no elseif/else?
+				
+			elif splitline[0] == "ELSEIF": #TODO figure out elseif and else
+				output.append(str(ifStatementStack.pop()) + ":")
+				ifStatementStack.apend(label)
+				output.append(jumptype + " " + splitline[1] + " " + splitline[3] + " TO " + label)
+				
+			elif splitline[0] == "LOOPWHILE":
+				output.append("start" + label + ":")
+				output.append(jumptype + " " + splitline[1] + " " + splitline[3] + " TO " + label)
+				loopStatementStack.append(label)
+		
+		elif splitline[0] == "ELSE":
+			output.append(str(ifStatementStack.pop()) + ":")
+			ifStatementStack.apend(label)
+			
+		elif splitline[0]== "ENDIF":
+			output.append(str(ifStatementStack.pop()) + ":")
+
+		elif splitline[0] == "ENDLOOP":
+			label = str(loopStatementStack.pop())
+			output.append("jmp start"+label)
+			output.append(label + ":")
+
+		#GOTO derivatives
+		elif splitline[0] == "LOOPAGAIN":
+			output.append("jmp start"+str(loopStatementStack[-1]))
+		elif splitline[0] == "EXITLOOP":
+			output.append("jmp " + str(loopStatementStack[-1]))
+		elif splitline[0] == "EXITIF":
+			output.append("jmp "+ str(ifStatementStack[-1]))
+	
+		#Earlyend
+		elif splitline[0] == "EARLYEND":
+			output.append("jmp END")	
+			
+#goto and labels
+#Takes: splitline
+def goto(splitline):
+	if(splitline[0] in ["GOTO", "LABEL"]):
+		if splitline[0] == "LABEL":
+			output.append(splitline[1] + ":")
+		elif splitline[0] == "GOTO":
+			output.append("JMP " + splitline[1]) #TODO check if straight jump works in macro otherwise will need to change this
+		
+
+#************************************************************************************ MAIN*********************************************************************************************
 def main():
 	
 	if len(sys.argv) < 2:
@@ -112,16 +288,15 @@ def main():
 			
 		#Check what the line is	
 		#variableDeclaration(splitline)
-		#unarymath(splitline, linenum)
-		#binarymath(splitline, linenum)
+		unarymath(splitline, linenum)
+		binarymath(splitline, linenum)
 		#assignment(splitline)
 		#conditionals(splitline,linenum)
-		#goto(splitline)
+		goto(splitline)
 		#functionProperties(splitline)
 		#functionCall(splitline, linenum)
 		#files(splitline,linenum)
-			
-	
+
 
     inputf.close()
 	if hasstart == 0:
