@@ -4,6 +4,7 @@ import os
 
 #stack for keeping track of IF statements - holds line numbers of IF
 ifStatementStack = []
+endifStack = []
 #stack for keeping track of LOOPWHILE statements - holds like numbers of LOOPWHILE
 loopStatementStack = []
 #giant buffer holding output
@@ -86,38 +87,6 @@ def asm_passthroc(splitline):
 		
 	return cont			
 
-		
-#Checks if variable declaration is being performed
-#Takes: a splitline
-def variableDeclaration(splitline):
-	if splitline[0] == "LET":
-		for i in varnames:
-			if len(splitline) > 1 and i == splitline[1]:
-				print "Variable name " + splitline[1] + " already declared!"
-				quit(1)
-		# The variable name will be the second whitespace delimited field
-		varnames.append(splitline[1])
-		
-		if len(splitline) > 2 and splitline[2] == "AS":
-			# Firstly, check if we're using SIGNED or UNSIGNED - if neither, UNSIGNED.
-			if len(splitline) <= 6 or splitline[6] == "UNSIGNED":
-				varsizes.append(int(splitline[3]))
-				varstofree.append(splitline[1])
-				
-			elif len(splitline) > 6 and splitline[6] == "SIGNED":
-				#output.append("snib *" + splitline[1] + " = malloc(sizeof(snib) * " + splitline[3] + ");")
-				varsizes.append(int(splitline[3]))
-				varstofree.append(splitline[1])
-				
-			if len(splitline) > 4 and splitline[4] == "BE":
-				
-			
-		else:
-			output.append("nib *" + splitline[1] + " = malloc(sizeof(nib));")
-			varsizes.append(1)
-			if len(splitline) > 2 and splitline[2] == "BE":
-				output.append(splitline[1] + "[0].data = " + splitline[3] + ";")		
-		
 	
 
 #Checks if unary math operations are being performed with assignments as the first thing on the line
@@ -137,10 +106,10 @@ def unarymath(splitline, linenum):
 			output.append("LOGNOT ACC")
 			#TODO Dont think this is right but have to double check
 		elif splitline[2] == "ADDRESSOF":
-			continue
+			a = '' 
 			#TODO no idea yet
 		elif splitline[2] == "CONTENTOF":
-			continue
+			a = ''
 			#TODO no idea yet
 	
 #Checks if binary math operations are being performed with assignments as the first thing on the line
@@ -176,18 +145,18 @@ def binarymath(splitline, linenum):
 		#TODO Ask naomi about shifting and rotating in her code
 		#binary bitshifting
 		elif (splitline[3] == "RROTATE" or splitline[3] == "RSHIFT"):
-			continue
+			a = ''
 			#RROT [label1] into [label2]
 		elif (splitline[3] == "LROTATE" or splitline[3] == "LSHIFT"):
-			continue
+			a = ''
 			#RROT [label1] into [label2]
 		
 		#TODO Ask naomi about this too
 		#binary logical operators
 		elif splitline[3] == "ALSO":
-			continue
+			a = ''
 		elif splitline[3] == "EITHER":
-			continue
+			a = ''
 		
 #Checks a line for any conditionals
 #Takes: a splitline, linenum
@@ -201,7 +170,7 @@ def conditionals(splitline, linenum):
 			elif staycond == "NOTEQUALS":
 				jumptype = "JMPEQ"
 			elif staycond == "GREATER":
-				jumptype = "JMPLE":
+				jumptype = "JMPLE"
 			elif staycond == "GREATEREQUALS":
 				jumptype = "JMPL"
 			elif staycond == "LESS":
@@ -211,11 +180,13 @@ def conditionals(splitline, linenum):
 				
 			if splitline[0] == "IF":
 				ifStatementStack.append(label)
+				endifStack.append("endif" + str(linenum))
 				output.append(jumptype + " " + splitline[1] + " " + splitline[3] + " TO " + label)#TODO what is this label if there is no elseif/else?
 				
 			elif splitline[0] == "ELSEIF": #TODO figure out elseif and else
+				output.append("jmp "+str(endifStack[-1]))
 				output.append(str(ifStatementStack.pop()) + ":")
-				ifStatementStack.apend(label)
+				ifStatementStack.append(label)
 				output.append(jumptype + " " + splitline[1] + " " + splitline[3] + " TO " + label)
 				
 			elif splitline[0] == "LOOPWHILE":
@@ -224,11 +195,11 @@ def conditionals(splitline, linenum):
 				loopStatementStack.append(label)
 		
 		elif splitline[0] == "ELSE":
+			output.append("jmp "+str(endifStack[-1]))
 			output.append(str(ifStatementStack.pop()) + ":")
-			ifStatementStack.apend(label)
-			
+
 		elif splitline[0]== "ENDIF":
-			output.append(str(ifStatementStack.pop()) + ":")
+			output.append(str(endifStack.pop()) + ":")
 
 		elif splitline[0] == "ENDLOOP":
 			label = str(loopStatementStack.pop())
@@ -259,46 +230,50 @@ def goto(splitline):
 
 #************************************************************************************ MAIN*********************************************************************************************
 def main():
-	
+
 	if len(sys.argv) < 2:
 		print 'No file specified'
 		quit()
 	inputf = open(sys.argv[1])
 	linenum = 1
-
-
-    #This loop is the compiler section - converts all lines of CB into lines of Macro ASM
-    for line in inputf.readlines():
-    	#Check for comments
+	
+	
+	#This loop is the compiler section - converts all lines of CB into lines of Macro ASM
+	for line in inputf.readlines():
+		#Check for comments
 		continueBool = checkComment(line)
 		if continueBool == 1:
 			continue
-    	
-        #Check if line is START or END TODO determine what needs to be passed to asm for this part
-        startEnd(line)
-        
-        #Check for empty line 
+		
+		#Check if line is START or END TODO determine what needs to be passed to asm for this part
+		startEnd(line)
+		
+		splitline = line.split()
+		
+		#Check for empty line 
 		if len(splitline) == 0:
-			output.append("\n") #preserves empty lines, an be changed if unwanted
-
-        #Check for asm or passthroc, if found then line is passed through unchanged
+			output.append("") #preserves empty lines, an be changed if unwanted
+			continue
+		
+		#Check for asm or passthroc, if found then line is passed through unchanged
 		continueBool = asm_passthroc(splitline)
 		if continueBool == 1:
 			continue
-			
+		
 		#Check what the line is	
 		#variableDeclaration(splitline)
 		unarymath(splitline, linenum)
 		binarymath(splitline, linenum)
 		#assignment(splitline)
-		#conditionals(splitline,linenum)
+		conditionals(splitline,linenum)
 		goto(splitline)
 		#functionProperties(splitline)
 		#functionCall(splitline, linenum)
 		#files(splitline,linenum)
-
-
-    inputf.close()
+		
+		linenum = linenum + 1
+	
+	inputf.close()
 	if hasstart == 0:
 		print "No START declared!"
 		quit(1)
@@ -310,6 +285,6 @@ def main():
 			print i
 	quit(0)
 
-	# This if only runs if this file is called as a script - if it is included, it doesn't
+# This if only runs if this file is called as a script - if it is included, it doesn't
 if __name__ == "__main__":
 	main()
