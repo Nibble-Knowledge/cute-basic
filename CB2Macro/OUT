@@ -1,0 +1,17 @@
+START:
+
+A: .data 4 0
+B: .data 1 0
+C: .data 4 10
+D: .data 8 100 Signed?
+
+
+MOV C INTO A
+
+LOD 0
+ADD 4
+STR B
+
+
+END:
+

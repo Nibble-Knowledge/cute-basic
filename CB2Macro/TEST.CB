@@ -1,0 +1,16 @@
+START
+
+LET A
+LET B AS 1
+LET C BE 10
+LET D AS 8 BE 100 SIGNED
+LET E T #This should be invalid
+
+A BE C
+
+B BE 4
+
+
+END
+
+#Load and store? for assignment operators

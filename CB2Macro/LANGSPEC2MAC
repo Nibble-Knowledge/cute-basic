@@ -1,0 +1,29 @@
+Questions:
+Variable declaration:
+    Default as to size 4?
+    Default val to 0?
+    What to do with signed?
+
+Unarymath:
+    Can't tell how DEC works? Does it only work an accumulator?
+    LOGNOT no idea
+    ADDRESSOF and CONTENTOF not sure what to put here
+
+Binarymath:
+    DIV and MOD notimplemented yet?
+    Not sure how Rotates should be implemetned
+    Not sure how ALSO or EITHER should be implemented
+    
+Assignment:
+    How to assign a non variable to a variable?
+        What i currently have in here i dont think works at all    
+
+Functions:
+    How do?
+    
+Files:
+    How do?
+
+General questions:
+    Data sections/isntruction section? Does it need to be split up?
+

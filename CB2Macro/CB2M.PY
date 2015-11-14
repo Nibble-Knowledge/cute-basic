@@ -26,6 +26,16 @@ hasend = 0
 multicomment = 0
 
 
+
+#Checks the nibble length of the variable
+#Takes name of variable
+#Returns length of variable 
+def varLength(varname):
+	index = varnames.index(varname)
+	#print varname
+	length = varsizes[index]
+	return length
+
 #Checks if a comment exists on the line
 #Takes: a line from readlines()
 #Returns: 1 if a comment is found, 0 otherwise
@@ -87,7 +97,61 @@ def asm_passthroc(splitline):
 		
 	return cont			
 
-	
+
+#Checks if variable declaration is being performed
+#Takes: a splitline
+def variableDeclaration(splitline, linenum):
+	if splitline[0] == "LET":
+		#4 possibilities: #TODO decide on the default values
+		#LET VAR - this should default a size and value
+		#LET VAR AS SIZE- this should default a value
+		#LET VAR BE VAL (SIGNED)- this should default a size, and if no signed default unsigned
+		#LET VAR AS SIZE BE VAL (SIGNED) - if no signed, default unsigned
+		
+		#Check if variable already exists
+		for i in varnames:
+			if len(splitline) > 1 and i == splitline[1]:
+				print "Variable name " + splitline[1] + " already declared!"
+				quit(1)
+				
+		# The variable name will be the second whitespace delimited field
+		varnames.append(splitline[1])
+		temp = ''
+		defaultSize = 4
+		defaultVal = 0
+		
+		#LET VAR
+		if len(splitline) == 2:
+			temp += splitline[1] + ": .data " + str(defaultSize) + " " + str(defaultVal)
+			varsizes.append(defaultSize)
+
+		#LET VAR AS or LET VAR AS BE
+		elif splitline[2] == "AS":
+			#LET VAR AS
+			if len(splitline) == 4:
+				temp += splitline[1] + ": .data " + splitline[3] + " " + str(defaultVal)
+				varsizes.append(splitline[3])
+
+			#LET VAR AS BE	
+			else:
+				temp += splitline[1] + ": .data " + splitline[3] + " " + splitline[5]
+				varsizes.append(splitline[3])
+				
+		#LET VAR BE
+		elif splitline[2] == "BE":
+			temp += splitline[1] + ": .data " + str(defaultSize) + " " + splitline[3]
+			varsizes.append(defaultSize)
+			
+		#Invalid input	
+		else:
+			print "Invalid line " + str(linenum) + ": " + str(splitline)
+			
+		#If last input is signed	#TODO figure out what this should do
+		if splitline[-1] == "SIGNED":
+			temp += " Signed?"
+			
+		output.append(temp)
+		
 
 #Checks if unary math operations are being performed with assignments as the first thing on the line
 #Takes: a splitline
@@ -157,6 +221,22 @@ def binarymath(splitline, linenum):
 			a = ''
 		elif splitline[3] == "EITHER":
 			a = ''
+	
+
+#Checks if assigning a variable to another variable
+#Takes: a splitline
+def assignment(splitline):					
+	if ((splitline[0] in varnames) and (len(splitline) == 3)):
+		length = varLength(splitline[0])
+		
+		#If assigning a variable to antoehr variable
+		if(splitline[2] in varnames):	
+			output.append("MOV " + splitline[2] + " INTO " + splitline[0])
+		
+		else: #TODO figure out how to load temp values - this probably isnt right at all
+			output.append("LOD 0")
+			output.append("ADD " + splitline[2])
+			output.append("STR " + splitline[0])			
 		
 #Checks a line for any conditionals
 #Takes: a splitline, linenum
@@ -181,9 +261,9 @@ def conditionals(splitline, linenum):
 			if splitline[0] == "IF":
 				ifStatementStack.append(label)
 				endifStack.append("endif" + str(linenum))
-				output.append(jumptype + " " + splitline[1] + " " + splitline[3] + " TO " + label)#TODO what is this label if there is no elseif/else?
+				output.append(jumptype + " " + splitline[1] + " " + splitline[3] + " TO " + label)
 				
-			elif splitline[0] == "ELSEIF": #TODO figure out elseif and else
+			elif splitline[0] == "ELSEIF": 
 				output.append("jmp "+str(endifStack[-1]))
 				output.append(str(ifStatementStack.pop()) + ":")
 				ifStatementStack.append(label)
@@ -225,7 +305,7 @@ def goto(splitline):
 		if splitline[0] == "LABEL":
 			output.append(splitline[1] + ":")
 		elif splitline[0] == "GOTO":
-			output.append("JMP " + splitline[1]) #TODO check if straight jump works in macro otherwise will need to change this
+			output.append("JMP " + splitline[1]) 
 		
 
 #************************************************************************************ MAIN*********************************************************************************************
@@ -234,7 +314,10 @@ def main():
 	if len(sys.argv) < 2:
 		print 'No file specified'
 		quit()
-	inputf = open(sys.argv[1])
+	inputf = open(sys.argv[1], 'r')
+	
+	if len(sys.argv) == 3:
+		outputf = open(sys.argv[2], 'w')
 	linenum = 1
 	
 	
@@ -243,9 +326,10 @@ def main():
 		#Check for comments
 		continueBool = checkComment(line)
 		if continueBool == 1:
+			linenum += 1
 			continue
 		
-		#Check if line is START or END TODO determine what needs to be passed to asm for this part
+		#Check if line is START or END 
 		startEnd(line)
 		
 		splitline = line.split()
@@ -253,18 +337,20 @@ def main():
 		#Check for empty line 
 		if len(splitline) == 0:
 			output.append("") #preserves empty lines, an be changed if unwanted
+			linenum += 1
 			continue
 		
 		#Check for asm or passthroc, if found then line is passed through unchanged
 		continueBool = asm_passthroc(splitline)
 		if continueBool == 1:
+			linenum += 1
 			continue
 		
 		#Check what the line is	
-		#variableDeclaration(splitline)
+		variableDeclaration(splitline, linenum)
 		unarymath(splitline, linenum)
 		binarymath(splitline, linenum)
-		#assignment(splitline)
+		assignment(splitline)
 		conditionals(splitline,linenum)
 		goto(splitline)
 		#functionProperties(splitline)
@@ -282,7 +368,9 @@ def main():
 		quit(1)
 	if hasend == 1 and hasstart == 1:
 		for i in output:
-			print i
+			if(len(sys.argv)) == 3:
+				outputf.write(i + "\n")
+			#print i
 	quit(0)
 
 # This if only runs if this file is called as a script - if it is included, it doesn't
