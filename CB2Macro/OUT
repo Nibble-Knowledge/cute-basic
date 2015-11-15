@@ -12,6 +12,12 @@ LOD 0
 ADD 4
 STR B
 
+LSHIFT D INTO A
+LSHIFT D INTO A
+LSHIFT D INTO A
+
+S: .ascii "S"
+Z: .ascii "Z"
 
 END:
 

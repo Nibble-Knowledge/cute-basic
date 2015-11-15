@@ -134,13 +134,21 @@ def variableDeclaration(splitline, linenum):
 
 			#LET VAR AS BE	
 			else:
-				temp += splitline[1] + ": .data " + splitline[3] + " " + splitline[5]
-				varsizes.append(splitline[3])
+				if(splitline[5][0] == "\""):
+					temp += splitline[1] + ": .ascii " + splitline[5]
+					varsizes.append(splitline[3])
+				else:
+					temp += splitline[1] + ": .data " + splitline[3] + " " + splitline[5]
+					varsizes.append(splitline[3])
 				
 		#LET VAR BE
 		elif splitline[2] == "BE":
-			temp += splitline[1] + ": .data " + str(defaultSize) + " " + splitline[3]
-			varsizes.append(defaultSize)
+			if(splitline[3][0] == "\""):
+				temp += splitline[1] + ": .ascii " + splitline[3]
+				varsizes.append(len(splitline[3]) * 8) #TODO not sure if this value is correct
+			else:
+				temp += splitline[1] + ": .data " + str(defaultSize) + " " + splitline[3]
+				varsizes.append(defaultSize)
 			
 		#Invalid input	
 		else:
@@ -180,7 +188,7 @@ def unarymath(splitline, linenum):
 #Takes: a splitline, linenumber
 def binarymath(splitline, linenum):					
 	if ((splitline[0] in varnames) and len(splitline) > 4): 
-	
+		count = 0
 		if splitline[3] == "ADD":
 			output.append("ADD " + splitline[2] + " " + splitline[4] + " INTO " + splitline[0])
 		elif splitline[3] == "SUBTRACT":
@@ -206,15 +214,38 @@ def binarymath(splitline, linenum):
 		elif splitline[3] == "XNOR":
 			output.append("XNOR " + splitline[2] + " " + splitline[4] + " INTO " + splitline[0])
 			
-		#TODO Ask naomi about shifting and rotating in her code
+		#TODO Not sure if this is right, or how to do right shifts/rots at all
 		#binary bitshifting
-		elif (splitline[3] == "RROTATE" or splitline[3] == "RSHIFT"):
+		elif (splitline[3] == "RROTATE"):
 			a = ''
 			#RROT [label1] into [label2]
-		elif (splitline[3] == "LROTATE" or splitline[3] == "LSHIFT"):
-			a = ''
+		elif (splitline[3] == "LROTATE" ):
+			while (count < int(splitline[4])) :
+				output.append("LROT " + splitline[2] + " INTO " + splitline[0])
+				count += 1
 			#RROT [label1] into [label2]
 		
+		elif (splitline[3] == "RSHIFT"):
+			a = ''
+		elif (splitline[3] == "LSHIFT"):
+			while (count < int(splitline[4])) :
+				output.append("LSHIFT " + splitline[2] + " INTO " + splitline[0])
+				count += 1
+				
+				#Commented out as i believe misread what LSHIFT did 
+				'''
+				temp = int(splitline[4]) - count
+				if (temp >= 16):
+					output.append("LSHIFT16 " + splitline[2] + " INTO " + splitline[0])
+					count += 16
+				elif (temp >= 8):
+					output.append("LSHIFT8 " + splitline[2] + " INTO " + splitline[0])
+					count += 8
+				else:
+					output.append("LSHIFT " + splitline[2] + " INTO " + splitline[0])
+					count += 1
+				'''
+				
 		#TODO Ask naomi about this too
 		#binary logical operators
 		elif splitline[3] == "ALSO":
@@ -371,6 +402,12 @@ def main():
 			if(len(sys.argv)) == 3:
 				outputf.write(i + "\n")
 			#print i
+	
+	#for i in varsizes:
+	#	print i
+	#for i in varnames:
+	#	print i
+	
 	quit(0)
 
 # This if only runs if this file is called as a script - if it is included, it doesn't

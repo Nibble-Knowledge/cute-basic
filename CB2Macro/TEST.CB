@@ -10,7 +10,10 @@ A BE C
 
 B BE 4
 
+A BE D LSHIFT 3
+
+LET S AS 8 BE "S"
+LET Z BE "Z"
 
 END
 
-#Load and store? for assignment operators

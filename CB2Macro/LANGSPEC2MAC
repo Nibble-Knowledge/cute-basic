@@ -1,4 +1,5 @@
 Questions:
+
 Variable declaration:
     Default as to size 4?
     Default val to 0?
@@ -11,7 +12,10 @@ Unarymath:
 
 Binarymath:
     DIV and MOD notimplemented yet?
-    Not sure how Rotates should be implemetned
+    Not sure how shifts + Rotates should be implemented 
+        Our langspec has 3 vars, our macro only uses 2
+            Im trying to repeat the number of shifts based on third input var? Not sure if this is right or works
+        Not sure how to do right shifts or rots at all  
     Not sure how ALSO or EITHER should be implemented
     
 Assignment:
@@ -27,3 +31,7 @@ Files:
 General questions:
     Data sections/isntruction section? Does it need to be split up?
 
+
+We currently have no way to declare strings in langspec - i guess we can use let var be version?
+    How to differentiate between ascii and asciiz values?, what size to declare?
+    How to auto size? Len of string * 8?
