@@ -20,6 +20,9 @@ varsizes = []
 varvals = []
 varstofree = []
 
+funcnames = []
+funcstack = []
+
 #flags
 hasstart = 0
 hasend = 0
@@ -339,6 +342,74 @@ def goto(splitline):
 			output.append("JMP " + splitline[1]) 
 		
 
+
+#Checks if the line contains any function properties
+#Takes: splitline
+def functionProperties(splitline):
+	if splitline[0] == "FUNCTION":
+		#must match declaration sig
+		name = splitline[1]
+		funcstack.append(name)
+		output.append("#" + name + " function begins here")
+		output.append(name + "Label:")
+		nextparam = 0
+		paramnum = 0
+		if len(splitline) > 2:
+			#just takes
+			if splitline[2] == "TAKES":
+				nextparam = 2
+				#todo should i use names? they complicate things, also using 0 as default val for everything
+				while len(splitline) < nextparam + 1:
+					output.append(name + "Param" + paramnum +": .data " + splitline[nextparam + 1] + " 0")
+					nextparam += 3
+					paramnum += 1
+					
+			elif splitline[2] == "RETURNS":
+				#Jsut returns - defaults value to 0 
+				output.append(name + "ReturnValue: .data " + splitline[3] * 4 + " 0")
+				if len(splitline) > 4:
+					#returns and takes
+					nextparam = 4
+					while len(splitline) < nextparam + 1:
+						output.append(name + "Param" + paramnum +": .data " + splitline[nextparam + 1] + " 0")
+						nextparam += 3
+						paramnum += 1
+					
+			else:
+				print "Not a valid function " +str(splitline[1]) + " on line " + str(linenum)
+		
+		
+	elif splitline[0] == "ENDFUNCTION":
+		name = funcstack.pop()
+		output.append("JMP " + name + "ReturnLabel")
+		
+		#TODO dont think this is right, not sure how we want to return values
+	elif splitline[0] == "RETURN":
+		name = funcstack[-1]
+		output.append("STR " + name + "ReturnValue")	
+		output.append("JMP " + name + "ReturnLabel")
+
+#Checks for and performs function calls
+#Takes: splitline, current line number
+def functionCall(splitline, linenum):
+	if splitline[0] == "CALL":
+		#TODO not sure how to load non variable values still
+		if len(splitline) == 3:
+			output.append("LOD " + splitline[2])
+			output.append("STR " + splitline[1] + "Param0")
+		elif len(splitline) > 3:
+			paramnum = 0
+			nextparam = 3
+			while len(splitline) < nextparam + 1:
+				output.append("LOD " + splitline[nextparam+1])
+				output.append("STR " + splitline[1] + "Param" + paramnum)
+				nextparam += 2
+				paramnum += 1
+			
+		output.append("JMP " + splitline[1] + "Label")
+		output.append(splitline[1] + "ReturnLabel:")
+
+
 #************************************************************************************ MAIN*********************************************************************************************
 def main():
 
@@ -384,8 +455,8 @@ def main():
 		assignment(splitline)
 		conditionals(splitline,linenum)
 		goto(splitline)
-		#functionProperties(splitline)
-		#functionCall(splitline, linenum)
+		functionProperties(splitline)
+		functionCall(splitline, linenum)
 		#files(splitline,linenum)
 		
 		linenum = linenum + 1

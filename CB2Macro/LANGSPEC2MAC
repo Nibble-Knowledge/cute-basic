@@ -24,9 +24,25 @@ Assignment:
 
 Functions:
     How do?
+    Currently functions must go at bottom of file
+    Properties:
+        Deciding to make is so order must be RETURNS follwed by TAKES if RETURN exists
+        So can be   FUNCTION 
+                    FUNCTION RETURNS ...
+                    FUNCTION TAKES ... , ...
+                    FUNCTION RETURNS ... TAKES ... , ...
+        Also using order number instead of name for params for now            
+                
+                
+    nameLabel:
+    datalabels
+    jmp nameReturnLabel
     
+    Calls:
+        Not sure how to do returns - atm a function leaves a return label at call but this would mean can only be used once?
 Files:
     How do?
+   
 
 General questions:
     Data sections/isntruction section? Does it need to be split up?

@@ -19,5 +19,20 @@ LSHIFT D INTO A
 S: .ascii "S"
 Z: .ascii "Z"
 
+JMP TESTLabel
+TESTReturnLabel:
+
+
+#TEST function begins here
+TESTLabel:
+TESTReturnValue: .data 4444 0
+LOD 0
+ADD 2
+STR A
+STR TESTReturnValue
+JMP TESTReturnLabel
+JMP TESTReturnLabel
+
+
 END:
 
