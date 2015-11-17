@@ -160,6 +160,7 @@ def variableDeclaration(splitline, linenum):
 		#If last input is signed	#TODO figure out what this should do
 		if splitline[-1] == "SIGNED":
 			temp += " Signed?"
+			a = 1
 			
 		data.append(temp)
 		
@@ -176,6 +177,7 @@ def unarymath(splitline, linenum):
 		elif splitline[2] == "INCREMENT":
 			output.append("INC " + splitline[3] + " INTO " + splitline[0])
 		elif splitline[2] == "DECREMENT":
+			output.append("LOD N_[1]")
 			output.append("SUB " + splitline[2] + " N_[1] INTO " + splitline[0]) #TODO double check this
 		elif splitline[2] == "NOT":
 			output.append("LOGNOT ACC")
@@ -352,7 +354,7 @@ def functionProperties(splitline):
 					
 			elif splitline[2] == "RETURNS":
 				#Jsut returns - defaults value to 0 
-				output.append(name + "ReturnValue: .data " + splitline[3] * 4 + " 0")
+				data.append(name + "ReturnValue: .data " + splitline[3] * 4 + " 0")
 				if len(splitline) > 4:
 					#returns and takes
 					nextparam = 4
