@@ -51,3 +51,7 @@ General questions:
 We currently have no way to declare strings in langspec - i guess we can use let var be version?
     How to differentiate between ascii and asciiz values?, what size to declare?
     How to auto size? Len of string * 8?
+    
+    
+Notes:
+    Load 0 before unconditional jumps

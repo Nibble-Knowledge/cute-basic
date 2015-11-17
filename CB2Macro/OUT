@@ -1,38 +1,35 @@
 START:
 
-A: .data 4 0
-B: .data 1 0
-C: .data 4 10
-D: .data 8 100 Signed?
-
-
 MOV C INTO A
+MOV N_[4] INTO B
+LSHIFT D INTO A
+LSHIFT D INTO A
+LSHIFT D INTO A
 
+
+TESTReturnLabel15:
+MOV TESTReturnLabel15 INTO TESTReturnLabel
 LOD 0
-ADD 4
-STR B
-
-LSHIFT D INTO A
-LSHIFT D INTO A
-LSHIFT D INTO A
-
-S: .ascii "S"
-Z: .ascii "Z"
-
 JMP TESTLabel
-TESTReturnLabel:
-
 
 #TEST function begins here
 TESTLabel:
 TESTReturnValue: .data 4444 0
-LOD 0
-ADD 2
-STR A
+MOV N_[2] INTO A
 STR TESTReturnValue
-JMP TESTReturnLabel
+LOD 0
+JMP TESTReturnLabel[1]
+LOD 0
 JMP TESTReturnLabel
 
 
 END:
 
+########## DATA SECTION BELOW HERE ##########
+A: .data 4 0
+B: .data 1 0
+C: .data 4 10
+D: .data 8 100 Signed?
+
+S: .ascii "S"
+Z: .ascii "Z"

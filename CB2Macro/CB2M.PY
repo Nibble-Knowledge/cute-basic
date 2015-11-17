@@ -9,6 +9,7 @@ endifStack = []
 loopStatementStack = []
 #giant buffer holding output
 output = []
+data = []
 #list of names of variables
 
 #format: VARNAME SIZE SIGN
@@ -105,7 +106,6 @@ def asm_passthroc(splitline):
 #Takes: a splitline
 def variableDeclaration(splitline, linenum):
 	if splitline[0] == "LET":
-		#4 possibilities: #TODO decide on the default values
 		#LET VAR - this should default a size and value
 		#LET VAR AS SIZE- this should default a value
 		#LET VAR BE VAL (SIGNED)- this should default a size, and if no signed default unsigned
@@ -161,7 +161,7 @@ def variableDeclaration(splitline, linenum):
 		if splitline[-1] == "SIGNED":
 			temp += " Signed?"
 			
-		output.append(temp)
+		data.append(temp)
 		
 
 #Checks if unary math operations are being performed with assignments as the first thing on the line
@@ -176,10 +176,10 @@ def unarymath(splitline, linenum):
 		elif splitline[2] == "INCREMENT":
 			output.append("INC " + splitline[3] + " INTO " + splitline[0])
 		elif splitline[2] == "DECREMENT":
-			output.append("DEC " + splitline[3] + " INTO " + splitline[0]) #TODO cant tell if implemetned yet outside of accumulator
+			output.append("SUB " + splitline[2] + " N_[1] INTO " + splitline[0]) #TODO double check this
 		elif splitline[2] == "NOT":
 			output.append("LOGNOT ACC")
-			#TODO Dont think this is right but have to double check
+			#TODO Dont think this is right but have to double check - only accumualtor lognot?
 		elif splitline[2] == "ADDRESSOF":
 			a = '' 
 			#TODO no idea yet
@@ -235,20 +235,6 @@ def binarymath(splitline, linenum):
 				output.append("LSHIFT " + splitline[2] + " INTO " + splitline[0])
 				count += 1
 				
-				#Commented out as i believe misread what LSHIFT did 
-				'''
-				temp = int(splitline[4]) - count
-				if (temp >= 16):
-					output.append("LSHIFT16 " + splitline[2] + " INTO " + splitline[0])
-					count += 16
-				elif (temp >= 8):
-					output.append("LSHIFT8 " + splitline[2] + " INTO " + splitline[0])
-					count += 8
-				else:
-					output.append("LSHIFT " + splitline[2] + " INTO " + splitline[0])
-					count += 1
-				'''
-				
 		#TODO Ask naomi about this too
 		#binary logical operators
 		elif splitline[3] == "ALSO":
@@ -267,10 +253,8 @@ def assignment(splitline):
 		if(splitline[2] in varnames):	
 			output.append("MOV " + splitline[2] + " INTO " + splitline[0])
 		
-		else: #TODO figure out how to load temp values - this probably isnt right at all
-			output.append("LOD 0")
-			output.append("ADD " + splitline[2])
-			output.append("STR " + splitline[0])			
+		else: 
+			output.append("MOV N_[" + splitline[2] + "] INTO " + splitline[0])		
 		
 #Checks a line for any conditionals
 #Takes: a splitline, linenum
@@ -339,6 +323,8 @@ def goto(splitline):
 		if splitline[0] == "LABEL":
 			output.append(splitline[1] + ":")
 		elif splitline[0] == "GOTO":
+			#apparently load 0 before uncoditional jumps
+			output.append("LOD 0")
 			output.append("JMP " + splitline[1]) 
 		
 
@@ -381,13 +367,14 @@ def functionProperties(splitline):
 		
 	elif splitline[0] == "ENDFUNCTION":
 		name = funcstack.pop()
+		output.append("LOD 0")
 		output.append("JMP " + name + "ReturnLabel")
 		
-		#TODO dont think this is right, not sure how we want to return values
 	elif splitline[0] == "RETURN":
 		name = funcstack[-1]
-		output.append("STR " + name + "ReturnValue")	
-		output.append("JMP " + name + "ReturnLabel")
+		output.append("STR " + name + "ReturnValue")
+		output.append("LOD 0")
+		output.append("JMP " + name + "ReturnLabel[1]")
 
 #Checks for and performs function calls
 #Takes: splitline, current line number
@@ -395,24 +382,32 @@ def functionCall(splitline, linenum):
 	if splitline[0] == "CALL":
 		#TODO not sure how to load non variable values still
 		if len(splitline) == 3:
-			output.append("LOD " + splitline[2])
-			output.append("STR " + splitline[1] + "Param0")
+			#output.append("LOD " + splitline[2])
+			#output.append("STR " + splitline[1] + "Param0")
+			output.append("MOV " + splitline[2] + " INTO " + splitline[1] + "Param0")
 		elif len(splitline) > 3:
 			paramnum = 0
 			nextparam = 3
 			while len(splitline) < nextparam + 1:
-				output.append("LOD " + splitline[nextparam+1])
-				output.append("STR " + splitline[1] + "Param" + paramnum)
+				#output.append("LOD " + splitline[nextparam+1])
+				#output.append("STR " + splitline[1] + "Param" + paramnum)
+				output.append("MOV " + splitline[nextparam+1] + " INTO " + splitline[1] + "Param" + paramnum)
 				nextparam += 2
 				paramnum += 1
-			
+	
+		
+		output.append("MOV " + splitline[1] + "ReturnLabel" + str(linenum) + " INTO " + splitline[1] + "ReturnLabel")
+		output.append("LOD 0")
 		output.append("JMP " + splitline[1] + "Label")
-		output.append(splitline[1] + "ReturnLabel:")
+		output.append(splitline[1] + "ReturnLabel" + str(linenum) + ":")
+		
 
 
 #************************************************************************************ MAIN*********************************************************************************************
 def main():
-
+	global output
+	global data
+	data.append("########## DATA SECTION BELOW HERE ##########")
 	if len(sys.argv) < 2:
 		print 'No file specified'
 		quit()
@@ -469,6 +464,7 @@ def main():
 		print "No END declared!"
 		quit(1)
 	if hasend == 1 and hasstart == 1:
+		output = output + data
 		for i in output:
 			if(len(sys.argv)) == 3:
 				outputf.write(i + "\n")
