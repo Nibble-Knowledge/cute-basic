@@ -339,6 +339,10 @@ def functionProperties(splitline):
 		name = splitline[1]
 		funcstack.append(name)
 		output.append("#" + name + " function begins here")
+		#If you ge to here something went wrong so jump to end
+		output.append("LOD 0")
+		output.append("JMP END")
+		
 		output.append(name + "Label:")
 		nextparam = 0
 		paramnum = 0
@@ -347,19 +351,19 @@ def functionProperties(splitline):
 			if splitline[2] == "TAKES":
 				nextparam = 2
 				#todo should i use names? they complicate things, also using 0 as default val for everything
-				while len(splitline) < nextparam + 1:
-					output.append(name + "Param" + paramnum +": .data " + splitline[nextparam + 1] + " 0")
+				while len(splitline) > nextparam + 1:
+					data.append(name + "Param" + str(paramnum) +": .data " + splitline[nextparam + 1] + " 0")
 					nextparam += 3
 					paramnum += 1
 					
 			elif splitline[2] == "RETURNS":
 				#Jsut returns - defaults value to 0 
-				data.append(name + "ReturnValue: .data " + splitline[3] * 4 + " 0")
+				data.append(name + "ReturnValue: .data " + str(splitline[3] * 4) + " 0")
 				if len(splitline) > 4:
 					#returns and takes
 					nextparam = 4
-					while len(splitline) < nextparam + 1:
-						output.append(name + "Param" + paramnum +": .data " + splitline[nextparam + 1] + " 0")
+					while len(splitline) > nextparam + 1:
+						data.append(name + "Param" + str(paramnum) +": .data " + splitline[nextparam + 1] + " 0")
 						nextparam += 3
 						paramnum += 1
 					

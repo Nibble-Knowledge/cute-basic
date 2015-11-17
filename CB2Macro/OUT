@@ -7,21 +7,21 @@ LSHIFT D INTO A
 LSHIFT D INTO A
 
 
-TESTReturnLabel15:
 MOV TESTReturnLabel15 INTO TESTReturnLabel
 LOD 0
 JMP TESTLabel
+TESTReturnLabel15:
 
 #TEST function begins here
+LOD 0
+JMP END
 TESTLabel:
-TESTReturnValue: .data 4444 0
 MOV N_[2] INTO A
 STR TESTReturnValue
 LOD 0
 JMP TESTReturnLabel[1]
 LOD 0
 JMP TESTReturnLabel
-
 
 END:
 
@@ -33,3 +33,7 @@ D: .data 8 100 Signed?
 
 S: .ascii "S"
 Z: .ascii "Z"
+TESTReturnValue: .data 4444 0
+TESTParam0: .data 1 0
+TESTParam1: .data 1 0
+TESTParam2: .data 2 0
