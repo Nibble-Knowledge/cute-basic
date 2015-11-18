@@ -24,6 +24,8 @@ varstofree = []
 funcnames = []
 funcstack = []
 
+signed = []
+
 #flags
 hasstart = 0
 hasend = 0
@@ -159,8 +161,8 @@ def variableDeclaration(splitline, linenum):
 			
 		#If last input is signed	#TODO figure out what this should do
 		if splitline[-1] == "SIGNED":
-			temp += " Signed?"
-			a = 1
+			signed.append(splitline[1])
+			
 			
 		data.append(temp)
 		
