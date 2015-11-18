@@ -55,3 +55,18 @@ We currently have no way to declare strings in langspec - i guess we can use let
     
 Notes:
     Load 0 before unconditional jumps
+    
+    
+Inclusion:
+INCLUDE "FILE.CB"
+FUNCTION MOV16 RETURNS 4 TAKES 4
+    ASM MOV16 MOV16_0 INTO MOV16_RET
+ENDFUNCTION
+
+FUNCTION MUL
+    OP1 = 0
+    OP2 BE PARAM1
+    ASM LOD N_[0]
+    OP1EX BE 0
+    ASM STR OP2EX
+    
