@@ -38,7 +38,6 @@ multicomment = 0
 #Returns length of variable 
 def varLength(varname):
 	index = varnames.index(varname)
-	#print varname
 	length = varsizes[index]
 	return length
 
@@ -115,13 +114,22 @@ def variableDeclaration(splitline, linenum):
 		
 		#Check if variable already exists
 		for i in varnames:
-			if len(splitline) > 1 and i == splitline[1]:
-				print "Variable name " + splitline[1] + " already declared!"
-				quit(1)
+			if (len(splitline) > 1 and i == splitline[1] ):
+				if(len(funcstack) > 0 and funcstack[-1] + splitline[1] not in varnames):
+					a = 0 #do nothing
+				else:
+					print "Error line " + str(linenum) + ": Variable name " + splitline[1] + " already declared!"
+					quit(1)
 				
 		# The variable name will be the second whitespace delimited field
 		varnames.append(splitline[1])
 		temp = ''
+		
+		#Check if a local variable
+		if len(funcstack) > 0:
+			temp += funcstack[-1]
+			varnames.append(funcstack[-1] + splitline[1])
+		
 		defaultSize = 4
 		defaultVal = 0
 		
@@ -158,7 +166,7 @@ def variableDeclaration(splitline, linenum):
 		#Invalid input	
 		else:
 			print "Invalid line " + str(linenum) + ": " + str(splitline)
-			
+			exit(1)
 		#If last input is signed	#TODO figure out what this should do
 		if splitline[-1] == "SIGNED":
 			signed.append(splitline[1])
@@ -179,7 +187,7 @@ def unarymath(splitline, linenum):
 		elif splitline[2] == "INCREMENT":
 			output.append("INC " + splitline[3] + " INTO " + splitline[0])
 		elif splitline[2] == "DECREMENT":
-			output.append("LOD N_[1]")
+			#output.append("LOD N_[1]")
 			output.append("SUB " + splitline[2] + " N_[1] INTO " + splitline[0]) #TODO double check this
 		elif splitline[2] == "NOT":
 			output.append("LOGNOT ACC")
@@ -360,7 +368,7 @@ def functionProperties(splitline):
 					
 			elif splitline[2] == "RETURNS":
 				#Jsut returns - defaults value to 0 
-				data.append(name + "ReturnValue: .data " + str(splitline[3] * 4) + " 0")
+				data.append(name + "ReturnValue: .data " + str(splitline[3]) + " 0")
 				if len(splitline) > 4:
 					#returns and takes
 					nextparam = 4
@@ -371,6 +379,7 @@ def functionProperties(splitline):
 					
 			else:
 				print "Not a valid function " +str(splitline[1]) + " on line " + str(linenum)
+				exit(1)
 		
 		
 	elif splitline[0] == "ENDFUNCTION":
@@ -415,7 +424,7 @@ def functionCall(splitline, linenum):
 def main():
 	global output
 	global data
-	data.append("########## DATA SECTION BELOW HERE ##########")
+	#data.append("########## DATA SECTION BELOW HERE ##########")
 	if len(sys.argv) < 2:
 		print 'No file specified'
 		quit()
