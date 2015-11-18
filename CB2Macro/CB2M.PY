@@ -23,6 +23,7 @@ varstofree = []
 
 funcnames = []
 funcstack = []
+returns = 0
 
 signed = []
 
@@ -37,9 +38,28 @@ multicomment = 0
 #Takes name of variable
 #Returns length of variable 
 def varLength(varname):
-	index = varnames.index(varname)
-	length = varsizes[index]
-	return length
+	if varname in varnames:
+		index = varnames.index(varname)
+		length = varsizes[index]
+		return int(length)
+	
+
+#Check the length of two lines and return the difference between them (-# means var 1 is smaller by # nibs, 0 means even, +# means var 1 is bigger by # nibs)	
+#Takes 2 variables
+#Returns an integer (differnece in size)
+def compareLength(varname1, varname2):
+	if(varname1 in varnames and varname2 in varnames):
+		length1 = varLength(varname1)
+		length2 = varLength(varname2)
+		return length1 - length2
+		
+#Checks if a value is a variable or literal, and adds the N_[] if its a literal
+#Takes a potential variable
+#Returns the same var, or an encased literal
+def literal(var):
+	if var not in varnames:
+		var = "N_[" + var + "]"
+	return var
 
 #Checks if a comment exists on the line
 #Takes: a line from readlines()
@@ -115,7 +135,7 @@ def variableDeclaration(splitline, linenum):
 		#Check if variable already exists
 		for i in varnames:
 			if (len(splitline) > 1 and i == splitline[1] ):
-				if(len(funcstack) > 0 and funcstack[-1] + splitline[1] not in varnames):
+				if(len(funcstack) > 0 and splitline[1] + "_" + funcstack[-1] not in varnames):
 					a = 0 #do nothing
 				else:
 					print "Error line " + str(linenum) + ": Variable name " + splitline[1] + " already declared!"
@@ -125,42 +145,44 @@ def variableDeclaration(splitline, linenum):
 		varnames.append(splitline[1])
 		temp = ''
 		
+		temp += splitline[1]
+		
 		#Check if a local variable
 		if len(funcstack) > 0:
-			temp += funcstack[-1]
-			varnames.append(funcstack[-1] + splitline[1])
+			temp += "_" + funcstack[-1]
+			varnames.append(splitline[1] + "_" + funcstack[-1])
 		
 		defaultSize = 4
 		defaultVal = 0
 		
 		#LET VAR
 		if len(splitline) == 2:
-			temp += splitline[1] + ": .data " + str(defaultSize) + " " + str(defaultVal)
+			temp +=": .data " + str(defaultSize) + " " + str(defaultVal)
 			varsizes.append(defaultSize)
 
 		#LET VAR AS or LET VAR AS BE
 		elif splitline[2] == "AS":
 			#LET VAR AS
 			if len(splitline) == 4:
-				temp += splitline[1] + ": .data " + splitline[3] + " " + str(defaultVal)
+				temp += ": .data " + splitline[3] + " " + str(defaultVal)
 				varsizes.append(splitline[3])
 
 			#LET VAR AS BE	
 			else:
 				if(splitline[5][0] == "\""):
-					temp += splitline[1] + ": .ascii " + splitline[5]
+					temp += ": .ascii " + splitline[5]
 					varsizes.append(splitline[3])
 				else:
-					temp += splitline[1] + ": .data " + splitline[3] + " " + splitline[5]
+					temp += ": .data " + splitline[3] + " " + splitline[5]
 					varsizes.append(splitline[3])
 				
 		#LET VAR BE
 		elif splitline[2] == "BE":
 			if(splitline[3][0] == "\""):
-				temp += splitline[1] + ": .ascii " + splitline[3]
+				temp += ": .ascii " + splitline[3]
 				varsizes.append(len(splitline[3]) * 8) #TODO not sure if this value is correct
 			else:
-				temp += splitline[1] + ": .data " + str(defaultSize) + " " + splitline[3]
+				temp += ": .data " + str(defaultSize) + " " + splitline[3]
 				varsizes.append(defaultSize)
 			
 		#Invalid input	
@@ -178,7 +200,7 @@ def variableDeclaration(splitline, linenum):
 #Checks if unary math operations are being performed with assignments as the first thing on the line
 #Takes: a splitline
 def unarymath(splitline, linenum):	
-	if ((splitline[0] in varnames) and (splitline[2] in ["COMPLEMENT", "NEGATE", "INCREMENT", "DECREMENT", "NOT", "ADDRESSOF", "CONTENTOF"])): 
+	if (len(splitline) > 3 and (splitline[0] in varnames) and (splitline[2] in ["COMPLEMENT", "NEGATE", "INCREMENT", "DECREMENT", "NOT", "ADDRESSOF", "CONTENTOF"])): 
 		#unary math/bit/logic operators
 		if splitline[2] == "COMPLEMENT":
 			output.append("NOT " + splitline[3] + " INTO " + splitline[0])
@@ -203,31 +225,57 @@ def unarymath(splitline, linenum):
 #Takes: a splitline, linenumber
 def binarymath(splitline, linenum):					
 	if ((splitline[0] in varnames) and len(splitline) > 4): 
+		lengthDif = compareLength(splitline[2], splitline[4])
+		
+		#Lengths are the same or a val is a literal
+		if lengthDif == 0 or lengthDif == None:
+			if(splitline[2] not in varnames):
+				var1 = "N_[" + splitline[2] + "]"
+			else:
+				var1 = splitline[2]
+				
+			if splitline[4] not in varnames:
+				var2 = "N_[" + splitline[4] + "]"
+			else:
+				var2 = splitline[4]
+				
+		#first var is smaller	#TODO do these elifs
+		elif lengthDif < 0:
+			diff = -lengthDif
+			
+			var1 = splitline[2]
+			var2 = splitline[4]
+		#First var is larger	
+		elif lengthDif > 0:
+			var1 = splitline[2]
+			var2 = splitline[4]
+
+		
 		count = 0
 		if splitline[3] == "ADD":
-			output.append("ADD " + splitline[2] + " " + splitline[4] + " INTO " + splitline[0])
+			output.append("ADD " + var1 + " " + var2 + " INTO " + splitline[0])
 		elif splitline[3] == "SUBTRACT":
-			output.append("SUB " + splitline[2] + " " + splitline[4] + " INTO " + splitline[0])
+			output.append("SUB " + var1 + " " + var2 + " INTO " + splitline[0])
 		elif splitline[3] == "MULTIPLY":
-			output.append("MULT " + splitline[2] + " " + splitline[4] + " INTO " + splitline[0])
+			output.append("MULT " + var1 + " " + var2 + " INTO " + splitline[0])
 		elif splitline[3] == "DIVIDE":
-			output.append("DIV " + splitline[2] + " " + splitline[4] + " INTO " + splitline[0]) #TODO This doesnt work yet
+			output.append("DIV " + var1 + " " + var2 + " INTO " + splitline[0]) #TODO This doesnt work yet
 		elif splitline[3] == "MODULUS":
-			output.append("MOD " + splitline[2] + " " + splitline[4] + " INTO " + splitline[0]) #TODO this doesnt work yet
+			output.append("MOD " + var1 + " " + var2 + " INTO " + splitline[0]) #TODO this doesnt work yet
 	
 		#binary bitwise operators
 		elif splitline[3] == "AND":
-			output.append("AND " + splitline[2] + " " + splitline[4] + " INTO " + splitline[0])
+			output.append("AND " + var1 + " " + var2 + " INTO " + splitline[0])
 		elif splitline[3] == "NAND":
-			output.append("NAND " + splitline[2] + " " + splitline[4] + " INTO " + splitline[0])
+			output.append("NAND " + var1 + " " + var2 + " INTO " + splitline[0])
 		elif splitline[3] == "OR":
-			output.append("OR " + splitline[2] + " " + splitline[4] + " INTO " + splitline[0])
+			output.append("OR " + var1 + " " + var2 + " INTO " + splitline[0])
 		elif splitline[3] == "NOR":
-			output.append("NOR " + splitline[2] + " " + splitline[4] + " INTO " + splitline[0])
+			output.append("NOR " + var1 + " " + var2 + " INTO " + splitline[0])
 		elif splitline[3] == "XOR":
-			output.append("XOR " + splitline[2] + " " + splitline[4] + " INTO " + splitline[0])
+			output.append("XOR " + var1 + " " + var2 + " INTO " + splitline[0])
 		elif splitline[3] == "XNOR":
-			output.append("XNOR " + splitline[2] + " " + splitline[4] + " INTO " + splitline[0])
+			output.append("XNOR " + var1 + " " + var2 + " INTO " + splitline[0])
 			
 		#TODO Not sure if this is right, or how to do right shifts/rots at all
 		#binary bitshifting
@@ -236,7 +284,7 @@ def binarymath(splitline, linenum):
 			#RROT [label1] into [label2]
 		elif (splitline[3] == "LROTATE" ):
 			while (count < int(splitline[4])) :
-				output.append("LROT " + splitline[2] + " INTO " + splitline[0])
+				output.append("LROT " + var1 + " INTO " + splitline[0])
 				count += 1
 			#RROT [label1] into [label2]
 		
@@ -244,7 +292,7 @@ def binarymath(splitline, linenum):
 			a = ''
 		elif (splitline[3] == "LSHIFT"):
 			while (count < int(splitline[4])) :
-				output.append("LSHIFT " + splitline[2] + " INTO " + splitline[0])
+				output.append("LSHIFT " + var1 + " INTO " + splitline[0])
 				count += 1
 				
 		#TODO Ask naomi about this too
@@ -344,6 +392,7 @@ def goto(splitline):
 #Checks if the line contains any function properties
 #Takes: splitline
 def functionProperties(splitline):
+	global returns
 	if splitline[0] == "FUNCTION":
 		#must match declaration sig
 		name = splitline[1]
@@ -384,39 +433,44 @@ def functionProperties(splitline):
 		
 	elif splitline[0] == "ENDFUNCTION":
 		name = funcstack.pop()
-		output.append("LOD 0")
-		output.append("JMP " + name + "ReturnLabel")
+		if returns == 0:
+			output.append(name + "ReturnLabel:")
+			output.append("JMP 0000")
+		returns = 0
 		
 	elif splitline[0] == "RETURN":
 		name = funcstack[-1]
 		output.append("STR " + name + "ReturnValue")
-		output.append("LOD 0")
-		output.append("JMP " + name + "ReturnLabel[1]")
+		output.append(name + "ReturnLabel:")
+		output.append("JMP 0000")
+		returns = 1
 
 #Checks for and performs function calls
 #Takes: splitline, current line number
 def functionCall(splitline, linenum):
 	if splitline[0] == "CALL":
-		#TODO not sure how to load non variable values still
-		if len(splitline) == 3:
-			#output.append("LOD " + splitline[2])
-			#output.append("STR " + splitline[1] + "Param0")
-			output.append("MOV " + splitline[2] + " INTO " + splitline[1] + "Param0")
-		elif len(splitline) > 3:
-			paramnum = 0
-			nextparam = 3
-			while len(splitline) < nextparam + 1:
-				#output.append("LOD " + splitline[nextparam+1])
-				#output.append("STR " + splitline[1] + "Param" + paramnum)
-				output.append("MOV " + splitline[nextparam+1] + " INTO " + splitline[1] + "Param" + paramnum)
-				nextparam += 2
-				paramnum += 1
+		
+		#Has at least one variable
+		if len(splitline) >= 3:
+			var = literal(splitline[2])
+			output.append("MOV " + var + " INTO " + splitline[1] + "Param0")
+			
+			#Has 1+ ASWELL in it
+			if len(splitline) > 3:
+				paramnum = 1
+				nextparam = 3
+				while (len(splitline) > nextparam + 1):
+					var = literal(splitline[nextparam+1])
+					output.append("MOV " + var + " INTO " + splitline[1] + "Param" + str(paramnum))
+					nextparam += 2
+					paramnum += 1
 	
 		
-		output.append("MOV " + splitline[1] + "ReturnLabel" + str(linenum) + " INTO " + splitline[1] + "ReturnLabel")
+		output.append("MOVADDR " + splitline[1] + "ReturnLabel" + str(linenum) + " INTO " + splitline[1] + "ReturnLabel[1]")
 		output.append("LOD 0")
 		output.append("JMP " + splitline[1] + "Label")
 		output.append(splitline[1] + "ReturnLabel" + str(linenum) + ":")
+		output.append("NOP 0")
 		
 
 

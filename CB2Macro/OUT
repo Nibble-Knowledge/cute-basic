@@ -7,10 +7,26 @@ LSHIFT D INTO A
 LSHIFT D INTO A
 
 
-MOV TESTReturnLabel14 INTO TESTReturnLabel
+ADD D N_[8] INTO F
+ADD D E INTO F
+MULT N_[2] N_[4] INTO A
+ADD B A INTO C
+
+MOV A INTO TESTParam0
+MOV C INTO TESTParam1
+MOV D INTO TESTParam2
+MOVADDR TESTReturnLabel21 INTO TESTReturnLabel[1]
 LOD 0
 JMP TESTLabel
-TESTReturnLabel14:
+TESTReturnLabel21:
+NOP 0
+
+MOV N_[4] INTO TEST2Param0
+MOVADDR TEST2ReturnLabel23 INTO TEST2ReturnLabel[1]
+LOD 0
+JMP TEST2Label
+TEST2ReturnLabel23:
+NOP 0
 
 #TEST function begins here
 LOD 0
@@ -18,10 +34,8 @@ JMP END
 TESTLabel:
 MOV N_[2] INTO A
 STR TESTReturnValue
-LOD 0
-JMP TESTReturnLabel[1]
-LOD 0
-JMP TESTReturnLabel
+TESTReturnLabel:
+JMP 0000
 
 END:
 
@@ -29,10 +43,12 @@ A: .data 4 0
 B: .data 1 0
 C: .data 4 10
 D: .data 8 100
+E: .data 8 120
+F: .data 8 0
 S: .ascii "S"
 Z: .ascii "Z"
 TESTReturnValue: .data 4 0
 TESTParam0: .data 1 0
 TESTParam1: .data 1 0
 TESTParam2: .data 2 0
-TESTA: .data 4 10
+X_TEST: .data 4 10
