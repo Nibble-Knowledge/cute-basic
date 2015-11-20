@@ -135,7 +135,7 @@ def variableDeclaration(splitline, linenum):
 		#Check if variable already exists
 		for i in varnames:
 			if (len(splitline) > 1 and i == splitline[1] ):
-				if(len(funcstack) > 0 and splitline[1] + "_" + funcstack[-1] not in varnames):
+				if(len(funcstack) > 0 and funcstack[-1] + "_" + splitline[1] not in varnames):
 					a = 0 #do nothing
 				else:
 					print "Error line " + str(linenum) + ": Variable name " + splitline[1] + " already declared!"
@@ -145,12 +145,14 @@ def variableDeclaration(splitline, linenum):
 		varnames.append(splitline[1])
 		temp = ''
 		
-		temp += splitline[1]
+		
 		
 		#Check if a local variable
 		if len(funcstack) > 0:
-			temp += "_" + funcstack[-1]
-			varnames.append(splitline[1] + "_" + funcstack[-1])
+			temp +=  funcstack[-1] + "_"
+			varnames.append(funcstack[-1] + "_" + splitline[1])
+		
+		temp += splitline[1]
 		
 		defaultSize = 4
 		defaultVal = 0
@@ -305,14 +307,19 @@ def binarymath(splitline, linenum):
 
 #Checks if assigning a variable to another variable
 #Takes: a splitline
-def assignment(splitline):					
-	if ((splitline[0] in varnames) and (len(splitline) == 3)):
+def assignment(splitline, linenum):					
+	if ((splitline[0] in varnames) and (len(splitline) >= 3)):
 		length = varLength(splitline[0])
-		
 		#If assigning a variable to antoehr variable
 		if(splitline[2] in varnames):	
 			output.append("MOV " + splitline[2] + " INTO " + splitline[0])
-		
+		#Function return value
+		elif(splitline[2] == "CALL"):
+			line = splitline[2:]
+			assignment(line, linenum)
+			output.append("MOV " + splitline[3] +  "_RetVal INTO " + splitline[0])
+			
+		#Literal value assignment
 		else: 
 			output.append("MOV N_[" + splitline[2] + "] INTO " + splitline[0])		
 		
@@ -384,7 +391,7 @@ def goto(splitline):
 			output.append(splitline[1] + ":")
 		elif splitline[0] == "GOTO":
 			#apparently load 0 before uncoditional jumps
-			output.append("LOD 0")
+			output.append("LOD N_[0]")
 			output.append("JMP " + splitline[1]) 
 		
 
@@ -399,10 +406,10 @@ def functionProperties(splitline):
 		funcstack.append(name)
 		output.append("#" + name + " function begins here")
 		#If you ge to here something went wrong so jump to end
-		output.append("LOD 0")
+		output.append("LOD N_[0]")
 		output.append("JMP END")
 		
-		output.append(name + "Label:")
+		output.append(name + "Entry:")
 		nextparam = 0
 		paramnum = 0
 		if len(splitline) > 2:
@@ -411,18 +418,18 @@ def functionProperties(splitline):
 				nextparam = 2
 				#todo should i use names? they complicate things, also using 0 as default val for everything
 				while len(splitline) > nextparam + 1:
-					data.append(name + "Param" + str(paramnum) +": .data " + splitline[nextparam + 1] + " 0")
+					data.append(name + "_Param" + str(paramnum) +": .data " + splitline[nextparam + 1] + " 0")
 					nextparam += 3
 					paramnum += 1
 					
 			elif splitline[2] == "RETURNS":
 				#Jsut returns - defaults value to 0 
-				data.append(name + "ReturnValue: .data " + str(splitline[3]) + " 0")
+				data.append(name + "_RetVal: .data " + str(splitline[3]) + " 0")
 				if len(splitline) > 4:
 					#returns and takes
 					nextparam = 4
 					while len(splitline) > nextparam + 1:
-						data.append(name + "Param" + str(paramnum) +": .data " + splitline[nextparam + 1] + " 0")
+						data.append(name + "_Param" + str(paramnum) +": .data " + splitline[nextparam + 1] + " 0")
 						nextparam += 3
 						paramnum += 1
 					
@@ -434,26 +441,26 @@ def functionProperties(splitline):
 	elif splitline[0] == "ENDFUNCTION":
 		name = funcstack.pop()
 		if returns == 0:
-			output.append(name + "ReturnLabel:")
+			output.append(name + "_RetAddr:")
 			output.append("JMP 0000")
 		returns = 0
 		
 	elif splitline[0] == "RETURN":
 		name = funcstack[-1]
-		output.append("STR " + name + "ReturnValue")
-		output.append(name + "ReturnLabel:")
+		output.append("MOV " + splitline[1] + " INTO "+ name + "_RetVal")
+		output.append(name + "_RetAddr:")
 		output.append("JMP 0000")
 		returns = 1
 
 #Checks for and performs function calls
 #Takes: splitline, current line number
-def functionCall(splitline, linenum):
+def functionCall(splitline, linenum): 
 	if splitline[0] == "CALL":
 		
 		#Has at least one variable
 		if len(splitline) >= 3:
 			var = literal(splitline[2])
-			output.append("MOV " + var + " INTO " + splitline[1] + "Param0")
+			output.append("MOV " + var + " INTO " + splitline[1] + "_Param0")
 			
 			#Has 1+ ASWELL in it
 			if len(splitline) > 3:
@@ -461,15 +468,15 @@ def functionCall(splitline, linenum):
 				nextparam = 3
 				while (len(splitline) > nextparam + 1):
 					var = literal(splitline[nextparam+1])
-					output.append("MOV " + var + " INTO " + splitline[1] + "Param" + str(paramnum))
+					output.append("MOV " + var + " INTO " + splitline[1] + "_Param" + str(paramnum))
 					nextparam += 2
 					paramnum += 1
 	
 		
-		output.append("MOVADDR " + splitline[1] + "ReturnLabel" + str(linenum) + " INTO " + splitline[1] + "ReturnLabel[1]")
-		output.append("LOD 0")
-		output.append("JMP " + splitline[1] + "Label")
-		output.append(splitline[1] + "ReturnLabel" + str(linenum) + ":")
+		output.append("MOVADDR " + splitline[1] + "_Return" + str(linenum) + " INTO " + splitline[1] + "_RetAddr[1]")
+		output.append("LOD N_[0]")
+		output.append("JMP " + splitline[1] + "Entry")
+		output.append(splitline[1] + "_Return" + str(linenum) + ":")
 		output.append("NOP 0")
 		
 
@@ -518,7 +525,7 @@ def main():
 		variableDeclaration(splitline, linenum)
 		unarymath(splitline, linenum)
 		binarymath(splitline, linenum)
-		assignment(splitline)
+		assignment(splitline, linenum)
 		conditionals(splitline,linenum)
 		goto(splitline)
 		functionProperties(splitline)

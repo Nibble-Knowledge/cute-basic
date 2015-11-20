@@ -159,7 +159,7 @@ RETURN (var1) : exits function, returns var1
 
 Calls:
 CALL (funcName) (var1) ASWELL (var2)... : var1, var2, are parameters. Evaluates to return type of funcName; evaluates to TRUE if nothing returned
-
+(var0) BE CALL ... : Call witha return value
 I/O:
 
 
