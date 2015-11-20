@@ -316,7 +316,9 @@ def assignment(splitline, linenum):
 		#Function return value
 		elif(splitline[2] == "CALL"):
 			line = splitline[2:]
-			assignment(line, linenum)
+			print splitline
+			print line
+			functionCall(line, linenum)
 			output.append("MOV " + splitline[3] +  "_RetVal INTO " + splitline[0])
 			
 		#Literal value assignment
