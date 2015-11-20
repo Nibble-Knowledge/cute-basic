@@ -70,3 +70,8 @@ FUNCTION MUL
     OP1EX BE 0
     ASM STR OP2EX
     
+    
+ASM FUNC 
+    
+    
+FILE IO will be on bus and driver levels

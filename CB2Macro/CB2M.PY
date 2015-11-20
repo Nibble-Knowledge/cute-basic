@@ -16,7 +16,7 @@ data = []
 variables = []
 
 varnames = []
-vartypes = ["BINARY", "HEX", "CHAR"]
+vartypes = ["BINARY", "HEX", "CHAR"] #TODO add this stuff in (update langspec too)
 varsizes = []
 varvals = []
 varstofree = []
@@ -444,12 +444,14 @@ def functionProperties(splitline):
 		name = funcstack.pop()
 		if returns == 0:
 			output.append(name + "_RetAddr:")
+			output.append("LOD N_[0]")
 			output.append("JMP 0000")
 		returns = 0
 		
 	elif splitline[0] == "RETURN":
 		name = funcstack[-1]
 		output.append("MOV " + splitline[1] + " INTO "+ name + "_RetVal")
+		output.append("LOD N_[0]")
 		output.append(name + "_RetAddr:")
 		output.append("JMP 0000")
 		returns = 1

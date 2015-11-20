@@ -182,5 +182,14 @@ FOR PUTCHAR FILENAME AT X if X is greater than # of chars in the file it breaks 
 /#: Start of multi line comment
 #/: End of multi line comment
 
+#goal is use non standard asm functions 
+ASM FUNCTION ... (takes returns etc)
+    body is asm (with fallthrough)
+    if label is normal param then make $param1 (special vals)
+    special value for return addr
+    C pointer style? No return? 
+
+
+INCL filename - label repalcer does stuff
 
 
