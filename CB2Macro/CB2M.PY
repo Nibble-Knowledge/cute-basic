@@ -308,7 +308,7 @@ def binarymath(splitline, linenum):
 #Checks if assigning a variable to another variable
 #Takes: a splitline
 def assignment(splitline, linenum):					
-	if ((splitline[0] in varnames) and (len(splitline) >= 3)):
+	if ((splitline[0] in varnames) and ((len(splitline) == 3) or (splitline[2] == "CALL"))):
 		length = varLength(splitline[0])
 		#If assigning a variable to antoehr variable
 		if(splitline[2] in varnames):	
