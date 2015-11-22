@@ -257,9 +257,9 @@ def unarymath(splitline, linenum):
 				
 		elif splitline[2] == "DECREMENT":
 			if length == 4:
-				output.append("SUB " + splitline[2] + " N_[1] INTO " + splitline[0])
+				output.append("SUB " + splitline[3] + " N_[1] INTO " + splitline[0])
 			else:
-				output.append("SUB" + str(length) + " " + splitline[2] + " N_[1] INTO " + splitline[0])
+				output.append("SUB" + str(length) + " " + splitline[3] + " N_[1] INTO " + splitline[0])
 
 			
 		elif splitline[2] == "NOT":
@@ -386,7 +386,7 @@ def binarymath(splitline, linenum):
 #Checks if assigning a variable to another variable
 #Takes: a splitline
 def assignment(splitline, linenum):					
-	if ((splitline[0] in varnames) and ((len(splitline) == 3) or (splitline[2] == "CALL"))):
+	if ((splitline[0] in varnames) and ((len(splitline) == 3) or (splitline[2] == "CALL") or splitline[3] == "SIGNED")):
 		length = varLength(splitline[0])
 		#If assigning a variable to antoehr variable
 		if(splitline[2] in varnames):	
@@ -401,7 +401,11 @@ def assignment(splitline, linenum):
 			
 		#Literal value assignment
 		else: 
-			output.append("MOV N_[" + splitline[2] + "] INTO " + splitline[0])		
+			output.append("MOV N_[" + splitline[2] + "] INTO " + splitline[0])	
+			
+		#Add to signed list	
+		if(splitline > 3 and [3] == "SIGNED" and splitline not in signed):
+			signed.append(splitline[0])
 		
 #Checks a line for any conditionals
 #Takes: a splitline, linenum
