@@ -1,55 +1,36 @@
+
 START:
 
-MOV C INTO A
-MOV N_[4] INTO B
-LSHIFT D INTO A
-LSHIFT D INTO A
-LSHIFT D INTO A
+
+MOV N_[1] INTO A
+
+NEG B INTO A
+INC B INTO B
+SUB DECREMENT N_[1] INTO B
+
+ADD N_[1] N_[1] INTO A
+ADD N_[1] A INTO A
+ADD A N_[1] INTO A
+ADD8 A B INTO F
+ADD16 B C INTO F
+ADD32 C D INTO F
+ADD64 D E INTO F
+
+SUB N_[1] N_[1] INTO A
+SUB N_[1] A INTO A
+SUB A N_[1] INTO A
+SUB8 B A INTO F
+SUB16 C B INTO F
+SUB32 D C INTO F
+SUB64 E D INTO F
 
 
-ADD D N_[8] INTO F
-ADD D E INTO F
-MULT N_[2] N_[4] INTO A
-ADD B A INTO C
 
-MOV A INTO TEST_Param0
-MOV C INTO TEST_Param1
-MOV D INTO TEST_Param2
-MOVADDR TEST_Return21 INTO TEST_RetAddr[1]
-LOD N_[0]
-JMP TESTEntry
-TEST_Return21:
-NOP 0
-MOV TEST_RetVal INTO F
-
-MOV N_[4] INTO TEST2_Param0
-MOVADDR TEST2_Return23 INTO TEST2_RetAddr[1]
-LOD N_[0]
-JMP TEST2Entry
-TEST2_Return23:
-NOP 0
-
-#TEST function begins here
-LOD N_[0]
-JMP END
-TESTEntry:
-MOV N_[2] INTO A
-MOV A INTO TEST_RetVal
-TEST_RetAddr:
-JMP 0000
 
 END:
-
 A: .data 4 0
-B: .data 1 0
-C: .data 4 10
-D: .data 8 100
-E: .data 8 120
-F: .data 8 0
-S: .ascii "S"
-Z: .ascii "Z"
-TEST_RetVal: .data 4 0
-TEST_Param0: .data 1 0
-TEST_Param1: .data 1 0
-TEST_Param2: .data 2 0
-TEST_X: .data 4 10
+B: .data 8 0
+C: .data 16 0
+D: .data 32 0
+E: .data 64 0
+F: .data 64 1000

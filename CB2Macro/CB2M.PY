@@ -53,6 +53,19 @@ def compareLength(varname1, varname2):
 		length2 = varLength(varname2)
 		return length1 - length2
 		
+#Takes two variables
+#Returns the length of the longer variable
+def longer(var1, var2):
+	longer = varLength(var1)
+	if longer == None:
+		longer = 4
+	longer2 = varLength(var2)
+	if longer2 == None:
+		longer2 = 4
+	if longer < longer2:
+		longer = longer2
+	return longer
+		
 #Checks if a value is a variable or literal, and adds the N_[] if its a literal
 #Takes a potential variable
 #Returns the same var, or an encased literal
@@ -60,6 +73,19 @@ def literal(var):
 	if var not in varnames:
 		var = "N_[" + var + "]"
 	return var
+	
+#TODO Not sure how to do this yet
+#Writes the ASM code needed to perform signed or unsigned extension depending on variable 
+#Takes a variable and a size to extend to 
+def extend(var, difference):
+	#Number of nibbles needed to extend by (diveide by 4 since it is in nibbles to start)
+	size = difference / 4
+	cnt = 0
+	
+	#This needs to change
+	var2= var
+	return var2
+
 
 #Checks if a comment exists on the line
 #Takes: a line from readlines()
@@ -165,6 +191,11 @@ def variableDeclaration(splitline, linenum):
 		#LET VAR AS or LET VAR AS BE
 		elif splitline[2] == "AS":
 			#LET VAR AS
+			#Check that valid nibble size
+			if (splitline[3] not in ["4", "8", "16", "32", "64"]):
+				print "Invalid size in nibbles, size must be 4, 8, 16, 32 or 64 on line: " + str(linenum)
+				exit(1)
+				
 			if len(splitline) == 4:
 				temp += ": .data " + splitline[3] + " " + str(defaultVal)
 				varsizes.append(splitline[3])
@@ -203,19 +234,38 @@ def variableDeclaration(splitline, linenum):
 #Takes: a splitline
 def unarymath(splitline, linenum):	
 	if (len(splitline) > 3 and (splitline[0] in varnames) and (splitline[2] in ["COMPLEMENT", "NEGATE", "INCREMENT", "DECREMENT", "NOT", "ADDRESSOF", "CONTENTOF"])): 
+		length = longer(splitline[2], 0)	
+	
 		#unary math/bit/logic operators
 		if splitline[2] == "COMPLEMENT":
-			output.append("NOT " + splitline[3] + " INTO " + splitline[0])
+			if length == 4:
+				output.append("NOT " + splitline[3] + " INTO " + splitline[0])
+			else:
+				output.append("NOT" + str(length) + " " + splitline[3] + " INTO " + splitline[0])
+				
 		elif splitline[2] == "NEGATE":
-			output.append("NEG " + splitline[3] + " INTO " + splitline[0])
+			if length == 4:
+				output.append("NEG " + splitline[3] + " INTO " + splitline[0])
+			else:
+				output.append("NEG" + str(length) + " " + splitline[3] + " INTO " + splitline[0])
+				
 		elif splitline[2] == "INCREMENT":
-			output.append("INC " + splitline[3] + " INTO " + splitline[0])
+			if length == 4:
+				output.append("INC " + splitline[3] + " INTO " + splitline[0])
+			else:
+				output.append("INC" + str(length) + " " + splitline[3] + " INTO " + splitline[0])
+				
 		elif splitline[2] == "DECREMENT":
-			#output.append("LOD N_[1]")
-			output.append("SUB " + splitline[2] + " N_[1] INTO " + splitline[0]) #TODO double check this
+			if length == 4:
+				output.append("SUB " + splitline[2] + " N_[1] INTO " + splitline[0])
+			else:
+				output.append("SUB" + str(length) + " " + splitline[2] + " N_[1] INTO " + splitline[0])
+
+			
 		elif splitline[2] == "NOT":
 			output.append("LOGNOT ACC")
 			#TODO Dont think this is right but have to double check - only accumualtor lognot?
+			
 		elif splitline[2] == "ADDRESSOF":
 			a = '' 
 			#TODO no idea yet
@@ -226,38 +276,43 @@ def unarymath(splitline, linenum):
 #Checks if binary math operations are being performed with assignments as the first thing on the line
 #Takes: a splitline, linenumber
 def binarymath(splitline, linenum):					
-	if ((splitline[0] in varnames) and len(splitline) > 4): 
+	if ((splitline[0] in varnames) and len(splitline) > 4 and splitline[2] != "CALL"): 
 		lengthDif = compareLength(splitline[2], splitline[4])
+		
+		#Get length of longer value
+		length = longer(splitline[2], splitline[4])
 		
 		#Lengths are the same or a val is a literal
 		if lengthDif == 0 or lengthDif == None:
-			if(splitline[2] not in varnames):
-				var1 = "N_[" + splitline[2] + "]"
-			else:
-				var1 = splitline[2]
+			var1 = literal(splitline[2])
+			var2 = literal(splitline[4])
 				
-			if splitline[4] not in varnames:
-				var2 = "N_[" + splitline[4] + "]"
-			else:
-				var2 = splitline[4]
-				
-		#first var is smaller	#TODO do these elifs
+		#first var is smaller	Extends the first or second value as needed
 		elif lengthDif < 0:
 			diff = -lengthDif
-			
-			var1 = splitline[2]
+			var1 = extend(splitline[2], diff)
 			var2 = splitline[4]
+			
 		#First var is larger	
 		elif lengthDif > 0:
+			diff = lengthDif
 			var1 = splitline[2]
-			var2 = splitline[4]
+			var2 = extend(splitline[4], diff)
 
 		
 		count = 0
 		if splitline[3] == "ADD":
-			output.append("ADD " + var1 + " " + var2 + " INTO " + splitline[0])
+			if length == 4:
+				output.append("ADD " + var1 + " " + var2 + " INTO " + splitline[0])
+			else:
+				output.append("ADD" + str(length) + " " + var1 + " " + var2 + " INTO " + splitline[0])
+				
 		elif splitline[3] == "SUBTRACT":
-			output.append("SUB " + var1 + " " + var2 + " INTO " + splitline[0])
+			if length == 4:
+				output.append("SUB " + var1 + " " + var2 + " INTO " + splitline[0])
+			else:
+				output.append("SUB" + str(length) + " " + var1 + " " + var2 + " INTO " + splitline[0])
+				
 		elif splitline[3] == "MULTIPLY":
 			output.append("MULT " + var1 + " " + var2 + " INTO " + splitline[0])
 		elif splitline[3] == "DIVIDE":
@@ -267,17 +322,40 @@ def binarymath(splitline, linenum):
 	
 		#binary bitwise operators
 		elif splitline[3] == "AND":
-			output.append("AND " + var1 + " " + var2 + " INTO " + splitline[0])
+			if length == 4:
+				output.append("AND " + var1 + " " + var2 + " INTO " + splitline[0])
+			else:
+				output.append("AND" + str(length) + " " + var1 + " " + var2 + " INTO " + splitline[0])
+				
 		elif splitline[3] == "NAND":
-			output.append("NAND " + var1 + " " + var2 + " INTO " + splitline[0])
+			if length == 4:
+				output.append("NAND " + var1 + " " + var2 + " INTO " + splitline[0])
+			else:
+				output.append("NAND" + str(length) + " " + var1 + " " + var2 + " INTO " + splitline[0])
+				
 		elif splitline[3] == "OR":
-			output.append("OR " + var1 + " " + var2 + " INTO " + splitline[0])
+			if length == 4:
+				output.append("OR " + var1 + " " + var2 + " INTO " + splitline[0])
+			else:
+				output.append("OR" + str(length) + " " + var1 + " " + var2 + " INTO " + splitline[0])
+				
 		elif splitline[3] == "NOR":
-			output.append("NOR " + var1 + " " + var2 + " INTO " + splitline[0])
+			if length == 4:
+				output.append("NOR " + var1 + " " + var2 + " INTO " + splitline[0])
+			else:
+				output.append("NOR" + str(length) + " " + var1 + " " + var2 + " INTO " + splitline[0])
+				
 		elif splitline[3] == "XOR":
-			output.append("XOR " + var1 + " " + var2 + " INTO " + splitline[0])
+			if length == 4:
+				output.append("XOR " + var1 + " " + var2 + " INTO " + splitline[0])
+			else:
+				output.append("XOR" + str(length) + " " + var1 + " " + var2 + " INTO " + splitline[0])
+				
 		elif splitline[3] == "XNOR":
-			output.append("XNOR " + var1 + " " + var2 + " INTO " + splitline[0])
+			if length == 4:
+				output.append("XNOR " + var1 + " " + var2 + " INTO " + splitline[0])
+			else:
+				output.append("XNOR" + str(length) + " " + var1 + " " + var2 + " INTO " + splitline[0])
 			
 		#TODO Not sure if this is right, or how to do right shifts/rots at all
 		#binary bitshifting
@@ -286,7 +364,7 @@ def binarymath(splitline, linenum):
 			#RROT [label1] into [label2]
 		elif (splitline[3] == "LROTATE" ):
 			while (count < int(splitline[4])) :
-				output.append("LROT " + var1 + " INTO " + splitline[0])
+				output.append("LROT" + str(length) + " "+ var1 + " INTO " + splitline[0])
 				count += 1
 			#RROT [label1] into [label2]
 		
@@ -294,7 +372,7 @@ def binarymath(splitline, linenum):
 			a = ''
 		elif (splitline[3] == "LSHIFT"):
 			while (count < int(splitline[4])) :
-				output.append("LSHIFT " + var1 + " INTO " + splitline[0])
+				output.append("LSHIFT" + str(length) + " "+ var1 + " INTO " + splitline[0])
 				count += 1
 				
 		#TODO Ask naomi about this too
@@ -316,8 +394,8 @@ def assignment(splitline, linenum):
 		#Function return value
 		elif(splitline[2] == "CALL"):
 			line = splitline[2:]
-			print splitline
-			print line
+			#print splitline
+			#print line
 			functionCall(line, linenum)
 			output.append("MOV " + splitline[3] +  "_RetVal INTO " + splitline[0])
 			

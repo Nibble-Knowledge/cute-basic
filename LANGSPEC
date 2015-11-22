@@ -36,6 +36,8 @@ LET (variable name) : Creates a variable called (variable name)
 LET (variable name) BE (number) : Creates a variable called (variable name) and assigns (number) to it 
 LET (variable name) AS (size in nibbles) : Creates a variable called (variable name) with a size in nibbles of (size in nibbles) 
 /*LET (variable name) AS (size in nibbles) BE (number) : Creates a variable called (variable name) with a size in nibbles of (size in nibbles) and assigns (number) to it */
+Note: Size in nibbles must be 4, 8, 16, 32 or 64
+
 
 Assignment:
 (var1) BE (var2) : Assigns value of var2 to var1. UNSIGNED keyword is implied. var2 can be a literal.
