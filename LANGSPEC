@@ -44,6 +44,7 @@ Assignment:
 (var1) BE (var2) UNSIGNED : assigns value of var2 to var1. Truncates or zero-extends
 (var1) BE (var2) SIGNED : assigns value of var2 to var1. Truncates (maintaining value of MSB) or sign-extends
 
+/May not be accurate any more
 Values are stored big-endian
 Values are stored in 4 bit int chunks, so for example lets try to store 268 (0000 0001 0000 1100) in a 4 nibble chunk:
 LET A AS 4 BE 268 
@@ -90,13 +91,7 @@ Binary rotation:
 (var0) BE (var1) LROTATE (var2) : var(0) var2 should be small; left-rotates by var2, anything that falls off left gets put back on right
 (var0) BE (var1) RROTATE (var2) 
 
-Logical comparators:
-(var0) BE (var1) EQUALS (var2)
-(var0) BE (var1) NOTEQUALS (var2)
-(var0) BE (var1) GREATER (var2)
-(var0) BE (var1) GREATEREQUALS (var2)
-(var0) BE (var1) LESS (var2)
-(var0) BE (var1) LESSEQUALS (var2)
+
 
 Pointers:
 (var0) BE CONTENTOF (var1) : var(0) evaluates to dereferenced value pointed at by var1
@@ -111,16 +106,24 @@ END : The exit hook of the program
 IF...ENDIF
 
 Conditionals:
-IF (var1)
-ELSE IF (var2)
+IF (var1) COMPARATOR (var2)
+ELSEIF (var1) COMPARATOR (var2)
 ELSE
 ENDIF
 
-LOOPWHILE...ENDLOOP
 
-Loops:
-LOOPWHILE (var1)
+LOOP ... ENDLOOP
+
+LOOPWHILE (var1) CONDITIONAL (var2)
 ENDLOOP
+
+Logical comparators:
+EQUALS 
+NOTEQUALS 
+GREATER 
+GREATEREQUALS
+LESS 
+LESSEQUALS
 
 GOTO derivatives:
 LOOPAGAIN   : return to top of loop, as "continue"
@@ -190,8 +193,8 @@ ASM FUNCTION ... (takes returns etc)
     if label is normal param then make $param1 (special vals)
     special value for return addr
     C pointer style? No return? 
+ASM FUNCTION END
 
-
-INCL filename - label repalcer does stuff
+INCLUDE filename - label repalcer does stuff
 
 

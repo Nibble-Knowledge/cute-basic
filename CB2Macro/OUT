@@ -2,8 +2,35 @@
 START:
 
 
+
+
 MOV N_[1] INTO A
 MOV A INTO B
+
+JMPNE A B TO IF50jump
+MOV N_[2] INTO A
+jmp endif50
+IF50jump:
+JMPLE A B TO ELSEIF52jump
+MOV N_[3] INTO A
+jmp endif50
+ELSEIF52jump:
+JMPGE A B TO ELSEIF54jump
+MOV N_[4] INTO A
+ELSEIF54jump:
+endif50:
+
+MOV N_[3] INTO A
+
+startLOOPWHILE60jump:
+JMPLE A 0 TO LOOPWHILE60jump
+JMPNE A 1 TO IF62jump
+jmp LOOPWHILE60jump
+IF62jump:
+endif62:
+jmp startLOOPWHILE60jump
+LOOPWHILE60jump:
+
 
 NEG B INTO A
 INC B INTO B
@@ -12,18 +39,90 @@ SUB B N_[1] INTO B
 ADD N_[1] N_[1] INTO A
 ADD N_[1] A INTO A
 ADD A N_[1] INTO A
-ADD8 A B INTO F
-ADD16 B C INTO F
-ADD32 C D INTO F
-ADD64 D E INTO F
+ADD8 A8unsigned B INTO F
+ADD16 B16unsigned C INTO F
+ADD32 C32unsigned D INTO F
+ADD64 D64signed E INTO F
 
 SUB N_[1] N_[1] INTO A
 SUB N_[1] A INTO A
 SUB A N_[1] INTO A
-SUB8 B A INTO F
-SUB16 C B INTO F
-SUB32 D C INTO F
-SUB64 E D INTO F
+SUB8 B A8unsigned INTO F
+SUB16 C B16unsigned INTO F
+SUB32 D C32unsigned INTO F
+MOV32 
+SUB64 E D64signed INTO F
+
+
+MOV N_[1] INTO Mult4_Op1[1]
+MOV N_[1] INTO Mult4_Op2[1]
+MOVADDR Return89 INTO Mult4_RetAddr[1]
+LOD N_[0]
+STR Mult4_Op1Ex
+STR Mult4_Op2Ex
+JMP Mult4_UnsignedEntry
+Return89
+NOP 0
+
+MOV N_[1] INTO Mult4_Op1[1]
+MOV A INTO Mult4_Op2[1]
+MOVADDR Return91 INTO Mult4_RetAddr[1]
+LOD N_[0]
+STR Mult4_Op1Ex
+STR Mult4_Op2Ex
+JMP Mult4_UnsignedEntry
+Return91
+NOP 0
+
+MOV A INTO Mult4_Op1[1]
+MOV N_[1] INTO Mult4_Op2[1]
+MOVADDR Return93 INTO Mult4_RetAddr[1]
+LOD N_[0]
+STR Mult4_Op1Ex
+STR Mult4_Op2Ex
+JMP Mult4_UnsignedEntry
+Return93
+NOP 0
+
+MOV8 A8unsigned INTO Mult8_Op1[1]
+MOV8 B INTO Mult8_Op2[1]
+MOVADDR Return95 INTO Mult8_RetAddr[1]
+LOD N_[0]
+STR Mult8_Op1Ex
+STR Mult8_Op2Ex
+JMP Mult8_UnsignedEntry
+Return95
+NOP 0
+
+MOV16 B16unsigned INTO Mult16_Op1[1]
+MOV16 C INTO Mult16_Op2[1]
+MOVADDR Return97 INTO Mult16_RetAddr[1]
+LOD N_[0]
+STR Mult16_Op1Ex
+STR Mult16_Op2Ex
+JMP Mult16_UnsignedEntry
+Return97
+NOP 0
+
+MOV32 C32unsigned INTO Mult32_Op1[1]
+MOV32 D INTO Mult32_Op2[1]
+MOVADDR Return99 INTO Mult32_RetAddr[1]
+LOD N_[0]
+JMP Mult32_SignedEntry
+Return99
+NOP 0
+
+MOV32 
+MOV64 D64signed INTO Mult64_Op1[1]
+MOV64 E INTO Mult64_Op2[1]
+MOVADDR Return101 INTO Mult64_RetAddr[1]
+LOD N_[0]
+STR Mult64_Op1Ex
+STR Mult64_Op2Ex
+JMP Mult64_UnsignedEntry
+Return101
+NOP 0
+
 
 
 
@@ -32,6 +131,10 @@ END:
 A: .data 4 0
 B: .data 8 0
 C: .data 16 0
-D: .data 32 0
+D: .data 32 -25
 E: .data 64 0
 F: .data 64 1000
+A8unsigned: 8 0
+B16unsigned: 16 0
+C32unsigned: 32 0
+D64signed: 64 0

@@ -26,11 +26,13 @@ funcstack = []
 returns = 0
 
 signed = []
+files = []
 
 #flags
 hasstart = 0
 hasend = 0
 multicomment = 0
+asmFunc = 0
 
 
 
@@ -41,6 +43,9 @@ def varLength(varname):
 	if varname in varnames:
 		index = varnames.index(varname)
 		length = varsizes[index]
+		#Literals should be 4? TODO
+		if length == None:
+			length = 4
 		return int(length)
 	
 
@@ -79,12 +84,40 @@ def literal(var):
 #Takes a variable and a size to extend to 
 def extend(var, difference):
 	#Number of nibbles needed to extend by (diveide by 4 since it is in nibbles to start)
-	size = difference / 4
+	size = int(difference) / 4
 	cnt = 0
+	length = varLength(var)
+	#Sign extend
+	if var in signed:
+		extendedVar = var + str(length + difference) + "signed"
+		if(extendedVar not in varnames):
+			data.append(var + str(length + difference) + "signed: " + str(length + difference) + " 0")
+			varnames.append(extendedVar)
+			#TODO figure out how to extend stuff
+		else:
+			op = multinibOp(length, "MOV")
+			
+			output.append(op + " ")
+	#Unsigned extend	
+	else:
+		extendedVar = var + str(length + difference) + "unsigned"
+		if(extendedVar not in varnames):
+			data.append(var + str(length + difference) + "unsigned: " + str(length + difference) + " 0")
+			varnames.append(extendedVar)
+
+		else:
+			op = multinibOp(length, "MOV")
 	
-	#This needs to change
-	var2= var
-	return var2
+
+	return extendedVar
+
+#Takes an operation and a size and returns the oepration with that size included
+def multinibOp(length, op):
+	if str(length) == "4":
+		return op
+	else:
+		return op + str(length)
+
 
 
 #Checks if a comment exists on the line
@@ -138,15 +171,33 @@ def startEnd(line):
 def asm_passthroc(splitline):
 	cont = 0
 	if splitline[0] == "ASM" or splitline[0] == "PASSTHROC":
-		del splitline[0]
-		newline = ""
-		for i in splitline:
-			newline += i
-			newline += " "
-		output.append(newline)
-		cont = 1
+		#If its a special variable function type
+		if len(splitline) > 1 and splitline[1] == "FUNCTION":
+			asmFunction(splitline)
+		else:	
+			del splitline[0]
+			newline = ""
+			for i in splitline:
+				newline += i
+				newline += " "
+			output.append(newline)
+			cont = 1
 		
-	return cont			
+	return cont	
+
+#TODO compelte this
+#Checks if a special asm function is being created - creates the required output
+#Takes a splitline
+def asmFunction(splitline):
+	asmFunc = 1
+	
+	#Function call params
+	#TODO
+	#Function params
+	#TODO
+	#End function
+	if len(splitline) > 2 and splitline[2] == "END":
+		asmFunc = 0
 
 
 #Checks if variable declaration is being performed
@@ -202,7 +253,7 @@ def variableDeclaration(splitline, linenum):
 
 			#LET VAR AS BE	
 			else:
-				if(splitline[5][0] == "\""):
+				if(len(splitline) > 5 and splitline[5][0] == "\""):
 					temp += ": .ascii " + splitline[5]
 					varsizes.append(splitline[3])
 				else:
@@ -267,12 +318,15 @@ def unarymath(splitline, linenum):
 			#TODO Dont think this is right but have to double check - only accumualtor lognot?
 			
 		elif splitline[2] == "ADDRESSOF":
-			a = '' 
-			#TODO no idea yet
+			output.append("MOVADDR "+ splitline[3] +" INTO " + splitline[0])
+			#TODO not sure if these parts are right
 		elif splitline[2] == "CONTENTOF":
-			a = ''
-			#TODO no idea yet
+			if length == 4:
+				output.append("MOV " + splitline[3] + " INTO " + splitline[0])
+			else:
+				output.append("MOV" + str(length) + " " + splitline[3] + " INTO " + splitline[0])
 	
+
 #Checks if binary math operations are being performed with assignments as the first thing on the line
 #Takes: a splitline, linenumber
 def binarymath(splitline, linenum):					
@@ -314,7 +368,8 @@ def binarymath(splitline, linenum):
 				output.append("SUB" + str(length) + " " + var1 + " " + var2 + " INTO " + splitline[0])
 				
 		elif splitline[3] == "MULTIPLY":
-			output.append("MULT " + var1 + " " + var2 + " INTO " + splitline[0])
+			#output.append("MULT " + var1 + " " + var2 + " INTO " + splitline[0])
+			multiply(var1, var2, splitline[0], length, linenum)
 		elif splitline[3] == "DIVIDE":
 			output.append("DIV " + var1 + " " + var2 + " INTO " + splitline[0]) #TODO This doesnt work yet
 		elif splitline[3] == "MODULUS":
@@ -375,13 +430,44 @@ def binarymath(splitline, linenum):
 				output.append("LSHIFT" + str(length) + " "+ var1 + " INTO " + splitline[0])
 				count += 1
 				
-		#TODO Ask naomi about this too
+		#TODO not sure bow to do in asm
 		#binary logical operators
 		elif splitline[3] == "ALSO":
 			a = ''
 		elif splitline[3] == "EITHER":
 			a = ''
 	
+#Calls the appropriate multiply library call based on the given values - writes the appropriate asm
+#Takes- 2 variables, the result label, and the length of the largest variable, and the linenumber
+def multiply(var1, var2, result, length, linenum):
+	length = str(length)
+	op = multinibOp(length, "MOV")
+	output.append(op + " " + var1 + " INTO Mult" + length + "_Op1[1]")
+	output.append(op + " " + var2 + " INTO Mult" + length + "_Op2[1]")
+	output.append("MOVADDR Return" + str(linenum) + " INTO Mult" + length + "_RetAddr[1]")
+	output.append("LOD N_[0]")
+
+	#unsgined
+
+	if(var1 not in signed and var2 not in signed):
+		
+		if length == 4:
+			output.append("STR Mult4_Op1[0]")
+			output.append("STR Mult4_Op2[0]")
+		else:
+			output.append("STR Mult" + length + "_Op1Ex")
+			output.append("STR Mult" + length + "_Op2Ex")
+		output.append("JMP Mult" + length + "_UnsignedEntry")
+		
+	#signed
+	else:
+		output.append("JMP Mult" + length + "_SignedEntry")
+
+	output.append("Return" + str(linenum))
+	output.append("NOP 0")
+		
+		
+
 
 #Checks if assigning a variable to another variable
 #Takes: a splitline
@@ -446,8 +532,10 @@ def conditionals(splitline, linenum):
 		elif splitline[0] == "ELSE":
 			output.append("jmp "+str(endifStack[-1]))
 			output.append(str(ifStatementStack.pop()) + ":")
+			ifStatementStack.append(label)
 
 		elif splitline[0]== "ENDIF":
+			output.append(str(ifStatementStack.pop()) + ":")
 			output.append(str(endifStack.pop()) + ":")
 
 		elif splitline[0] == "ENDLOOP":
@@ -461,7 +549,7 @@ def conditionals(splitline, linenum):
 		elif splitline[0] == "EXITLOOP":
 			output.append("jmp " + str(loopStatementStack[-1]))
 		elif splitline[0] == "EXITIF":
-			output.append("jmp "+ str(ifStatementStack[-1]))
+			output.append("jmp "+ str(endifStack[-1]))
 	
 		#Earlyend
 		elif splitline[0] == "EARLYEND":
@@ -566,6 +654,77 @@ def functionCall(splitline, linenum):
 		output.append("NOP 0")
 		
 
+#Checks for included files and does the appropriate stuff for them- can be of type .CB or .s  TODO is it .s?
+#Takes a splitline
+def includeFile(splitline, linenum):
+	if len(splitline) == 2 and splitline[0] == "INCLUDE":
+		if splitline[1][-3:] == ".CB":
+			files.append(splitline[1])
+			
+		elif splitline[1][-2:] == ".s":
+			asmFile(splitline[1])
+		else:
+			print "Not a valid CB or macro asm file on line: " + str(linenum)
+			exit(1)
+
+#Pretty much the same as the main loop except it uses included files instead, it deletes them from the lsit when they are read in
+def inlineFile():
+	linenum2 = 1
+	inputf2 = open(files[-1], 'r')
+	name = files[-1]
+	#This loop is the compiler section - converts all lines of CB into lines of Macro ASM
+	for line2 in inputf2.readlines():
+		#Check for comments
+		continueBool = checkComment(line2)
+		if continueBool == 1:
+			linenum2 += 1
+			continue
+		
+		#Check if line is START or END 
+		startEnd(line2)
+		
+		splitline2 = line2.split()
+		
+		#Check for empty line 
+		if len(splitline2) == 0:
+			output.append("") #preserves empty lines, an be changed if unwanted
+			linenum2 += 1
+			continue
+		
+		#Check for asm or passthroc, if found then line is passed through unchanged
+		continueBool = asm_passthroc(splitline2)
+		if continueBool == 1:
+			linenum2 += 1
+			continue
+		
+		#Check what the line is	
+		variableDeclaration(splitline2, linenum2)
+		unarymath(splitline2, linenum2)
+		binarymath(splitline2, linenum2)
+		assignment(splitline2, linenum2)
+		conditionals(splitline2,linenum2)
+		goto(splitline2)
+		functionProperties(splitline2)
+		functionCall(splitline2, linenum2)
+		#files(splitline,linenum)
+		includeFile(splitline2, linenum2)
+		linenum2 += 1
+	files.remove(name)
+	
+	
+#Takes an ASM file and puts it into our file sepeariting the data and non data sections
+#Takes an ASM file 
+def asmFile(file):
+	inputf = open(file, 'r')
+	for line in inputf.readlines():
+		splitline = line.split()
+		#Data type
+		if(len(splitline) > 1 and splitline[0][-1] == ":"):
+			data.append(line)
+		#Non data
+		else:
+			output.append(line)
+
 
 #************************************************************************************ MAIN*********************************************************************************************
 def main():
@@ -575,52 +734,64 @@ def main():
 	if len(sys.argv) < 2:
 		print 'No file specified'
 		quit()
-	inputf = open(sys.argv[1], 'r')
+	
 	
 	if len(sys.argv) == 3:
 		outputf = open(sys.argv[2], 'w')
 	linenum = 1
 	
+	files.append(sys.argv[1])
+	while(files):
+		inputf = open(files[0], 'r')
+
+		#This loop is the compiler section - converts all lines of CB into lines of Macro ASM
+		for line in inputf.readlines():
+			#Check for comments
+			continueBool = checkComment(line)
+			if continueBool == 1:
+				linenum += 1
+				continue
+			
+			#Check if line is START or END 
+			startEnd(line)
+			
+			splitline = line.split()
+			
+			#Check for empty line 
+			if len(splitline) == 0:
+				output.append("") #preserves empty lines, an be changed if unwanted
+				linenum += 1
+				continue
+			
+			#Check for asm or passthroc, if found then line is passed through unchanged
+			continueBool = asm_passthroc(splitline)
+			if continueBool == 1:
+				linenum += 1
+				continue
+			
+			#Check what the line is	
+			variableDeclaration(splitline, linenum)
+			unarymath(splitline, linenum)
+			binarymath(splitline, linenum)
+			assignment(splitline, linenum)
+			conditionals(splitline,linenum)
+			goto(splitline)
+			functionProperties(splitline)
+			functionCall(splitline, linenum)
+			#files(splitline,linenum)
+			includeFile(splitline, linenum)
 	
-	#This loop is the compiler section - converts all lines of CB into lines of Macro ASM
-	for line in inputf.readlines():
-		#Check for comments
-		continueBool = checkComment(line)
-		if continueBool == 1:
-			linenum += 1
-			continue
-		
-		#Check if line is START or END 
-		startEnd(line)
-		
-		splitline = line.split()
-		
-		#Check for empty line 
-		if len(splitline) == 0:
-			output.append("") #preserves empty lines, an be changed if unwanted
-			linenum += 1
-			continue
-		
-		#Check for asm or passthroc, if found then line is passed through unchanged
-		continueBool = asm_passthroc(splitline)
-		if continueBool == 1:
-			linenum += 1
-			continue
-		
-		#Check what the line is	
-		variableDeclaration(splitline, linenum)
-		unarymath(splitline, linenum)
-		binarymath(splitline, linenum)
-		assignment(splitline, linenum)
-		conditionals(splitline,linenum)
-		goto(splitline)
-		functionProperties(splitline)
-		functionCall(splitline, linenum)
-		#files(splitline,linenum)
-		
-		linenum = linenum + 1
+			#Testing a way to inline include instead of adding it just to end(because then we get issues of stuff being after END)
+			while(len(files) > 1):
+				inlineFile()
+			
+			linenum = linenum + 1
 	
-	inputf.close()
+	
+		inputf.close()
+		del files[0]
+		
+		
 	if hasstart == 0:
 		print "No START declared!"
 		quit(1)
