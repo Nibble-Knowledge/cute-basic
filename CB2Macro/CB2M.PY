@@ -192,7 +192,7 @@ def startEnd(line):
 			output.append("INCL asm-library/Mult32.s")
 			output.append("INCL asm-library/SignedCompare.s")
 			
-			cont = 1
+		cont = 1
 			
 	elif line.strip() == "END":
 		if hasend == 1:
