@@ -121,7 +121,8 @@ def extend(var, difference):
 	cnt = 0
 	#op = multinibOp(length, "MOV")
 	while cnt < size:
-		output.append("MOV ACC INTO " + extendedVar + "[" + str(startAddr + cnt) + "]")
+		#output.append("MOV ACC INTO " + extendedVar + "[" + str(startAddr + cnt) + "]")
+		output.append("STR "+ extendedVar + "[" + str(startAddr + cnt) + "]")
 		cnt += 1
 
 	return extendedVar
