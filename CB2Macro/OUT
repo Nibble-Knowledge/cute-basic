@@ -3,33 +3,45 @@ START:
 
 
 
+
+
+#HELP function begins here
+LOD N_[0]
+JMP END
+HELPEntry:
+ADD $A N_[8] INTO $B 
+HELP_RetAddr:
+LOD N_[0]
+JMP 0000
+
+
 INCL test.s
 
 MOV N_[1] INTO A
 MOV A INTO B
 
-JMPNE A B TO IF54jump
+JMPNE A B TO IF61jump
 MOV N_[2] INTO A
-jmp endif54
-IF54jump:
-JMPLE A B TO ELSEIF56jump
+jmp endif61
+IF61jump:
+JMPLE A B TO ELSEIF63jump
 MOV N_[3] INTO A
-jmp endif54
-ELSEIF56jump:
-JMPGE A B TO ELSEIF58jump
+jmp endif61
+ELSEIF63jump:
+JMPGE A B TO ELSEIF65jump
 MOV N_[4] INTO A
-ELSEIF58jump:
-endif54:
+ELSEIF65jump:
+endif61:
 
 MOV N_[3] INTO A
-startLOOPWHILE63jump:
-JMPLE A 0 TO LOOPWHILE63jump
-JMPNE A 1 TO IF65jump
-jmp LOOPWHILE63jump
-IF65jump:
-endif65:
-jmp startLOOPWHILE63jump
-LOOPWHILE63jump:
+startLOOPWHILE70jump:
+JMPLE A 0 TO LOOPWHILE70jump
+JMPNE A 1 TO IF72jump
+jmp LOOPWHILE70jump
+IF72jump:
+endif72:
+jmp startLOOPWHILE70jump
+LOOPWHILE70jump:
 
 NEG B INTO A
 INC B INTO B
@@ -101,32 +113,32 @@ SUB64 E D64signed INTO F
 
 MOV N_[1] INTO Mult4_Op1[1]
 MOV N_[1] INTO Mult4_Op2[1]
-MOVADDR Return90 INTO Mult4_RetAddr[1]
+MOVADDR Return97 INTO Mult4_RetAddr[1]
 LOD N_[0]
 STR Mult4_Op1Ex
 STR Mult4_Op2Ex
 JMP Mult4_UnsignedEntry
-Return90:
+Return97:
 NOP 0
 MOV Mult4_Ans INTO A
 MOV N_[1] INTO Mult4_Op1[1]
 MOV A INTO Mult4_Op2[1]
-MOVADDR Return91 INTO Mult4_RetAddr[1]
+MOVADDR Return98 INTO Mult4_RetAddr[1]
 LOD N_[0]
 STR Mult4_Op1Ex
 STR Mult4_Op2Ex
 JMP Mult4_UnsignedEntry
-Return91:
+Return98:
 NOP 0
 MOV Mult4_Ans INTO A
 MOV A INTO Mult4_Op1[1]
 MOV N_[1] INTO Mult4_Op2[1]
-MOVADDR Return92 INTO Mult4_RetAddr[1]
+MOVADDR Return99 INTO Mult4_RetAddr[1]
 LOD N_[0]
 STR Mult4_Op1Ex
 STR Mult4_Op2Ex
 JMP Mult4_UnsignedEntry
-Return92:
+Return99:
 NOP 0
 MOV Mult4_Ans INTO A
 MOV A INTO A8unsigned
@@ -134,12 +146,12 @@ LOD N_[0]
 MOV ACC INTO A8unsigned[1]
 MOV8 A8unsigned INTO Mult8_Op1[1]
 MOV8 B INTO Mult8_Op2[1]
-MOVADDR Return93 INTO Mult8_RetAddr[1]
+MOVADDR Return100 INTO Mult8_RetAddr[1]
 LOD N_[0]
 STR Mult8_Op1Ex
 STR Mult8_Op2Ex
 JMP Mult8_UnsignedEntry
-Return93:
+Return100:
 NOP 0
 MOV64 Mult8_Ans INTO F
 MOV8 B INTO B16unsigned
@@ -148,12 +160,12 @@ MOV8 ACC INTO B16unsigned[2]
 MOV8 ACC INTO B16unsigned[3]
 MOV16 B16unsigned INTO Mult16_Op1[1]
 MOV16 C INTO Mult16_Op2[1]
-MOVADDR Return94 INTO Mult16_RetAddr[1]
+MOVADDR Return101 INTO Mult16_RetAddr[1]
 LOD N_[0]
 STR Mult16_Op1Ex
 STR Mult16_Op2Ex
 JMP Mult16_UnsignedEntry
-Return94:
+Return101:
 NOP 0
 MOV64 Mult16_Ans INTO F
 MOV16 C INTO C32unsigned
@@ -164,33 +176,20 @@ MOV16 ACC INTO C32unsigned[6]
 MOV16 ACC INTO C32unsigned[7]
 MOV32 C32unsigned INTO Mult32_Op1[1]
 MOV32 D INTO Mult32_Op2[1]
-MOVADDR Return95 INTO Mult32_RetAddr[1]
+MOVADDR Return102 INTO Mult32_RetAddr[1]
 LOD N_[0]
 JMP Mult32_SignedEntry
-Return95:
+Return102:
 NOP 0
 MOV64 Mult32_Ans INTO F
-MOV32 D INTO D64signed
-LOD D
-SIGNEX ACC
-MOV32 ACC INTO D64signed[8]
-MOV32 ACC INTO D64signed[9]
-MOV32 ACC INTO D64signed[10]
-MOV32 ACC INTO D64signed[11]
-MOV32 ACC INTO D64signed[12]
-MOV32 ACC INTO D64signed[13]
-MOV32 ACC INTO D64signed[14]
-MOV32 ACC INTO D64signed[15]
-MOV64 D64signed INTO Mult64_Op1[1]
-MOV64 E INTO Mult64_Op2[1]
-MOVADDR Return96 INTO Mult64_RetAddr[1]
+MOV32 D INTO Mult32_Op1[1]
+MOV32 D INTO Mult32_Op2[1]
+MOVADDR Return103 INTO Mult32_RetAddr[1]
 LOD N_[0]
-STR Mult64_Op1Ex
-STR Mult64_Op2Ex
-JMP Mult64_UnsignedEntry
-Return96:
+JMP Mult32_SignedEntry
+Return103:
 NOP 0
-MOV64 Mult64_Ans INTO F
+MOV64 Mult32_Ans INTO F
 
 
 

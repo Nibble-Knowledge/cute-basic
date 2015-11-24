@@ -144,7 +144,6 @@ Declaration (probably c-like, in the old declare-before-first-use way):
 
 /*: RETURNS and TAKES both optional, [] part can be repeated (comma-separated), funcName must be unique
 FUNCTION (funcName) RETURNS (size in nibbles) TAKES [(size in nibbles) (paramName)] ASWELL...
-FUNCTION (funcName) TAKES ... RETURNS (size in nibbles) 
 FUNCTION (funcName) TAKES [(size in nibbles) (paramName)]
 FUNCTION (funcName) RETURNS (size in nibbles)
 FUNCTION (funcName)
@@ -186,13 +185,13 @@ FOR PUTCHAR FILENAME AT X if X is greater than # of chars in the file it breaks 
 /#: Start of multi line comment
 #/: End of multi line comment
 
-#goal is use non standard asm functions 
-ASM FUNCTION ... (takes returns etc)
+#goal is use non standard asm functions - function param is same set up as normal functions
+ASM FUNCTION (Funcname) RETURNS (size in nibbles) TAKES [(size in nibbles) (paramName)] ASWELL... 
     body is asm (with fallthrough)
     if label is normal param then make $param1 (special vals)
     special value for return addr
     C pointer style? No return? 
-ASM FUNCTION END
+ASM ENDFUNCTION (Funcname)
 
 INCLUDE CUTEBASIC filename - label repalcer does stuff
 INCLUDE ASM filename

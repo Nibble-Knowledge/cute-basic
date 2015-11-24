@@ -19,7 +19,6 @@ varnames = []
 vartypes = ["BINARY", "HEX", "CHAR"] #TODO add this stuff in (updated langspec, this isnt needed any more)
 varsizes = []
 varvals = []
-varstofree = []
 
 funcnames = []
 funcstack = []
@@ -198,12 +197,13 @@ def startEnd(line):
 #Checks if a line is asm or passthroc, if it is put it directly into output as is
 #Takes: a splitline
 #Returns: 1 if asm or passthroc is found, 0 otherwise 
-def asm_passthroc(splitline):
+def asm_passthroc(splitline, linenum):
+	global asmFunc
 	cont = 0
-	if splitline[0] == "ASM" or splitline[0] == "PASSTHROC":
+	if splitline[0] == "ASM" or splitline[0] == "PASSTHROC" or asmFunc == 1:
 		#If its a special variable function type
-		if len(splitline) > 1 and splitline[1] == "FUNCTION":
-			asmFunction(splitline)
+		if (len(splitline) > 1 and splitline[1] == "FUNCTION") or asmFunc == 1:
+			asmFunction(splitline, linenum)
 		else:	
 			del splitline[0]
 			newline = ""
@@ -211,7 +211,7 @@ def asm_passthroc(splitline):
 				newline += i
 				newline += " "
 			output.append(newline)
-			cont = 1
+		cont = 1
 		
 	return cont	
 
@@ -390,6 +390,8 @@ def binarymath(splitline, linenum):
 				
 		elif splitline[3] == "MULTIPLY":
 			#output.append("MULT " + var1 + " " + var2 + " INTO " + splitline[0])
+			if length == 64:
+				print "Error: Multiplication can not handle larger than 32 bit sizes. On line " + str(linenum)
 			multiply(var1, var2, splitline[0], length, linenum)
 		elif splitline[3] == "DIVIDE":
 			output.append("DIV " + var1 + " " + var2 + " INTO " + splitline[0]) #TODO This doesnt work yet
@@ -507,8 +509,6 @@ def assignment(splitline, linenum):
 		#Function return value
 		elif(splitline[2] == "CALL"):
 			line = splitline[2:]
-			#print splitline
-			#print line
 			functionCall(line, linenum)
 			output.append("MOV " + splitline[3] +  "_RetVal INTO " + splitline[0])
 			
@@ -704,16 +704,33 @@ def functionCall(splitline, linenum):
 #TODO compelte this
 #Checks if a special asm function is being created - creates the required output
 #Takes a splitline
-def asmFunction(splitline):
-	asmFunc = 1
+def asmFunction(splitline, linenum):
+	global asmFunc
+	#First call - initialize function params
+	if asmFunc == 0:
+		#get rid of ASM 
+		funcProp = splitline[1:]
+		functionProperties(funcProp)
+		asmFunc = 1
 	
-	#Function call params
-	#TODO
-	#Function params
-	#TODO
 	#End function
-	if len(splitline) > 2 and splitline[2] == "END":
+	elif len(splitline) > 2 and splitline[1] == "ENDFUNCTION":
 		asmFunc = 0
+		funcProp = splitline[1:]
+		functionProperties(funcProp)
+	
+	#Inside a ASM function
+	else:
+		temp = ''
+		#ASM should fall through and labels should be replaced
+		for word in splitline:
+			#TODO i think im misinterpreting what Ryan/Naomi want me to do here with the special params?
+			if word in varnames:
+				temp += "$" + word + " "
+			else:
+				temp +=  word + " "
+		output.append(temp)
+			
 		
 
 #Checks for included files and does the appropriate stuff for them- can be of type .CB or .s  TODO is it .s?
@@ -839,7 +856,7 @@ def main():
 				continue
 			
 			#Check for asm or passthroc, if found then line is passed through unchanged
-			continueBool = asm_passthroc(splitline)
+			continueBool = asm_passthroc(splitline, linenum)
 			if continueBool == 1:
 				linenum += 1
 				continue
