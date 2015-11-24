@@ -463,7 +463,7 @@ def multiply(var1, var2, result, length, linenum):
 	else:
 		output.append("JMP Mult" + length + "_SignedEntry")
 
-	output.append("Return" + str(linenum))
+	output.append("Return" + str(linenum) + ":")
 	output.append("NOP 0")
 		
 		
