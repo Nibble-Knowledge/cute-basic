@@ -156,12 +156,12 @@ def startEnd(line):
 			hasstart = 1
 			output.append("START:")
 			#Temporary. But adds what we need to compile.
-			output.append("INCL \"./asm-library/Mult4.s\"")
-			output.append("INCL \"./asm-library/Mult8.s\"")
-			output.append("INCL \"./asm-library/Mult16.s\"")
-			output.append("INCL \"./asm-library/Mult32.s\"")
-			output.append("INCL \"./asm-library/Mult64.s\"")
-			output.append("INCL \"./asm-library/SignedCompare.s\"")
+			output.append("INCL \"asm-library/Mult4.s\"")
+			output.append("INCL \"asm-library/Mult8.s\"")
+			output.append("INCL \"asm-library/Mult16.s\"")
+			output.append("INCL \"asm-library/Mult32.s\"")
+			output.append("INCL \"asm-library/Mult64.s\"")
+			output.append("INCL \"asm-library/SignedCompare.s\"")
 			
 	elif line.strip() == "END":
 		if hasend == 1:
