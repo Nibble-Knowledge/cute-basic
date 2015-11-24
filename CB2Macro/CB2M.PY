@@ -91,7 +91,7 @@ def extend(var, difference):
 	if var in signed:
 		extendedVar = var + str(length + difference) + "signed"
 		if(extendedVar not in varnames):
-			data.append(var + str(length + difference) + "signed: " + str(length + difference) + " 0")
+			data.append(var + str(length + difference) + "signed: .data " + str(length + difference) + " 0")
 			varnames.append(extendedVar)
 			#TODO figure out how to extend stuff
 		else:
@@ -102,7 +102,7 @@ def extend(var, difference):
 	else:
 		extendedVar = var + str(length + difference) + "unsigned"
 		if(extendedVar not in varnames):
-			data.append(var + str(length + difference) + "unsigned: " + str(length + difference) + " 0")
+			data.append(var + str(length + difference) + "unsigned: .data " + str(length + difference) + " 0")
 			varnames.append(extendedVar)
 
 		else:
