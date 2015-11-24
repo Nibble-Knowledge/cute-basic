@@ -91,9 +91,10 @@ def extend(var, difference):
 	if var in signed:
 		extendedVar = var + str(length + difference) + "signed"
 		if(extendedVar not in varnames):
-			data.append(var + str(length + difference) + "signed: " + str(length + difference) + " 0")
+			data.append(var + str(length + difference) + "signed: .data " + str(length + difference) + " 0")
 			varnames.append(extendedVar)
 			
+
 		op = multinibOp(length, "MOV")
 		output.append(op +  " " + var + " INTO " + extendedVar)
 		
@@ -101,11 +102,13 @@ def extend(var, difference):
 		output.append("LOD " + var)
 		output.append("SIGNEX ACC")
 			
+		#output.append(op + " ") Just taking this out for now, it messes up stuff.
+
 	#Unsigned extend	
 	else:
 		extendedVar = var + str(length + difference) + "unsigned"
 		if(extendedVar not in varnames):
-			data.append(var + str(length + difference) + "unsigned: " + str(length + difference) + " 0")
+			data.append(var + str(length + difference) + "unsigned: .data " + str(length + difference) + " 0")
 			varnames.append(extendedVar)
 
 		op = multinibOp(length, "MOV")
@@ -181,7 +184,15 @@ def startEnd(line):
 		else:
 			hasstart = 1
 			output.append("START:")
+
 		cont = 1
+
+			#Temporary. But adds what we need to compile.
+			output.append("INCL asm-library/Mult4.s")
+			output.append("INCL asm-library/Mult8.s")
+			output.append("INCL asm-library/Mult16.s")
+			output.append("INCL asm-library/Mult32.s")
+			output.append("INCL asm-library/SignedCompare.s")
 			
 	elif line.strip() == "END":
 		if hasend == 1:
@@ -477,7 +488,7 @@ def multiply(var1, var2, result, length, linenum):
 
 	if(var1 not in signed and var2 not in signed):
 		
-		if length == 4:
+		if int(length) == 4:
 			output.append("STR Mult4_Op1[0]")
 			output.append("STR Mult4_Op2[0]")
 		else:
@@ -549,7 +560,7 @@ def conditionals(splitline, linenum):
 				output.append(jumptype + " " + splitline[1] + " " + splitline[3] + " TO " + label)
 				
 			elif splitline[0] == "ELSEIF": 
-				output.append("jmp "+str(endifStack[-1]))
+				output.append("JMP "+str(endifStack[-1]))
 				output.append(str(ifStatementStack.pop()) + ":")
 				ifStatementStack.append(label)
 				output.append(jumptype + " " + splitline[1] + " " + splitline[3] + " TO " + label)
@@ -560,7 +571,7 @@ def conditionals(splitline, linenum):
 				loopStatementStack.append(label)
 		
 		elif splitline[0] == "ELSE":
-			output.append("jmp "+str(endifStack[-1]))
+			output.append("JMP "+str(endifStack[-1]))
 			output.append(str(ifStatementStack.pop()) + ":")
 			ifStatementStack.append(label)
 
@@ -570,20 +581,20 @@ def conditionals(splitline, linenum):
 
 		elif splitline[0] == "ENDLOOP":
 			label = str(loopStatementStack.pop())
-			output.append("jmp start"+label)
+			output.append("JMP start"+label)
 			output.append(label + ":")
 
 		#GOTO derivatives
 		elif splitline[0] == "LOOPAGAIN":
-			output.append("jmp start"+str(loopStatementStack[-1]))
+			output.append("JMP start"+str(loopStatementStack[-1]))
 		elif splitline[0] == "EXITLOOP":
-			output.append("jmp " + str(loopStatementStack[-1]))
+			output.append("JMP " + str(loopStatementStack[-1]))
 		elif splitline[0] == "EXITIF":
-			output.append("jmp "+ str(endifStack[-1]))
+			output.append("JMP "+ str(endifStack[-1]))
 	
 		#Earlyend
 		elif splitline[0] == "EARLYEND":
-			output.append("jmp END")	
+			output.append("JMP END")	
 			
 		cont = 1
 	return cont
