@@ -1,5 +1,10 @@
 
 START:
+INCL asm-library/Mult4.s
+INCL asm-library/Mult8.s
+INCL asm-library/Mult16.s
+INCL asm-library/Mult32.s
+INCL asm-library/SignedCompare.s
 
 
 
@@ -22,11 +27,11 @@ MOV A INTO B
 
 JMPNE A B TO IF61jump
 MOV N_[2] INTO A
-jmp endif61
+JMP endif61
 IF61jump:
 JMPLE A B TO ELSEIF63jump
 MOV N_[3] INTO A
-jmp endif61
+JMP endif61
 ELSEIF63jump:
 JMPGE A B TO ELSEIF65jump
 MOV N_[4] INTO A
@@ -37,10 +42,10 @@ MOV N_[3] INTO A
 startLOOPWHILE70jump:
 JMPLE A 0 TO LOOPWHILE70jump
 JMPNE A 1 TO IF72jump
-jmp LOOPWHILE70jump
+JMP LOOPWHILE70jump
 IF72jump:
 endif72:
-jmp startLOOPWHILE70jump
+JMP startLOOPWHILE70jump
 LOOPWHILE70jump:
 
 NEG B INTO A
@@ -115,8 +120,8 @@ MOV N_[1] INTO Mult4_Op1[1]
 MOV N_[1] INTO Mult4_Op2[1]
 MOVADDR Return97 INTO Mult4_RetAddr[1]
 LOD N_[0]
-STR Mult4_Op1Ex
-STR Mult4_Op2Ex
+STR Mult4_Op1[0]
+STR Mult4_Op2[0]
 JMP Mult4_UnsignedEntry
 Return97:
 NOP 0
@@ -125,8 +130,8 @@ MOV N_[1] INTO Mult4_Op1[1]
 MOV A INTO Mult4_Op2[1]
 MOVADDR Return98 INTO Mult4_RetAddr[1]
 LOD N_[0]
-STR Mult4_Op1Ex
-STR Mult4_Op2Ex
+STR Mult4_Op1[0]
+STR Mult4_Op2[0]
 JMP Mult4_UnsignedEntry
 Return98:
 NOP 0
@@ -135,8 +140,8 @@ MOV A INTO Mult4_Op1[1]
 MOV N_[1] INTO Mult4_Op2[1]
 MOVADDR Return99 INTO Mult4_RetAddr[1]
 LOD N_[0]
-STR Mult4_Op1Ex
-STR Mult4_Op2Ex
+STR Mult4_Op1[0]
+STR Mult4_Op2[0]
 JMP Mult4_UnsignedEntry
 Return99:
 NOP 0
@@ -204,7 +209,7 @@ HEX: .data 4 0xA
 BIN: .data 4 0b1010
 CHAR: .data 4 'A'
 STRING: .data 4 'AAA'
-A8unsigned: 8 0
-B16unsigned: 16 0
-C32unsigned: 32 0
-D64signed: 64 0
+A8unsigned: .data 8 0
+B16unsigned: .data 16 0
+C32unsigned: .data 32 0
+D64signed: .data 64 0
