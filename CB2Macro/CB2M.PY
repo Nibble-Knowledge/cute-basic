@@ -446,7 +446,7 @@ def binarymath(splitline, linenum):
 #Calls the appropriate multiply library call based on the given values - writes the appropriate asm
 #Takes- 2 variables, the result label, and the length of the largest variable, and the linenumber
 def multiply(var1, var2, result, length, linenum):
-	length = int(length)
+	length = str(length)
 	op = multinibOp(length, "MOV")
 	output.append(op + " " + var1 + " INTO Mult" + length + "_Op1[1]")
 	output.append(op + " " + var2 + " INTO Mult" + length + "_Op2[1]")
@@ -457,7 +457,7 @@ def multiply(var1, var2, result, length, linenum):
 
 	if(var1 not in signed and var2 not in signed):
 		
-		if length == 4:
+		if int(length) == 4:
 			output.append("STR Mult4_Op1[0]")
 			output.append("STR Mult4_Op2[0]")
 		else:
