@@ -97,7 +97,7 @@ def extend(var, difference):
 		else:
 			op = multinibOp(length, "MOV")
 			
-			output.append(op + " ")
+			#output.append(op + " ") Just taking this out for now, it messes up stuff.
 	#Unsigned extend	
 	else:
 		extendedVar = var + str(length + difference) + "unsigned"
