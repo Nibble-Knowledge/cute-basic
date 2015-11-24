@@ -111,7 +111,6 @@ ELSEIF (var1) COMPARATOR (var2)
 ELSE
 ENDIF
 
-
 LOOP ... ENDLOOP
 
 LOOPWHILE (var1) CONDITIONAL (var2)
@@ -195,6 +194,6 @@ ASM FUNCTION ... (takes returns etc)
     C pointer style? No return? 
 ASM FUNCTION END
 
-INCLUDE filename - label repalcer does stuff
-
+INCLUDE CUTEBASIC filename - label repalcer does stuff
+INCLUDE ASM filename
 

@@ -16,7 +16,7 @@ data = []
 variables = []
 
 varnames = []
-vartypes = ["BINARY", "HEX", "CHAR"] #TODO add this stuff in (update langspec too)
+vartypes = ["BINARY", "HEX", "CHAR"] #TODO add this stuff in (updated langspec, this isnt needed any more)
 varsizes = []
 varvals = []
 varstofree = []
@@ -43,7 +43,7 @@ def varLength(varname):
 	if varname in varnames:
 		index = varnames.index(varname)
 		length = varsizes[index]
-		#Literals should be 4? TODO
+		#Literals should be 4? TODO Assuming literals are 1 nib for now, can be updated if needed
 		if length == None:
 			length = 4
 		return int(length)
@@ -79,25 +79,29 @@ def literal(var):
 		var = "N_[" + var + "]"
 	return var
 	
-#TODO Not sure how to do this yet
 #Writes the ASM code needed to perform signed or unsigned extension depending on variable 
 #Takes a variable and a size to extend to 
+#Returns the extended value label
 def extend(var, difference):
 	#Number of nibbles needed to extend by (diveide by 4 since it is in nibbles to start)
 	size = int(difference) / 4
 	cnt = 0
 	length = varLength(var)
+	
 	#Sign extend
 	if var in signed:
 		extendedVar = var + str(length + difference) + "signed"
 		if(extendedVar not in varnames):
 			data.append(var + str(length + difference) + "signed: " + str(length + difference) + " 0")
 			varnames.append(extendedVar)
-			#TODO figure out how to extend stuff
-		else:
-			op = multinibOp(length, "MOV")
 			
-			output.append(op + " ")
+		op = multinibOp(length, "MOV")
+		output.append(op +  " " + var + " INTO " + extendedVar)
+		
+		#TODO Not sure if im using signex right
+		output.append("LOD " + var)
+		output.append("SIGNEX ACC")
+			
 	#Unsigned extend	
 	else:
 		extendedVar = var + str(length + difference) + "unsigned"
@@ -105,9 +109,18 @@ def extend(var, difference):
 			data.append(var + str(length + difference) + "unsigned: " + str(length + difference) + " 0")
 			varnames.append(extendedVar)
 
-		else:
-			op = multinibOp(length, "MOV")
+		op = multinibOp(length, "MOV")
+		output.append(op +  " " + var + " INTO " + extendedVar)
 	
+		output.append("LOD N_[0]")
+	
+	#Fill the remaining values with the extended value	
+	startAddr = length / 4 #Number of address spaces we already fill
+	cnt = 0
+	op = multinibOp(length, "MOV")
+	while cnt < size:
+		output.append(op + " ACC INTO " + extendedVar + "[" + str(startAddr + cnt) + "]")
+		cnt += 1
 
 	return extendedVar
 
@@ -118,7 +131,20 @@ def multinibOp(length, op):
 	else:
 		return op + str(length)
 
-
+#TODO this may be useless - i think i will update the langspec to just be 0b, 0x or '' directly as that is more straightforward and less verbose
+#Converts BINARY HEX AND CHAR into 0b, 0x, and '' respectively
+#Takes a splitline and an index 
+#Returns the updated splitline
+def checkVartype(splitline, index):
+	vartype = splitline[index]
+	splitline.remove(splitline[index])
+	if vartype == "BINARY":
+		splitline[index] = "0b" + splitline[index]
+	elif vartype == "HEX":
+		splitline[index] = "0x" + splitline[index]
+	elif vartype[index] == "CHAR":
+		splitline[index] = "\'" + splitline[index] + "\'"
+	return splitline
 
 #Checks if a comment exists on the line
 #Takes: a line from readlines()
@@ -145,6 +171,7 @@ def checkComment(line):
 #Checks if line contains start or end
 #Takes: a line
 def startEnd(line):
+	cont = 0
 	global hasstart
 	global hasend
 	
@@ -155,6 +182,7 @@ def startEnd(line):
 		else:
 			hasstart = 1
 			output.append("START:")
+		cont = 1
 			
 	elif line.strip() == "END":
 		if hasend == 1:
@@ -163,6 +191,8 @@ def startEnd(line):
 		else:
 			hasend = 1
 			output.append("END:")
+		cont = 1
+	return cont
 
 		
 #Checks if a line is asm or passthroc, if it is put it directly into output as is
@@ -185,24 +215,11 @@ def asm_passthroc(splitline):
 		
 	return cont	
 
-#TODO compelte this
-#Checks if a special asm function is being created - creates the required output
-#Takes a splitline
-def asmFunction(splitline):
-	asmFunc = 1
-	
-	#Function call params
-	#TODO
-	#Function params
-	#TODO
-	#End function
-	if len(splitline) > 2 and splitline[2] == "END":
-		asmFunc = 0
-
 
 #Checks if variable declaration is being performed
 #Takes: a splitline
 def variableDeclaration(splitline, linenum):
+	cont = 0
 	if splitline[0] == "LET":
 		#LET VAR - this should default a size and value
 		#LET VAR AS SIZE- this should default a value
@@ -279,11 +296,13 @@ def variableDeclaration(splitline, linenum):
 			
 			
 		data.append(temp)
-		
+		cont = 1
+	return cont
 
 #Checks if unary math operations are being performed with assignments as the first thing on the line
 #Takes: a splitline
 def unarymath(splitline, linenum):	
+	cont = 0
 	if (len(splitline) > 3 and (splitline[0] in varnames) and (splitline[2] in ["COMPLEMENT", "NEGATE", "INCREMENT", "DECREMENT", "NOT", "ADDRESSOF", "CONTENTOF"])): 
 		length = longer(splitline[2], 0)	
 	
@@ -325,11 +344,13 @@ def unarymath(splitline, linenum):
 				output.append("MOV " + splitline[3] + " INTO " + splitline[0])
 			else:
 				output.append("MOV" + str(length) + " " + splitline[3] + " INTO " + splitline[0])
-	
+		cont = 1
+	return cont
 
 #Checks if binary math operations are being performed with assignments as the first thing on the line
 #Takes: a splitline, linenumber
-def binarymath(splitline, linenum):					
+def binarymath(splitline, linenum):		
+	cont = 0
 	if ((splitline[0] in varnames) and len(splitline) > 4 and splitline[2] != "CALL"): 
 		lengthDif = compareLength(splitline[2], splitline[4])
 		
@@ -436,6 +457,9 @@ def binarymath(splitline, linenum):
 			a = ''
 		elif splitline[3] == "EITHER":
 			a = ''
+			
+		cont = 1
+	return cont
 	
 #Calls the appropriate multiply library call based on the given values - writes the appropriate asm
 #Takes- 2 variables, the result label, and the length of the largest variable, and the linenumber
@@ -463,15 +487,18 @@ def multiply(var1, var2, result, length, linenum):
 	else:
 		output.append("JMP Mult" + length + "_SignedEntry")
 
-	output.append("Return" + str(linenum))
+	output.append("Return" + str(linenum) + ":")
 	output.append("NOP 0")
-		
+	resLength = varLength(result)
+	op = multinibOp(resLength, "MOV")
+	output.append(op + " Mult" + length + "_Ans INTO " + result)
 		
 
 
 #Checks if assigning a variable to another variable
 #Takes: a splitline
-def assignment(splitline, linenum):					
+def assignment(splitline, linenum):	
+	cont = 0
 	if ((splitline[0] in varnames) and ((len(splitline) == 3) or (splitline[2] == "CALL") or splitline[3] == "SIGNED")):
 		length = varLength(splitline[0])
 		#If assigning a variable to antoehr variable
@@ -492,10 +519,13 @@ def assignment(splitline, linenum):
 		#Add to signed list	
 		if(splitline > 3 and [3] == "SIGNED" and splitline not in signed):
 			signed.append(splitline[0])
-		
+		cont = 1
+	return cont
+	
 #Checks a line for any conditionals
 #Takes: a splitline, linenum
 def conditionals(splitline, linenum):
+	cont = 0
 	if(splitline[0] in ["IF", "ELSEIF", "ELSE", "ENDIF", "LOOPWHILE", "ENDLOOP", "LOOPAGAIN", "EXITLOOP", "EXITIF", "EARLYEND"]):
 		label = splitline[0]+str(linenum)+"jump"
 		if splitline[0] in ["IF", "ELSEIF", "LOOPWHILE"]:
@@ -555,9 +585,14 @@ def conditionals(splitline, linenum):
 		elif splitline[0] == "EARLYEND":
 			output.append("jmp END")	
 			
+		cont = 1
+	return cont
+			
 #goto and labels
 #Takes: splitline
 def goto(splitline):
+	cont = 0
+	cont = 0
 	if(splitline[0] in ["GOTO", "LABEL"]):
 		if splitline[0] == "LABEL":
 			output.append(splitline[1] + ":")
@@ -565,12 +600,15 @@ def goto(splitline):
 			#apparently load 0 before uncoditional jumps
 			output.append("LOD N_[0]")
 			output.append("JMP " + splitline[1]) 
-		
+		cont = 1
+	return cont
 
 
 #Checks if the line contains any function properties
 #Takes: splitline
 def functionProperties(splitline):
+	cont = 0
+	
 	global returns
 	if splitline[0] == "FUNCTION":
 		#must match declaration sig
@@ -608,7 +646,7 @@ def functionProperties(splitline):
 			else:
 				print "Not a valid function " +str(splitline[1]) + " on line " + str(linenum)
 				exit(1)
-		
+		cont = 1
 		
 	elif splitline[0] == "ENDFUNCTION":
 		name = funcstack.pop()
@@ -617,6 +655,7 @@ def functionProperties(splitline):
 			output.append("LOD N_[0]")
 			output.append("JMP 0000")
 		returns = 0
+		cont = 1
 		
 	elif splitline[0] == "RETURN":
 		name = funcstack[-1]
@@ -625,10 +664,15 @@ def functionProperties(splitline):
 		output.append(name + "_RetAddr:")
 		output.append("JMP 0000")
 		returns = 1
+		cont = 1
+	return cont
+	
+	
 
 #Checks for and performs function calls
 #Takes: splitline, current line number
 def functionCall(splitline, linenum): 
+	cont = 0
 	if splitline[0] == "CALL":
 		
 		#Has at least one variable
@@ -653,19 +697,43 @@ def functionCall(splitline, linenum):
 		output.append(splitline[1] + "_Return" + str(linenum) + ":")
 		output.append("NOP 0")
 		
+		cont = 1
+	return cont
+	
+	
+#TODO compelte this
+#Checks if a special asm function is being created - creates the required output
+#Takes a splitline
+def asmFunction(splitline):
+	asmFunc = 1
+	
+	#Function call params
+	#TODO
+	#Function params
+	#TODO
+	#End function
+	if len(splitline) > 2 and splitline[2] == "END":
+		asmFunc = 0
+		
 
 #Checks for included files and does the appropriate stuff for them- can be of type .CB or .s  TODO is it .s?
 #Takes a splitline
 def includeFile(splitline, linenum):
-	if len(splitline) == 2 and splitline[0] == "INCLUDE":
-		if splitline[1][-3:] == ".CB":
-			files.append(splitline[1])
+	cont = 0
+	cont = 0
+	if len(splitline) == 3 and splitline[0] == "INCLUDE":
+		if splitline[1] == "CUTEBASIC":
+			files.append(splitline[2])
 			
-		elif splitline[1][-2:] == ".s":
-			asmFile(splitline[1])
+		elif splitline[1] == "ASM":
+			asmFile(splitline[2])
+			
 		else:
 			print "Not a valid CB or macro asm file on line: " + str(linenum)
 			exit(1)
+		cont = 1
+	return cont
+		
 
 #Pretty much the same as the main loop except it uses included files instead, it deletes them from the lsit when they are read in
 def inlineFile():
@@ -715,15 +783,18 @@ def inlineFile():
 #Takes an ASM file and puts it into our file sepeariting the data and non data sections
 #Takes an ASM file 
 def asmFile(file):
-	inputf = open(file, 'r')
-	for line in inputf.readlines():
-		splitline = line.split()
+	#This as been replaced by naomi creating a way to handle this in the macro assembly
+	#inputf = open(file, 'r')
+	#for line in inputf.readlines():
+	#	splitline = line.split()
 		#Data type
-		if(len(splitline) > 1 and splitline[0][-1] == ":"):
-			data.append(line)
+	#	if(len(splitline) > 1 and splitline[0][-1] == ":"):
+	#		data.append(line)
 		#Non data
-		else:
-			output.append(line)
+	#	else:
+	#output.append(line)
+	
+	output.append("INCL " + file)
 
 
 #************************************************************************************ MAIN*********************************************************************************************
@@ -753,7 +824,11 @@ def main():
 				continue
 			
 			#Check if line is START or END 
-			startEnd(line)
+			continueBool = startEnd(line)
+			if continueBool == 1:
+				linenum += 1
+				continue
+			
 			
 			splitline = line.split()
 			
@@ -770,22 +845,62 @@ def main():
 				continue
 			
 			#Check what the line is	
-			variableDeclaration(splitline, linenum)
-			unarymath(splitline, linenum)
-			binarymath(splitline, linenum)
-			assignment(splitline, linenum)
-			conditionals(splitline,linenum)
-			goto(splitline)
-			functionProperties(splitline)
-			functionCall(splitline, linenum)
+			continueBool = variableDeclaration(splitline, linenum)
+			if continueBool == 1:
+				linenum += 1
+				continue
+			
+			continueBool = unarymath(splitline, linenum)
+			if continueBool == 1:
+				linenum += 1
+				continue
+			
+			continueBool = 	binarymath(splitline, linenum)
+			if continueBool == 1:
+				linenum += 1
+				continue
+			
+			continueBool = assignment(splitline, linenum)
+			if continueBool == 1:
+				linenum += 1
+				continue
+			
+			continueBool = conditionals(splitline,linenum)
+			if continueBool == 1:
+				linenum += 1
+				continue
+			
+			continueBool = goto(splitline)
+			if continueBool == 1:
+				linenum += 1
+				continue
+			
+			continueBool = functionProperties(splitline)
+			if continueBool == 1:
+				linenum += 1
+				continue
+			
+			continueBool = functionCall(splitline, linenum)
+			if continueBool == 1:
+				linenum += 1
+				continue
+			
 			#files(splitline,linenum)
-			includeFile(splitline, linenum)
+			continueBool = includeFile(splitline, linenum)
+			if continueBool == 1:
+				linenum += 1
+				continue
 	
 			#Testing a way to inline include instead of adding it just to end(because then we get issues of stuff being after END)
 			while(len(files) > 1):
 				inlineFile()
+				linenum += 1
+				continue
+				
+			print "Error - Unkown Values in line: " + str(linenum)
+			exit(1)
 			
-			linenum = linenum + 1
+			#linenum = linenum + 1
 	
 	
 		inputf.close()
