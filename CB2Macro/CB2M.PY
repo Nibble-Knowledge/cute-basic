@@ -346,6 +346,7 @@ def unarymath(splitline, linenum):
 			
 		elif splitline[2] == "NOT":
 			output.append("LOGNOT ACC")
+			output.append("MOV " + splitline[3] + " INTO " splitline[0])
 			#TODO Dont think this is right but have to double check - only accumualtor lognot?
 			
 		elif splitline[2] == "ADDRESSOF":
