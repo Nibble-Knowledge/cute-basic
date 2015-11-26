@@ -196,3 +196,5 @@ ASM ENDFUNCTION (Funcname)
 INCLUDE CUTEBASIC filename - label repalcer does stuff
 INCLUDE ASM filename
 
+INF BASEADRRESS_NUMBER (check out label replacer for standard)
+Think of a pointer method - directly print memory value - determines base address in code

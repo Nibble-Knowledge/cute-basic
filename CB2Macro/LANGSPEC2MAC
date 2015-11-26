@@ -81,3 +81,6 @@ FILE IO will be on bus and driver levels
 TOOl chain error: Both a size and a value must be declared for a .data element on line -
     macro: .data 2
 Not sure where this is being added, must be between naomi and ryans code    
+
+
+Need to reverse endianness of extend

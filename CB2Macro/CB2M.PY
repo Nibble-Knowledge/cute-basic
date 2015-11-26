@@ -86,17 +86,18 @@ def extend(var, difference):
 	size = int(difference) / 4
 	cnt = 0
 	length = varLength(var)
-	
+	total = length + difference
 	#Sign extend
 	if var in signed:
-		extendedVar = var + str(length + difference) + "signed"
+		extendedVar = var + str(total) + "signed"
 		if(extendedVar not in varnames):
-			data.append(var + str(length + difference) + "signed: .data " + str(length + difference) + " 0")
+			data.append(var + str(total) + "signed: .data " + str(total) + " 0")
 			varnames.append(extendedVar)
 			
 
+		
 		op = multinibOp(length, "MOV")
-		output.append(op +  " " + var + " INTO " + extendedVar)
+		output.append(op +  " " + var + " INTO " + extendedVar + "[" + str((total - length)/4) + "]")
 		
 		#TODO Not sure if im using signex right
 		output.append("LOD " + var)
@@ -106,24 +107,29 @@ def extend(var, difference):
 
 	#Unsigned extend	
 	else:
-		extendedVar = var + str(length + difference) + "unsigned"
+		extendedVar = var + str(total) + "unsigned"
 		if(extendedVar not in varnames):
-			data.append(var + str(length + difference) + "unsigned: .data " + str(length + difference) + " 0")
+			data.append(var + str(total) + "unsigned: .data " + str(total) + " 0")
 			varnames.append(extendedVar)
 
 		op = multinibOp(length, "MOV")
-		output.append(op +  " " + var + " INTO " + extendedVar)
+		output.append(op +  " " + var + " INTO " + extendedVar  + "[" + str((total - length)/4) + "]")
 	
 		output.append("LOD N_[0]")
 	
 	#Fill the remaining values with the extended value	
 	startAddr = length / 4 #Number of address spaces we already fill
-	cnt = 0
 	#op = multinibOp(length, "MOV")
-	while cnt < size:
+	
+	#Wrong endianness
+	#cnt = 0
+	#while cnt < size:
+	
+	cnt = size - 1
+	while cnt >= 0:
 		#output.append("MOV ACC INTO " + extendedVar + "[" + str(startAddr + cnt) + "]")
-		output.append("STR "+ extendedVar + "[" + str(startAddr + cnt) + "]")
-		cnt += 1
+		output.append("STR "+ extendedVar + "[" + str(cnt) + "]")
+		cnt -= 1
 
 	return extendedVar
 
@@ -346,7 +352,7 @@ def unarymath(splitline, linenum):
 			
 		elif splitline[2] == "NOT":
 			output.append("LOGNOT ACC")
-			output.append("MOV " + splitline[3] + " INTO " splitline[0])
+			output.append("MOV " + splitline[3] + " INTO " + splitline[0])
 			#TODO Dont think this is right but have to double check - only accumualtor lognot?
 			
 		elif splitline[2] == "ADDRESSOF":
