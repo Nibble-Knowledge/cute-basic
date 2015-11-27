@@ -19,22 +19,14 @@ TEST_RetAddr:
 JMP 0000
 
 
-
-
 MOV B INTO TEST_B
 MOV C INTO TEST_C
-MOVADDR TEST_Return17 INTO TEST_RetAddr[1]
+MOVADDR TEST_Return15 INTO TEST_RetAddr[1]
 LOD N_[0]
 JMP TESTEntry
-TEST_Return17:
+TEST_Return15:
 NOP 0
 MOV TEST_RetVal INTO A
-
-
-
-
-
-
 
 END:
 TEST_RetVal: .data 8 0

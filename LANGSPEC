@@ -97,7 +97,7 @@ Pointers:
 (var0) BE CONTENTOF (var1) : var(0) evaluates to dereferenced value pointed at by var1
 (var0) BE ADDRESSOF (var1) : var(0) evaluates to (16-bit) address of var1
 
-
+FUNCTIONS must go directly after START at the top of the program
  
 Control: 
 START : The entry hook of the program 

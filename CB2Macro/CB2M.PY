@@ -270,6 +270,9 @@ def variableDeclaration(splitline, linenum):
 		#LET VAR BE VAL (SIGNED)- this should default a size, and if no signed default unsigned
 		#LET VAR AS SIZE BE VAL (SIGNED) - if no signed, default unsigned
 		
+		if splitline[1] in identifiers:
+			print "Error line " + str(linenum) + ": can not use identifier " + splitline[1] + " as a variable name"
+		
 		#Check if variable already exists
 		for i in varnames:
 			if (len(splitline) > 1 and i == splitline[1] ):
@@ -279,6 +282,7 @@ def variableDeclaration(splitline, linenum):
 					print "Error line " + str(linenum) + ": Variable name " + splitline[1] + " already declared!"
 					quit(1)
 				
+		
 		# The variable name will be the second whitespace delimited field
 		varnames.append(splitline[1])
 		temp = ''
@@ -306,7 +310,7 @@ def variableDeclaration(splitline, linenum):
 			#LET VAR AS
 			#Check that valid nibble size
 			if (splitline[3] not in ["4", "8", "16", "32", "64"]):
-				print "Invalid size in nibbles, size must be 4, 8, 16, 32 or 64 on line: " + str(linenum)
+				print "Error on line: " + str(linenum) + ": Invalid size in nibbles, size must be 4, 8, 16, 32 or 64"
 				exit(1)
 				
 			if len(splitline) == 4:
@@ -333,7 +337,7 @@ def variableDeclaration(splitline, linenum):
 			
 		#Invalid input	
 		else:
-			print "Invalid line " + str(linenum) + ": " + str(splitline)
+			print "Error on line " + str(linenum) + ": Invalid variable declaration " +  str(splitline)
 			exit(1)
 		#If last input is signed	#TODO figure out what this should do
 		if splitline[-1] == "SIGNED":
@@ -439,7 +443,7 @@ def binarymath(splitline, linenum):
 		elif splitline[3] == "MULTIPLY":
 			#output.append("MULT " + var1 + " " + var2 + " INTO " + splitline[0])
 			if length == 64:
-				print "Error: Multiplication can not handle larger than 32 bit sizes. On line " + str(linenum)
+				print "Error On line " + str(linenum) + ": Multiplication can not handle larger than 32 bit variables."
 			multiply(var1, var2, splitline[0], length, linenum)
 		elif splitline[3] == "DIVIDE":
 			output.append("DIV " + var1 + " " + var2 + " INTO " + splitline[0]) #TODO This doesnt work yet
@@ -707,7 +711,7 @@ def functionProperties(splitline, linenum):
 						paramnum += 1
 					
 			else:
-				print "Not a valid function " +str(splitline[1]) + " on line " + str(linenum)
+				print "Error  on line " + str(linenum) + ": Not a valid function " +str(splitline[1])
 				exit(1)
 			
 			#Add variable names to funcVars
@@ -790,14 +794,14 @@ def asmFunction(splitline, linenum):
 	if asmFunc == 0:
 		#get rid of ASM 
 		funcProp = splitline[1:]
-		functionProperties(funcProp)
+		functionProperties(funcProp, linenum)
 		asmFunc = 1
 	
 	#End function
 	elif len(splitline) > 2 and splitline[1] == "ENDFUNCTION":
 		asmFunc = 0
 		funcProp = splitline[1:]
-		functionProperties(funcProp)
+		functionProperties(funcProp, linenum)
 	
 	#Inside a ASM function
 	else:
@@ -826,7 +830,7 @@ def includeFile(splitline, linenum):
 			asmFile(splitline[2])
 			
 		else:
-			print "Not a valid CB or macro asm file on line: " + str(linenum)
+			print "Error on line: " + str(linenum) + " Not a valid CB or macro asm file"
 			exit(1)
 		cont = 1
 	return cont

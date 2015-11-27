@@ -7,19 +7,11 @@ D BE B ADD C
 RETURN D
 ENDFUNCTION
 
-#Not functions
-
-
+#MAIN
 LET A AS 8 
 LET B AS 8 BE 4
 LET C BE 1
 
 A BE CALL TEST B ASWELL C
-
-
-
-
-
-
 
 END

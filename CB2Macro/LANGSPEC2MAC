@@ -83,4 +83,4 @@ TOOl chain error: Both a size and a value must be declared for a .data element o
 Not sure where this is being added, must be between naomi and ryans code    
 
 
-Need to reverse endianness of extend
+Functions Must go first in cutebasic
