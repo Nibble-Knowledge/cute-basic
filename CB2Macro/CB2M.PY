@@ -743,8 +743,8 @@ def functionCall(splitline, linenum):
 	if splitline[0] == "CALL":
 		
 		#For this part to work we need to specifiy that functions go at top of program?
-		#if splitline[1] not in funcnames:
-		#	print "Error on line " + str(linenum) + ": Function " + splitline[1] + " does not exist" 
+		if splitline[1] not in funcnames:
+			print "Error on line " + str(linenum) + ": Function " + splitline[1] + " does not exist" 
 		
 		#Fill the correct var
 		funcVarLoc = funcnames.index(splitline[1]) 
