@@ -27,6 +27,14 @@ returns = 0
 signed = []
 files = []
 
+funcVars = []
+
+identifiers = ["START" , "END", "SIGNED", "LET", "BE", "AS", "COMPLEMENT", "NEGATE", "INCREMENT", "DECREMENT", 
+"NOT", "ADDRESSOF", "CONTENTOF", "IF", "ELSEIF", "ELSE", "ENDIF", "LOOPWHILE", "ENDLOOP", "LOOPAGAIN", "EXITLOOP", 
+"EXITIF", "EARLYEND", "LABEL", "GOTO", "ADD", "SUBTRACT", "MODULUS", "MULTIPLY", "DIVIDE", "ALSO", "EITHER", "AND", 
+"OR", "XOR", "NAND", "NOR", "XNOR", "LSHIFT", "RSHIFT", "LROTATE", "RROTATE", "ADDRESSOF", "CONTENTOF", "FUNCTION", 
+"ENDFUNCTION", "RETURN", "RETURNS", "TAKES", "ASWELL"]
+
 #flags
 hasstart = 0
 hasend = 0
@@ -154,6 +162,24 @@ def checkVartype(splitline, index):
 	elif vartype[index] == "CHAR":
 		splitline[index] = "\'" + splitline[index] + "\'"
 	return splitline
+	
+	
+#Checks if we are in a function, if we are change all labels to be the local version of the label
+#Takes the splitline
+#Returns: the unaltered splitline or the splitline with function names appended
+def localVars(splitline):
+	if len(funcstack) > 0:
+		cnt = 0
+		#Check each word in splitline
+		for word in splitline:
+			num = word.isdigit()
+			#If word is not an identifier or a number it is a label - therefore add funcname_ before it 
+			if word not in identifiers and num == False:
+				splitline[cnt] = funcstack[-1] + "_" + word
+			cnt += 1
+	return splitline
+
+
 
 #Checks if a comment exists on the line
 #Takes: a line from readlines()
@@ -260,9 +286,10 @@ def variableDeclaration(splitline, linenum):
 		
 		
 		#Check if a local variable
-		if len(funcstack) > 0:
-			temp +=  funcstack[-1] + "_"
-			varnames.append(funcstack[-1] + "_" + splitline[1])
+		#Now redundant
+		#if len(funcstack) > 0:
+		#	temp +=  funcstack[-1] + "_"
+		#	varnames.append(funcstack[-1] + "_" + splitline[1])
 		
 		temp += splitline[1]
 		
@@ -323,6 +350,8 @@ def unarymath(splitline, linenum):
 	cont = 0
 	if (len(splitline) > 3 and (splitline[0] in varnames) and (splitline[2] in ["COMPLEMENT", "NEGATE", "INCREMENT", "DECREMENT", "NOT", "ADDRESSOF", "CONTENTOF"])): 
 		length = longer(splitline[2], 0)	
+		
+		
 	
 		#unary math/bit/logic operators
 		if splitline[2] == "COMPLEMENT":
@@ -625,11 +654,20 @@ def goto(splitline):
 
 #Checks if the line contains any function properties
 #Takes: splitline
-def functionProperties(splitline):
+def functionProperties(splitline, linenum):
 	cont = 0
 	
 	global returns
 	if splitline[0] == "FUNCTION":
+		#Check if function exists:
+		if splitline[1] in funcnames:
+			print "Error line " + str(linenum) + ": Function " + splitline[1] + " already declared"
+		
+		#Add to funcnames (plus current funcnames length)
+		funcnames.append(splitline[1])
+		funcNum = len(funcnames)
+		funcvars = ''
+		
 		#must match declaration sig
 		name = splitline[1]
 		funcstack.append(name)
@@ -645,9 +683,12 @@ def functionProperties(splitline):
 			#just takes
 			if splitline[2] == "TAKES":
 				nextparam = 2
-				#todo should i use names? they complicate things, also using 0 as default val for everything
+				# Using 0 as default val for everything
 				while len(splitline) > nextparam + 1:
-					data.append(name + "_Param" + str(paramnum) +": .data " + splitline[nextparam + 1] + " 0")
+					data.append(name + "_" + splitline[nextparam + 2] +": .data " + splitline[nextparam + 1] + " 0")
+					varnames.append(name + "_" + splitline[nextparam + 2])
+					varsizes.append(splitline[nextparam + 1])
+					funcvars += splitline[nextparam + 2] + " "
 					nextparam += 3
 					paramnum += 1
 					
@@ -658,13 +699,20 @@ def functionProperties(splitline):
 					#returns and takes
 					nextparam = 4
 					while len(splitline) > nextparam + 1:
-						data.append(name + "_Param" + str(paramnum) +": .data " + splitline[nextparam + 1] + " 0")
+						data.append(name + "_" + splitline[nextparam + 2] +": .data " + splitline[nextparam + 1] + " 0")
+						varnames.append(name + "_" + splitline[nextparam + 2])
+						varsizes.append(splitline[nextparam + 1])
+						funcvars += splitline[nextparam + 2] + " "
 						nextparam += 3
 						paramnum += 1
 					
 			else:
 				print "Not a valid function " +str(splitline[1]) + " on line " + str(linenum)
 				exit(1)
+			
+			#Add variable names to funcVars
+			funcVars.append(funcvars)
+			
 		cont = 1
 		
 	elif splitline[0] == "ENDFUNCTION":
@@ -694,18 +742,31 @@ def functionCall(splitline, linenum):
 	cont = 0
 	if splitline[0] == "CALL":
 		
+		#For this part to work we need to specifiy that functions go at top of program?
+		#if splitline[1] not in funcnames:
+		#	print "Error on line " + str(linenum) + ": Function " + splitline[1] + " does not exist" 
+		
+		#Fill the correct var
+		funcVarLoc = funcnames.index(splitline[1]) 
+		funcvars = funcVars[funcVarLoc].split()
+		varcnt = 0
+		
 		#Has at least one variable
 		if len(splitline) >= 3:
 			var = literal(splitline[2])
-			output.append("MOV " + var + " INTO " + splitline[1] + "_Param0")
-			
+			#output.append("MOV " + var + " INTO " + splitline[1] + "_Param0")
+			output.append("MOV " + var + " INTO " + splitline[1] + "_" + funcvars[varcnt])
+			varcnt += 1
+
 			#Has 1+ ASWELL in it
 			if len(splitline) > 3:
 				paramnum = 1
 				nextparam = 3
 				while (len(splitline) > nextparam + 1):
 					var = literal(splitline[nextparam+1])
-					output.append("MOV " + var + " INTO " + splitline[1] + "_Param" + str(paramnum))
+					#output.append("MOV " + var + " INTO " + splitline[1] + "_Param" + str(paramnum))
+					output.append("MOV " + var + " INTO " + splitline[1] + "_" + funcvars[varcnt])
+					varcnt += 1
 					nextparam += 2
 					paramnum += 1
 	
@@ -808,7 +869,7 @@ def inlineFile():
 		assignment(splitline2, linenum2)
 		conditionals(splitline2,linenum2)
 		goto(splitline2)
-		functionProperties(splitline2)
+		functionProperties(splitline2, linenum2)
 		functionCall(splitline2, linenum2)
 		#files(splitline,linenum)
 		includeFile(splitline2, linenum2)
@@ -867,6 +928,9 @@ def main():
 			
 			
 			splitline = line.split()
+			#print splitline
+			splitline = localVars(splitline)
+			#print splitline
 			
 			#Check for empty line 
 			if len(splitline) == 0:
@@ -911,7 +975,7 @@ def main():
 				linenum += 1
 				continue
 			
-			continueBool = functionProperties(splitline)
+			continueBool = functionProperties(splitline, linenum)
 			if continueBool == 1:
 				linenum += 1
 				continue
