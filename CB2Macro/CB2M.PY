@@ -29,6 +29,8 @@ files = []
 
 funcVars = []
 
+baseaddress = -1
+
 identifiers = ["START" , "END", "SIGNED", "LET", "BE", "AS", "COMPLEMENT", "NEGATE", "INCREMENT", "DECREMENT", 
 "NOT", "ADDRESSOF", "CONTENTOF", "IF", "ELSEIF", "ELSE", "ENDIF", "LOOPWHILE", "ENDLOOP", "LOOPAGAIN", "EXITLOOP", 
 "EXITIF", "EARLYEND", "LABEL", "GOTO", "ADD", "SUBTRACT", "MODULUS", "MULTIPLY", "DIVIDE", "ALSO", "EITHER", "AND", 
@@ -218,13 +220,6 @@ def startEnd(line):
 			hasstart = 1
 			output.append("START:")
 
-			#Temporary. But adds what we need to compile.
-			output.append("INCL asm-library/Mult4.s")
-			output.append("INCL asm-library/Mult8.s")
-			output.append("INCL asm-library/Mult16.s")
-			output.append("INCL asm-library/Mult32.s")
-			output.append("INCL asm-library/SignedCompare.s")
-			
 		cont = 1
 			
 	elif line.strip() == "END":
@@ -834,7 +829,12 @@ def includeFile(splitline, linenum):
 			exit(1)
 		cont = 1
 	return cont
-		
+
+def baseaddr(splitline, linenum):
+	if splitline[0] == "BASEADDRESS":
+		output.append("INF " + splitline[1])
+		baseaddress = int(splitline[1])
+		return 1	
 
 #Pretty much the same as the main loop except it uses included files instead, it deletes them from the lsit when they are read in
 def inlineFile():
@@ -994,6 +994,11 @@ def main():
 			if continueBool == 1:
 				linenum += 1
 				continue
+			
+			continueBool = baseaddr(splitline, linenum)
+			if continueBool == 1:
+				linenum += 1
+				continue
 	
 			#Testing a way to inline include instead of adding it just to end(because then we get issues of stuff being after END)
 			while(len(files) > 1):
@@ -1018,6 +1023,10 @@ def main():
 		print "No END declared!"
 		quit(1)
 	if hasend == 1 and hasstart == 1:
+		if(baseaddress == -1):
+			prepend = []
+			prepend.append("INF 0x400")
+			output = prepend + output  
 		output = output + data
 		for i in output:
 			if(len(sys.argv)) == 3:
