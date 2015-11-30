@@ -272,6 +272,9 @@ def variableDeclaration(splitline, linenum):
 		if splitline[1] in identifiers:
 			print "Error line " + str(linenum) + ": can not use identifier " + splitline[1] + " as a variable name"
 
+
+		#Disallow variable names starting with '*' unless we have them in our pointer list (at top of file)
+		#Also, don't allow pointers to have non-default size, or any initialisation value.
 		if splitline[1][0] == '*' and (splitline[1] not in validPointers or len(splitline) > 2):
 			print "Error line " + str(linenum) + ": special character * can only be used with valid static labels"
 		
@@ -345,6 +348,7 @@ def variableDeclaration(splitline, linenum):
 		if splitline[-1] == "SIGNED":
 			signed.append(splitline[1])
 			
+		#Add the data declaration - unless it's a pointer!
 		if (splitline[1] not in validPointers):	
 			data.append(temp)
 		cont = 1
