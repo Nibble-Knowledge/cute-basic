@@ -37,6 +37,10 @@ identifiers = ["START" , "END", "SIGNED", "LET", "BE", "AS", "COMPLEMENT", "NEGA
 "OR", "XOR", "NAND", "NOR", "XNOR", "LSHIFT", "RSHIFT", "LROTATE", "RROTATE", "ADDRESSOF", "CONTENTOF", "FUNCTION", 
 "ENDFUNCTION", "RETURN", "RETURNS", "TAKES", "ASWELL"]
 
+
+#Added by Naomi to allow specific static pointers to be used
+validPointers = ["*CHIP_SELECT", "*STATUS_BUS", "*DATA_BUS"]
+
 #flags
 hasstart = 0
 hasend = 0
@@ -267,6 +271,9 @@ def variableDeclaration(splitline, linenum):
 		
 		if splitline[1] in identifiers:
 			print "Error line " + str(linenum) + ": can not use identifier " + splitline[1] + " as a variable name"
+
+		if splitline[1][0] == '*' and (splitline[1] not in validPointers or len(splitline) > 2):
+			print "Error line " + str(linenum) + ": special character * can only be used with valid static labels"
 		
 		#Check if variable already exists
 		for i in varnames:
@@ -338,8 +345,8 @@ def variableDeclaration(splitline, linenum):
 		if splitline[-1] == "SIGNED":
 			signed.append(splitline[1])
 			
-			
-		data.append(temp)
+		if (splitline[1] not in validPointers):	
+			data.append(temp)
 		cont = 1
 	return cont
 
