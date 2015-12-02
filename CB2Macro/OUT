@@ -1,229 +1,40 @@
 INF 0x400
-
 START:
 
-
-MOV N_[4] INTO *CHIP_SELECT
-
-
-#HELP function begins here
+#TEST function begins here
 LOD N_[0]
 JMP END
-HELPEntry:
-ADD HELP_A HELP_N_[8] HELP_INTO HELP_B 
-HELP_RetAddr:
+TESTEntry:
+MOV TEST_C INTO TEST_C8unsigned[1]
 LOD N_[0]
+STR TEST_C8unsigned[0]
+ADD8 TEST_B TEST_C8unsigned INTO TEST_D
+MOV TEST_D INTO TEST_RetVal
+LOD N_[0]
+TEST_RetAddr:
 JMP 0000
 
 
-INCL test.s
+JMPNE N_[0] N_[0] TO IF15jump
 
-MOV N_[1] INTO A
-MOV A INTO B
+IF15jump:
+endif15:
 
-JMPNE A B TO IF65jump
-MOV N_[2] INTO A
-JMP endif65
-IF65jump:
-JMPLE A B TO ELSEIF67jump
-MOV N_[3] INTO A
-JMP endif65
-ELSEIF67jump:
-JMPGE A B TO ELSEIF69jump
-MOV N_[4] INTO A
-ELSEIF69jump:
-endif65:
-
-MOV N_[3] INTO A
-startLOOPWHILE74jump:
-JMPLE A 0 TO LOOPWHILE74jump
-JMPNE A 1 TO IF76jump
-JMP LOOPWHILE74jump
-IF76jump:
-endif76:
-JMP startLOOPWHILE74jump
-LOOPWHILE74jump:
-
-NEG B INTO A
-INC B INTO B
-SUB B N_[1] INTO B
-
-ADD N_[1] N_[1] INTO A
-ADD N_[1] A INTO A
-ADD A N_[1] INTO A
-MOV A INTO A8unsigned[1]
+MOV B INTO TEST_B
+MOV C INTO TEST_C
+MOVADDR TEST_Return19 INTO TEST_RetAddr[1]
 LOD N_[0]
-STR A8unsigned[0]
-ADD8 A8unsigned B INTO F
-
-MOV8 B INTO B32unsigned[6]
-LOD N_[0]
-STR B32unsigned[5]
-STR B32unsigned[4]
-STR B32unsigned[3]
-STR B32unsigned[2]
-STR B32unsigned[1]
-STR B32unsigned[0]
-ADD32 B32unsigned D INTO F
-
-MOV16 C INTO C32unsigned[4]
-LOD N_[0]
-STR C32unsigned[3]
-STR C32unsigned[2]
-STR C32unsigned[1]
-STR C32unsigned[0]
-ADD32 C32unsigned D INTO F
-
-MOV A INTO A64unsigned[15]
-LOD N_[0]
-STR A64unsigned[14]
-STR A64unsigned[13]
-STR A64unsigned[12]
-STR A64unsigned[11]
-STR A64unsigned[10]
-STR A64unsigned[9]
-STR A64unsigned[8]
-STR A64unsigned[7]
-STR A64unsigned[6]
-STR A64unsigned[5]
-STR A64unsigned[4]
-STR A64unsigned[3]
-STR A64unsigned[2]
-STR A64unsigned[1]
-STR A64unsigned[0]
-ADD64 A64unsigned E INTO F
-
-SUB N_[1] N_[1] INTO A
-SUB N_[1] A INTO A
-SUB A N_[1] INTO A
-MOV A INTO A8unsigned[1]
-LOD N_[0]
-STR A8unsigned[0]
-SUB8 B A8unsigned INTO F
-
-MOV8 B INTO B16unsigned[2]
-LOD N_[0]
-STR B16unsigned[1]
-STR B16unsigned[0]
-SUB16 C B16unsigned INTO F
-
-MOV16 C INTO C32unsigned[4]
-LOD N_[0]
-STR C32unsigned[3]
-STR C32unsigned[2]
-STR C32unsigned[1]
-STR C32unsigned[0]
-SUB32 D C32unsigned INTO F
-
-MOV32 D INTO D64signed[8]
-LOD D
-SIGNEX ACC
-STR D64signed[7]
-STR D64signed[6]
-STR D64signed[5]
-STR D64signed[4]
-STR D64signed[3]
-STR D64signed[2]
-STR D64signed[1]
-STR D64signed[0]
-SUB64 E D64signed INTO F
-
-MOV N_[1] INTO Mult4_Op1[1]
-MOV N_[1] INTO Mult4_Op2[1]
-MOVADDR Return107 INTO Mult4_RetAddr[1]
-LOD N_[0]
-STR Mult4_Op1[0]
-STR Mult4_Op2[0]
-JMP Mult4_UnsignedEntry
-Return107:
+JMP TESTEntry
+TEST_Return19:
 NOP 0
-MOV Mult4_Ans INTO A
-MOV N_[1] INTO Mult4_Op1[1]
-MOV A INTO Mult4_Op2[1]
-MOVADDR Return108 INTO Mult4_RetAddr[1]
-LOD N_[0]
-STR Mult4_Op1[0]
-STR Mult4_Op2[0]
-JMP Mult4_UnsignedEntry
-Return108:
-NOP 0
-MOV Mult4_Ans INTO A
-MOV A INTO Mult4_Op1[1]
-MOV N_[1] INTO Mult4_Op2[1]
-MOVADDR Return109 INTO Mult4_RetAddr[1]
-LOD N_[0]
-STR Mult4_Op1[0]
-STR Mult4_Op2[0]
-JMP Mult4_UnsignedEntry
-Return109:
-NOP 0
-MOV Mult4_Ans INTO A
-MOV A INTO A8unsigned[1]
-LOD N_[0]
-STR A8unsigned[0]
-MOV8 A8unsigned INTO Mult8_Op1[1]
-MOV8 B INTO Mult8_Op2[1]
-MOVADDR Return110 INTO Mult8_RetAddr[1]
-LOD N_[0]
-STR Mult8_Op1Ex
-STR Mult8_Op2Ex
-JMP Mult8_UnsignedEntry
-Return110:
-NOP 0
-MOV64 Mult8_Ans INTO F
-MOV8 B INTO B16unsigned[2]
-LOD N_[0]
-STR B16unsigned[1]
-STR B16unsigned[0]
-MOV16 B16unsigned INTO Mult16_Op1[1]
-MOV16 C INTO Mult16_Op2[1]
-MOVADDR Return111 INTO Mult16_RetAddr[1]
-LOD N_[0]
-STR Mult16_Op1Ex
-STR Mult16_Op2Ex
-JMP Mult16_UnsignedEntry
-Return111:
-NOP 0
-MOV64 Mult16_Ans INTO F
-MOV16 C INTO C32unsigned[4]
-LOD N_[0]
-STR C32unsigned[3]
-STR C32unsigned[2]
-STR C32unsigned[1]
-STR C32unsigned[0]
-MOV32 C32unsigned INTO Mult32_Op1[1]
-MOV32 D INTO Mult32_Op2[1]
-MOVADDR Return112 INTO Mult32_RetAddr[1]
-LOD N_[0]
-JMP Mult32_SignedEntry
-Return112:
-NOP 0
-MOV64 Mult32_Ans INTO F
-MOV32 D INTO Mult32_Op1[1]
-MOV32 D INTO Mult32_Op2[1]
-MOVADDR Return113 INTO Mult32_RetAddr[1]
-LOD N_[0]
-JMP Mult32_SignedEntry
-Return113:
-NOP 0
-MOV64 Mult32_Ans INTO F
-
-
+MOV TEST_RetVal INTO A
 
 END:
-A: .data 4 0
-B: .data 8 0
-C: .data 16 0
-D: .data 32 -25
-E: .data 64 0
-F: .data 64 1000
-HEX: .data 4 0xA
-BIN: .data 4 0b1010
-CHAR: .data 4 'A'
-STRING: .data 4 'AAA'
-A8unsigned: .data 8 0
-B32unsigned: .data 32 0
-C32unsigned: .data 32 0
-A64unsigned: .data 64 0
-B16unsigned: .data 16 0
-D64signed: .data 64 0
+TEST_RetVal: .data 8 0
+TEST_B: .data 8 0
+TEST_C: .data 4 0
+TEST_D: .data 8 0
+TEST_C8unsigned: .data 8 0
+A: .data 8 0
+B: .data 8 4
+C: .data 4 1

@@ -600,6 +600,9 @@ def conditionals(splitline, linenum):
 				jumptype = "JMPGE"
 			elif staycond == "LESSEQUALS":
 				jumptype = "JMPG"
+			
+			splitline[1] = literal(splitline[1])
+			splitline[3] = literal(splitline[3])
 				
 			if splitline[0] == "IF":
 				ifStatementStack.append(label)
