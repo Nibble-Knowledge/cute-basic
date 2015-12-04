@@ -1,30 +1,182 @@
+Cute BASIC uses all uppercase keywords. 
+
+
+Cute BASIC files are all uppercase with the *.CB extension. 
+
+Variable names can use both cases, plus numerals and underscores.
+Must start with a letter or underscore.
+
+File must begin with START and end with END
+
+Variable scope is local to functions
+
+Literals:
+-Default to decimal
+-CHAR (character) evaluates to ASCII (or UTF-8) binary representation of char - 'A' or '#'
+-0x causes evaluation as hexadecimal - 0x0BADF00D
+-0b causes evaluation as binary - 0b00110101
+
+Variables are always unsigned unless specifically set to SIGNED during declaration/assignment
+
+In the following section (var) can be a variable name or a literal value
+
+********** DECLARATION AND INIT **********
+LET (variable name) : Creates a variable called (variable name) 
+LET (variable name) BE (number) : Creates a variable called (variable name) and assigns (number) to it 
+LET (variable name) AS (size in nibbles) : Creates a variable called (variable name) with a size in nibbles of (size in nibbles) 
+LET (variable name) AS (size in nibbles) BE (number) : Creates a variable called (variable name) with a size in nibbles of (size in nibbles) and assigns (number) to it 
+
+Default nibble size is 4
+Default value is 0
+
+Adding the SIGNED to the end of a declaration makes it a signed variable
+Ex: LET A AS 4 BE 10 SIGNED
+
+Note: Size in nibbles must be 1,2,4,8,16
+
+********** ASSIGNMENT **********
+(var1) BE (var2) : Assigns value of var2 to var1. 
+
+Adding the SIGNED to the end of a declaration makes it a signed variable
+
+********** UNARY MATH **********
+All unary operations take the form of:
+(var1) BE (operator) (var2) 
+
+Allowed operators:                                          C equivalent:
+NEGATE      var1 evaluates to -var2                         var1 = -var2
+INCREMENT   var1 evaluates to var2 + 1                      var1 = var2 + 1
+DECREMENT   var1 evaluates to var2 - 1                      var1 = var2 - 1
+
+NOT         var1 evaluates to logical negation of var2      var1 = !var2
+COMPLEMENT  var1 evaluates to bitwise negation of var2      var1 = ~var2
+
+CONTENTOF   var1 evaluates to dereferenced value pointed to by var2
+ADDRESSOF   var1 evaluates to address of var1
+
+********** BINARY MATH **********
+All binary operations take the form of:
+(var1) BE (var2) (operator) (var3)
+
+Allowed Operators:                                          C equivalent:
+ADD         var1 evaluates to sum of var2+var3              var1 = var2 + var3    
+SUBTRACT    var1 evaluates to difference of var2-var3       var1 = var2 - var3
+MODULUS     var1 evaluates to remainder of var2/var3        var1 = var2 % var3
+MULTIPLY    var1 evaluates to product of var2*var3          var1 = var2 * var3
+DIVIDE      var1 evaluates to product of var2/var3          var1 = var2 / var3
+
+AND         var1 evaluates to bitwise AND of var2 and var3  var1 = var2 & var3
+OR          var1 evaluates to bitwise OR of var2 and var3   var1 = var2 | var3
+XOR         var1 evaluates to bitwise XOR of var2 and var3  var1 = var2 ^ var3
+NAND        var1 evaluates to bitwise NAND of var2 and var3 var1 = ~(var2 & var3)
+NOR         var1 evaluates to bitwise NOR of var2 and var3  var1 = ~(var2 | var3)
+XNOR        var1 evaluates to bitwise XNOR of var2 and var3 var1 = ~(var2 ^ var3)
+
+LSHIFT      var1 evaluates to var2 left shifted var3 times. Fills with zeros - truncates anything that falls off
+RSHIFT      var1 evaluates to var2 right shifted var3 times. Fills with zeros - truncates anything that falls off
+LROTATE     var1 evaluates to var2 left rotated var3 times. Anything that falls off gets put back on the other end
+RROTATE     var1 evaluates to var2 right rotated var3 times. Anything that falls off gets put back on the other end
+
+ALSO        var1 evaluates to TRUE if both var2 and var3 are TRUE
+EITHER      var1 evaluates to TRUE if either var2 or var3 are TRUE
+
+********** CONDITIONALS **********
+IF ... ENDIF 
+
+IF (var) (comparator) (var)
+ELSEIF (var) (comparator) (var)
+ELSE
+ENDIF
+
+LOOPWHILE ... ENDLOOP
+
+LOOPWHILE (var) (comparator) (var)
+ENDLOOP
+
+Comparators:
+EQUALS 
+NOTEQUALS 
+GREATER 
+GREATEREQUALS
+LESS 
+LESSEQUALS
+
+LOOPAGAIN: return to top of loop, as "continue"
+EXITLOOP: exit innermost loop, as "break"
+EXITIF: exit innermost "if" block, as "break"
+
+EARLYEND : goto "END", as C "return" in main()
+
+********** GOTO/LABELS **********
+LABEL (name)
+GOTO (name)
+
+********** FUNCTIONS **********
+Creating a function:
+FUNCTION ... ENDFUNCTION:
+
+FUNCTION (funcname) : Creates a function funcname
+FUNCTION (funcname) RETURNS (size in nibs) : Creates a function that returns a value of the specified size
+FUNCTION (funcname) TAKES (size in nibs) (param name) : Creates a function with 1 input parameter
+FUNCTION (funcname) TAKES (size in nibs) (param name) ASWELL (size in nibs) (param name) ... : Creates a function with 2+ input parameters
+FUNCTION (funcname) RETURNS (size in nibs) TAKES ... : Creates a function with a return value and 1+ input parameters
+ENDFUNCTION : Required to denote end of function
+
+
+Calling a function:
+CALL (funcname) : Calls the function funcname with no return and no input paramters
+CALL (funcname) (var1) ASWELL (var2) ASWELL ... :  Calls the function funcname with no return and the input paramter var1, var2, ...
+(var) BE CALL (funcname) ... : Calls the function funcname with and sets var equal to the return value - input paramters are optioanl
+
+********** FILE INCLUSION **********
+INCLUDE CUTEBASIC (filename): Includes a CB file
+INCLUDE ASM (filename): Includes a Macro Assembly file
+
+********** BASE ADDRESS **********
+BASEADDRESS (value): Sets the INF baseadress to value
+
+********** COMMENTS **********
+#:  Single line comment indicator
+/#: Start of multi line comment
+#/: End of multi line comment
+
+#This is an example comment
+
+/# This
+is an example multiline
+comment #/
+
+********** ASM Passthrough **********
+ASM (rest) (of) (your) (line): Passes everything after ASM directly through with being changed
+PASSTHROC (same) (as) (above): Does the same as ASM
+
+Ex: ASM NOP 0 
+Above outputs NOP 0 directly into the macro assembly
+
+
+Work in progress!!!
+ASM FUNCTION ... ASM ENDFUNCTION:
+
+ASM FUNCTION (Funcname) RETURNS (size in nibbles) TAKES [(size in nibbles) (paramName)] ASWELL... 
+ASM ENDFUNCTION
+
+Creates a function and all values inside it are passed directly through with the exception of CB variables which get a $ appended in front of them
+!!!              
+
+
+
+ ********** ********** ********** ********** ********** ********** ********** **********
+Other stuff not important atm
+
 Questions:
 
-Variable declaration:
-    Default as to size 4?
-    Default val to 0?
-    What to do with signed?
-
-Unarymath:
-    Can't tell how DEC works? Does it only work an accumulator?
-    LOGNOT no idea
-    ADDRESSOF and CONTENTOF not sure what to put here
-
 Binarymath:
-    DIV and MOD notimplemented yet?
-    Not sure how shifts + Rotates should be implemented 
-        Our langspec has 3 vars, our macro only uses 2
-            Im trying to repeat the number of shifts based on third input var? Not sure if this is right or works
-        Not sure how to do right shifts or rots at all  
+    DIV and MOD notimplemented yet
+    Not sure how rshifts + rrotates should be implemented 
     Not sure how ALSO or EITHER should be implemented
     
-Assignment:
-    How to assign a non variable to a variable?
-        What i currently have in here i dont think works at all    
-
 Functions:
-    How do?
-    Currently functions must go at bottom of file
+
     Properties:
         Deciding to make is so order must be RETURNS follwed by TAKES if RETURN exists
         So can be   FUNCTION 
@@ -33,26 +185,10 @@ Functions:
                     FUNCTION RETURNS ... TAKES ... , ...
         Also using order number instead of name for params for now            
                 
-                
-    nameLabel:
-    datalabels
-    jmp nameReturnLabel
     
-    Calls:
-        Not sure how to do returns - atm a function leaves a return label at call but this would mean can only be used once?
 Files:
-    How do?
+    Waiting for drivers
    
-
-General questions:
-    Data sections/isntruction section? Does it need to be split up?
-
-
-We currently have no way to declare strings in langspec - i guess we can use let var be version?
-    How to differentiate between ascii and asciiz values?, what size to declare?
-    How to auto size? Len of string * 8?
-    
-    
 Notes:
     Load 0 before unconditional jumps
     
