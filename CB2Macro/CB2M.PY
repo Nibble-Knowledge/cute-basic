@@ -16,7 +16,6 @@ data = []
 variables = []
 
 varnames = []
-vartypes = ["BINARY", "HEX", "CHAR"] #TODO add this stuff in (updated langspec, this isnt needed any more)
 varsizes = []
 varvals = []
 
@@ -56,7 +55,7 @@ def varLength(varname):
 	if varname in varnames:
 		index = varnames.index(varname)
 		length = varsizes[index]
-		#Literals should be 4? TODO Assuming literals are 1 nib for now, can be updated if needed
+		#Literals should be 4? TODO Assuming literals are 4 nib for now, can be updated if needed
 		if length == None:
 			length = 4
 		return int(length)
@@ -153,21 +152,6 @@ def multinibOp(length, op):
 		return op
 	else:
 		return op + str(length)
-
-#TODO this may be useless - i think i will update the langspec to just be 0b, 0x or '' directly as that is more straightforward and less verbose
-#Converts BINARY HEX AND CHAR into 0b, 0x, and '' respectively
-#Takes a splitline and an index 
-#Returns the updated splitline
-def checkVartype(splitline, index):
-	vartype = splitline[index]
-	splitline.remove(splitline[index])
-	if vartype == "BINARY":
-		splitline[index] = "0b" + splitline[index]
-	elif vartype == "HEX":
-		splitline[index] = "0x" + splitline[index]
-	elif vartype[index] == "CHAR":
-		splitline[index] = "\'" + splitline[index] + "\'"
-	return splitline
 	
 	
 #Checks if we are in a function, if we are change all labels to be the local version of the label
