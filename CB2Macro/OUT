@@ -30,6 +30,13 @@ TEST_Return21:
 NOP 0
 MOV TEST_RetVal INTO A
 
+
+MOV N_[1] INTO F
+ADD8 A N_[1] INTO F
+
+
+
+
 END:
 GLOBAL: .data 4 0
 TEST_RetVal: .data 8 0
@@ -40,3 +47,4 @@ TEST_C8unsigned: .data 8 0
 A: .data 8 0
 B: .data 8 4
 C: .data 4 1
+F: .data 16 0

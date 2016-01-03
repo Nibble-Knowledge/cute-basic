@@ -54,9 +54,12 @@ asmFunc = 0
 def varLength(varname):
 	if varname in varnames:
 		index = varnames.index(varname)
-		length = varsizes[index]
+		
+		if(len(varsizes) > index):
+			length = varsizes[index]
 		#Literals should be 4? TODO Assuming literals are 4 nib for now, can be updated if needed
-		if length == None:
+		else:
+		#if length == None:
 			length = 4
 		return int(length)
 	
@@ -275,15 +278,6 @@ def variableDeclaration(splitline, linenum):
 		# The variable name will be the second whitespace delimited field
 		varnames.append(splitline[1])
 		temp = ''
-		
-		
-		
-		#Check if a local variable
-		#Now redundant
-		#if len(funcstack) > 0:
-		#	temp +=  funcstack[-1] + "_"
-		#	varnames.append(funcstack[-1] + "_" + splitline[1])
-		
 		temp += splitline[1]
 		
 		defaultSize = 4
