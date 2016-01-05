@@ -57,7 +57,7 @@ def varLength(varname):
 		
 		if(len(varsizes) > index):
 			length = varsizes[index]
-		#Literals should be 4? TODO Assuming literals are 4 nib for now, can be updated if needed
+		#Assuming literals should be 4?
 		else:
 		#if length == None:
 			length = 4
@@ -79,9 +79,11 @@ def longer(var1, var2):
 	longer = varLength(var1)
 	if longer == None:
 		longer = 4
+		
 	longer2 = varLength(var2)
 	if longer2 == None:
 		longer2 = 4
+		
 	if longer < longer2:
 		longer = longer2
 	return longer
@@ -98,14 +100,14 @@ def literal(var):
 #Takes a variable and a size to extend to 
 #Returns the extended value label
 def extend(var, difference):
-	#Number of nibbles needed to extend by (diveide by 4 since it is in nibbles to start)
-	size = int(difference) / 4
+	#Number of nibbles needed to extend by 
+	size = int(difference)
 	cnt = 0
 	length = varLength(var)
 	total = length + difference
 	#Sign extend
 	if var in signed:
-		extendedVar = var + str(total) + "signed"
+		extendedVar = var + str(total*4) + "signed"
 		if(extendedVar not in varnames):
 			data.append(var + str(total) + "signed: .data " + str(total) + " 0")
 			varnames.append(extendedVar)
@@ -113,7 +115,7 @@ def extend(var, difference):
 
 		
 		op = multinibOp(length, "MOV")
-		output.append(op +  " " + var + " INTO " + extendedVar + "[" + str((total - length)/4) + "]")
+		output.append(op +  " " + var + " INTO " + extendedVar + "[" + str((total - length )) + "]")
 		
 		#TODO Not sure if im using signex right
 		output.append("LOD " + var)
@@ -129,21 +131,18 @@ def extend(var, difference):
 			varnames.append(extendedVar)
 
 		op = multinibOp(length, "MOV")
-		output.append(op +  " " + var + " INTO " + extendedVar  + "[" + str((total - length)/4) + "]")
+		output.append(op +  " " + var + " INTO " + extendedVar  + "[" + str((total - length )) + "]")
 	
 		output.append("LOD N_[0]")
 	
 	#Fill the remaining values with the extended value	
-	startAddr = length / 4 #Number of address spaces we already fill
-	#op = multinibOp(length, "MOV")
-	
+
 	#Wrong endianness
 	#cnt = 0
 	#while cnt < size:
 	
-	cnt = size - 1
+	cnt = size - 1 
 	while cnt >= 0:
-		#output.append("MOV ACC INTO " + extendedVar + "[" + str(startAddr + cnt) + "]")
 		output.append("STR "+ extendedVar + "[" + str(cnt) + "]")
 		cnt -= 1
 
@@ -151,10 +150,10 @@ def extend(var, difference):
 
 #Takes an operation and a size and returns the oepration with that size included
 def multinibOp(length, op):
-	if str(length) == "4":
+	if str(length) == "1":
 		return op
 	else:
-		return op + str(length)
+		return op + str(int(length)*4)
 	
 	
 #Checks if we are in a function, if we are change all labels to be the local version of the label
@@ -280,7 +279,7 @@ def variableDeclaration(splitline, linenum):
 		temp = ''
 		temp += splitline[1]
 		
-		defaultSize = 4
+		defaultSize = 4 #4 nibble default
 		defaultVal = 0
 		
 		#LET VAR
@@ -291,9 +290,9 @@ def variableDeclaration(splitline, linenum):
 		#LET VAR AS or LET VAR AS BE
 		elif splitline[2] == "AS":
 			#LET VAR AS
-			#Check that valid nibble size
-			if (splitline[3] not in ["4", "8", "16", "32", "64"]):
-				print "Error on line: " + str(linenum) + ": Invalid size in nibbles, size must be 4, 8, 16, 32 or 64"
+			#Check that valid nib size
+			if (splitline[3] not in ["1", "2", "4", "8", "16"]):
+				print "Error on line: " + str(linenum) + ": Invalid size in nibbles, size must be 1, 2, 4, 8 or 16"
 				exit(1)
 				
 			if len(splitline) == 4:
@@ -397,8 +396,9 @@ def binarymath(splitline, linenum):
 		if lengthDif == 0 or lengthDif == None:
 			var1 = literal(splitline[2])
 			var2 = literal(splitline[4])
-				
-		#first var is smaller	Extends the first or second value as needed
+			
+		#Extends the first or second value as needed		
+		#first var is smaller	
 		elif lengthDif < 0:
 			diff = -lengthDif
 			var1 = extend(splitline[2], diff)
@@ -411,24 +411,27 @@ def binarymath(splitline, linenum):
 			var2 = extend(splitline[4], diff)
 
 		
+		minnib = 1
+		suffix = str(length*4)
+		
 		count = 0
 		if splitline[3] == "ADD":
-			if length == 4:
+			if length == minnib:
 				output.append("ADD " + var1 + " " + var2 + " INTO " + splitline[0])
 			else:
-				output.append("ADD" + str(length) + " " + var1 + " " + var2 + " INTO " + splitline[0])
+				output.append("ADD" + suffix + " " + var1 + " " + var2 + " INTO " + splitline[0])
 				
 		elif splitline[3] == "SUBTRACT":
-			if length == 4:
+			if length == minnib:
 				output.append("SUB " + var1 + " " + var2 + " INTO " + splitline[0])
 			else:
-				output.append("SUB" + str(length) + " " + var1 + " " + var2 + " INTO " + splitline[0])
+				output.append("SUB" + suffix + " " + var1 + " " + var2 + " INTO " + splitline[0])
 				
 		elif splitline[3] == "MULTIPLY":
 			#output.append("MULT " + var1 + " " + var2 + " INTO " + splitline[0])
-			if length == 64:
+			if length == 16:
 				print "Error On line " + str(linenum) + ": Multiplication can not handle larger than 32 bit variables."
-			multiply(var1, var2, splitline[0], length, linenum)
+			multiply(var1, var2, splitline[0], int(length)*4, linenum)
 		elif splitline[3] == "DIVIDE":
 			output.append("DIV " + var1 + " " + var2 + " INTO " + splitline[0]) #TODO This doesnt work yet
 		elif splitline[3] == "MODULUS":
@@ -436,40 +439,40 @@ def binarymath(splitline, linenum):
 	
 		#binary bitwise operators
 		elif splitline[3] == "AND":
-			if length == 4:
+			if length == minnib:
 				output.append("AND " + var1 + " " + var2 + " INTO " + splitline[0])
 			else:
-				output.append("AND" + str(length) + " " + var1 + " " + var2 + " INTO " + splitline[0])
+				output.append("AND" + suffix + " " + var1 + " " + var2 + " INTO " + splitline[0])
 				
 		elif splitline[3] == "NAND":
-			if length == 4:
+			if length == minnib:
 				output.append("NAND " + var1 + " " + var2 + " INTO " + splitline[0])
 			else:
-				output.append("NAND" + str(length) + " " + var1 + " " + var2 + " INTO " + splitline[0])
+				output.append("NAND" + suffix + " " + var1 + " " + var2 + " INTO " + splitline[0])
 				
 		elif splitline[3] == "OR":
-			if length == 4:
+			if length == minnib:
 				output.append("OR " + var1 + " " + var2 + " INTO " + splitline[0])
 			else:
-				output.append("OR" + str(length) + " " + var1 + " " + var2 + " INTO " + splitline[0])
+				output.append("OR" + suffix + " " + var1 + " " + var2 + " INTO " + splitline[0])
 				
 		elif splitline[3] == "NOR":
-			if length == 4:
+			if length == minnib:
 				output.append("NOR " + var1 + " " + var2 + " INTO " + splitline[0])
 			else:
-				output.append("NOR" + str(length) + " " + var1 + " " + var2 + " INTO " + splitline[0])
+				output.append("NOR" + suffix + " " + var1 + " " + var2 + " INTO " + splitline[0])
 				
 		elif splitline[3] == "XOR":
-			if length == 4:
+			if length == minnib:
 				output.append("XOR " + var1 + " " + var2 + " INTO " + splitline[0])
 			else:
-				output.append("XOR" + str(length) + " " + var1 + " " + var2 + " INTO " + splitline[0])
+				output.append("XOR" + suffix + " " + var1 + " " + var2 + " INTO " + splitline[0])
 				
 		elif splitline[3] == "XNOR":
-			if length == 4:
+			if length == minnib:
 				output.append("XNOR " + var1 + " " + var2 + " INTO " + splitline[0])
 			else:
-				output.append("XNOR" + str(length) + " " + var1 + " " + var2 + " INTO " + splitline[0])
+				output.append("XNOR" + suffix + " " + var1 + " " + var2 + " INTO " + splitline[0])
 			
 		#TODO Not sure if this is right, or how to do right shifts/rots at all
 		#binary bitshifting
@@ -478,7 +481,7 @@ def binarymath(splitline, linenum):
 			#RROT [label1] into [label2]
 		elif (splitline[3] == "LROTATE" ):
 			while (count < int(splitline[4])) :
-				output.append("LROT" + str(length) + " "+ var1 + " INTO " + splitline[0])
+				output.append("LROT" + suffix + " "+ var1 + " INTO " + splitline[0])
 				count += 1
 			#RROT [label1] into [label2]
 		
@@ -486,7 +489,7 @@ def binarymath(splitline, linenum):
 			a = ''
 		elif (splitline[3] == "LSHIFT"):
 			while (count < int(splitline[4])) :
-				output.append("LSHIFT" + str(length) + " "+ var1 + " INTO " + splitline[0])
+				output.append("LSHIFT" + suffix + " "+ var1 + " INTO " + splitline[0])
 				count += 1
 				
 		#binary logical operators
