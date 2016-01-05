@@ -489,12 +489,35 @@ def binarymath(splitline, linenum):
 				output.append("LSHIFT" + str(length) + " "+ var1 + " INTO " + splitline[0])
 				count += 1
 				
-		#TODO not sure bow to do in asm
 		#binary logical operators
 		elif splitline[3] == "ALSO":
-			a = ''
+			#Not sure if this is correct or not TODO (for both also + either)
+			#Check if first val = 0 - if it is jump to fail
+			output.append("JMPEQ N_[0] " + var1 + " TO FALSE" + str(linenum))
+			#check second val = 0, if it is jump fail
+			output.append("JMPEQ N_[0] " + var2 + " TO FALSE" + str(linenum))
+			#If made it here both are non0 so true
+			output.append("MOV N_[1] INTO " + splitline[0])
+			output.append("LOD N_[0]")
+			output.append("JMP ENDALSO" + str(linenum))
+			#Go here if are false
+			output.append("FALSE" + str(linenum) + ":")
+			output.append("MOV N_[0] INTO " + splitline[0])
+			output.append("ENDALSO" + str(linenum) + ":")
+			
 		elif splitline[3] == "EITHER":
-			a = ''
+			#Check if first val is not 0 - if it is jump to true
+			output.append("JMPNE N_[0] " + var1 + " TO TRUE" + str(linenum))
+			#check second val = 0, if it is jump fail
+			output.append("JMPNE N_[0] " + var2 + " TO TRUE" + str(linenum))
+			#If made it here both are 0 so false
+			output.append("MOV N_[0] INTO " + splitline[0])
+			output.append("LOD N_[0]")
+			output.append("JMP ENDEITHER" + str(linenum))
+			#Go here if either are true
+			output.append("TRUE" + str(linenum) + ":")
+			output.append("MOV N_[1] INTO " + splitline[0])
+			output.append("ENDEITHER" + str(linenum) + ":")
 			
 		cont = 1
 	return cont
