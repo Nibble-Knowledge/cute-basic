@@ -43,7 +43,17 @@ FALSE28:
 MOV N_[0] INTO F
 ENDALSO28:
 
-
+MOV F INTO F8unsigned[1]
+LOD N_[0]
+STR F8unsigned[0]
+JMPNE N_[0] A TO TRUE30
+JMPNE N_[0] F8unsigned TO TRUE30
+MOV N_[0] INTO F
+LOD N_[0]
+JMP ENDEITHER30
+TRUE30:
+MOV N_[1] INTO F
+ENDEITHER30:
 
 
 END:
@@ -57,3 +67,4 @@ A: .data 8 0
 B: .data 8 4
 C: .data 4 1
 F: .data 16 0
+F8unsigned: .data 8 0

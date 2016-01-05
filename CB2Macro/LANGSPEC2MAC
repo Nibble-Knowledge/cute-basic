@@ -173,8 +173,7 @@ Questions:
 Binarymath:
     DIV and MOD notimplemented yet
     Not sure how rshifts + rrotates should be implemented 
-    Not sure how ALSO or EITHER should be implemented
-    
+
 Functions:
 
     Properties:
