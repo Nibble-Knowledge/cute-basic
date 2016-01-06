@@ -13,17 +13,24 @@ STR B4unsigned[1]
 STR B4unsigned[0]
 ADD16 B4unsigned C INTO D
 
+
+INC A INTO A
+
+SUB32 D N_[1] INTO C
+
+NOT8 B INTO E
+
 MOV A INTO A2unsigned[1]
 LOD N_[0]
 STR A2unsigned[0]
 MOV32 A2unsigned INTO Mult8_Op1[1]
 MOV32 B INTO Mult8_Op2[1]
-MOVADDR Return13 INTO Mult8_RetAddr[1]
+MOVADDR Return20 INTO Mult8_RetAddr[1]
 LOD N_[0]
 STR Mult8_Op1Ex
 STR Mult8_Op2Ex
 JMP Mult8_UnsignedEntry
-Return13:
+Return20:
 NOP 0
 MOV64 Mult8_Ans INTO E
 

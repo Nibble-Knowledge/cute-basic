@@ -336,34 +336,34 @@ def variableDeclaration(splitline, linenum):
 def unarymath(splitline, linenum):	
 	cont = 0
 	if (len(splitline) > 3 and (splitline[0] in varnames) and (splitline[2] in ["COMPLEMENT", "NEGATE", "INCREMENT", "DECREMENT", "NOT", "ADDRESSOF", "CONTENTOF"])): 
-		length = longer(splitline[2], 0)	
 		
-		
-	
+		length = varLength(splitline[3])
+		minnib = 1
+		suffix = str(length*4)
 		#unary math/bit/logic operators
 		if splitline[2] == "COMPLEMENT":
-			if length == 4:
+			if length == minnib:
 				output.append("NOT " + splitline[3] + " INTO " + splitline[0])
 			else:
-				output.append("NOT" + str(length) + " " + splitline[3] + " INTO " + splitline[0])
+				output.append("NOT" + suffix + " " + splitline[3] + " INTO " + splitline[0])
 				
 		elif splitline[2] == "NEGATE":
-			if length == 4:
+			if length == minnib:
 				output.append("NEG " + splitline[3] + " INTO " + splitline[0])
 			else:
-				output.append("NEG" + str(length) + " " + splitline[3] + " INTO " + splitline[0])
+				output.append("NEG" + suffix + " " + splitline[3] + " INTO " + splitline[0])
 				
 		elif splitline[2] == "INCREMENT":
-			if length == 4:
+			if length == minnib:
 				output.append("INC " + splitline[3] + " INTO " + splitline[0])
 			else:
-				output.append("INC" + str(length) + " " + splitline[3] + " INTO " + splitline[0])
+				output.append("INC" + suffix + " " + splitline[3] + " INTO " + splitline[0])
 				
 		elif splitline[2] == "DECREMENT":
-			if length == 4:
+			if length == minnib:
 				output.append("SUB " + splitline[3] + " N_[1] INTO " + splitline[0])
 			else:
-				output.append("SUB" + str(length) + " " + splitline[3] + " N_[1] INTO " + splitline[0])
+				output.append("SUB" + suffix + " " + splitline[3] + " N_[1] INTO " + splitline[0])
 
 			
 		elif splitline[2] == "NOT":
@@ -375,10 +375,10 @@ def unarymath(splitline, linenum):
 			output.append("MOVADDR "+ splitline[3] +" INTO " + splitline[0])
 			#TODO not sure if these parts are right
 		elif splitline[2] == "CONTENTOF":
-			if length == 4:
+			if length == minnib:
 				output.append("MOV " + splitline[3] + " INTO " + splitline[0])
 			else:
-				output.append("MOV" + str(length) + " " + splitline[3] + " INTO " + splitline[0])
+				output.append("MOV" + suffix + " " + splitline[3] + " INTO " + splitline[0])
 		cont = 1
 	return cont
 
