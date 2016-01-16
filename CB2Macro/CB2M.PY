@@ -40,6 +40,9 @@ identifiers = ["START" , "END", "SIGNED", "LET", "BE", "AS", "COMPLEMENT", "NEGA
 #Added by Naomi to allow specific static pointers to be used
 validPointers = ["*CHIP_SELECT", "*STATUS_BUS", "*DATA_BUS"]
 
+#Keeps track of which files have been included
+included = []
+
 #flags
 hasstart = 0
 hasend = 0
@@ -391,7 +394,7 @@ def binarymath(splitline, linenum):
 		
 		#Get length of longer value
 		length = longer(splitline[2], splitline[4])
-		
+		print str(length) + "\n"
 		#Lengths are the same or a val is a literal
 		if lengthDif == 0 or lengthDif == None:
 			var1 = literal(splitline[2])
@@ -431,7 +434,7 @@ def binarymath(splitline, linenum):
 			#output.append("MULT " + var1 + " " + var2 + " INTO " + splitline[0])
 			if length == 16:
 				print "Error On line " + str(linenum) + ": Multiplication can not handle larger than 32 bit variables."
-			multiply(var1, var2, splitline[0], int(length)*4, linenum)
+			multiply(var1, var2, splitline[0], length, linenum)
 		elif splitline[3] == "DIVIDE":
 			output.append("DIV " + var1 + " " + var2 + " INTO " + splitline[0]) #TODO This doesnt work yet
 		elif splitline[3] == "MODULUS":
@@ -528,11 +531,22 @@ def binarymath(splitline, linenum):
 #Calls the appropriate multiply library call based on the given values - writes the appropriate asm
 #Takes- 2 variables, the result label, and the length of the largest variable, and the linenumber
 def multiply(var1, var2, result, length, linenum):
+	multType = str(length * 4)
+	file = "asm-library/Mult" + multType + ".s"
+	
+	if file not in included:
+		output.append("INCL " + file)
+		included.append(file)
+	
 	length = str(length)
+	print var1
+	print var2
+	print result
+	print length
 	op = multinibOp(length, "MOV")
-	output.append(op + " " + var1 + " INTO Mult" + length + "_Op1[1]")
-	output.append(op + " " + var2 + " INTO Mult" + length + "_Op2[1]")
-	output.append("MOVADDR Return" + str(linenum) + " INTO Mult" + length + "_RetAddr[1]")
+	output.append(op + " " + var1 + " INTO Mult" + multType + "_Op1[1]")
+	output.append(op + " " + var2 + " INTO Mult" + multType + "_Op2[1]")
+	output.append("MOVADDR Return" + str(linenum) + " INTO Mult" + multType + "_RetAddr[1]")
 	output.append("LOD N_[0]")
 
 	#unsgined
@@ -543,19 +557,19 @@ def multiply(var1, var2, result, length, linenum):
 			output.append("STR Mult4_Op1[0]")
 			output.append("STR Mult4_Op2[0]")
 		else:
-			output.append("STR Mult" + length + "_Op1Ex")
-			output.append("STR Mult" + length + "_Op2Ex")
-		output.append("JMP Mult" + length + "_UnsignedEntry")
+			output.append("STR Mult" + multType + "_Op1Ex")
+			output.append("STR Mult" + multType + "_Op2Ex")
+		output.append("JMP Mult" + multType + "_UnsignedEntry")
 		
 	#signed
 	else:
-		output.append("JMP Mult" + length + "_SignedEntry")
+		output.append("JMP Mult" + multType + "_SignedEntry")
 
 	output.append("Return" + str(linenum) + ":")
 	output.append("NOP 0")
 	resLength = varLength(result)
 	op = multinibOp(resLength, "MOV")
-	output.append(op + " Mult" + length + "_Ans INTO " + result)
+	output.append(op + " Mult" + multType + "_Ans INTO " + result)
 		
 
 
@@ -912,8 +926,11 @@ def asmFile(file):
 		#Non data
 	#	else:
 	#output.append(line)
-	
-	output.append("INCL " + file)
+	if(file not in included):
+		output.append("INCL " + file)
+		included.append(file)
+	else:
+		print "File " + file + " already included\n"
 
 
 #************************************************************************************ MAIN*********************************************************************************************

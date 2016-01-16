@@ -1,79 +1,39 @@
 INF 0x400
 START:
 
-#TEST function begins here
+INCL asm-library/Mult4.s
+INCL asm-library/Mult8.s
+INCL asm-library/Mult16.s
+
+
+
+
+
+
+
+
+MOV A INTO A2unsigned[1]
 LOD N_[0]
-JMP END
-TESTEntry:
-MOV16 TEST_C INTO TEST_C8unsigned[4]
+STR A2unsigned[0]
+MOV8 A2unsigned INTO Mult8_Op1[1]
+MOV8 B INTO Mult8_Op2[1]
+MOVADDR Return30 INTO Mult8_RetAddr[1]
 LOD N_[0]
-STR TEST_C8unsigned[3]
-STR TEST_C8unsigned[2]
-STR TEST_C8unsigned[1]
-STR TEST_C8unsigned[0]
-ADD32 TEST_B TEST_C8unsigned INTO TEST_D
-MOV TEST_D INTO TEST_RetVal
-LOD N_[0]
-TEST_RetAddr:
-JMP 0000
-
-
-
-MOV8 A INTO A4unsigned[2]
-LOD N_[0]
-STR A4unsigned[1]
-STR A4unsigned[0]
-ADD16 A4unsigned B INTO C
-
-MOV16 B INTO B8unsigned[4]
-LOD N_[0]
-STR B8unsigned[3]
-STR B8unsigned[2]
-STR B8unsigned[1]
-STR B8unsigned[0]
-ADD32 B8unsigned C INTO D
-
-INC8 A INTO A
-
-SUB64 D N_[1] INTO C
-
-NOT16 B INTO E
-
-MOV8 A INTO A4unsigned[2]
-LOD N_[0]
-STR A4unsigned[1]
-STR A4unsigned[0]
-MOV64 A4unsigned INTO Mult16_Op1[1]
-MOV64 B INTO Mult16_Op2[1]
-MOVADDR Return26 INTO Mult16_RetAddr[1]
-LOD N_[0]
-STR Mult16_Op1Ex
-STR Mult16_Op2Ex
-JMP Mult16_UnsignedEntry
-Return26:
+STR Mult8_Op1Ex
+STR Mult8_Op2Ex
+JMP Mult8_UnsignedEntry
+Return30:
 NOP 0
-MOV16 Mult16_Ans INTO E
+MOV64 Mult8_Ans INTO E
 
-MOV B INTO TEST_B
-MOV C INTO TEST_C
-MOVADDR TEST_Return28 INTO TEST_RetAddr[1]
-LOD N_[0]
-JMP TESTEntry
-TEST_Return28:
-NOP 0
-MOV TEST_RetVal INTO A
+
+
 
 
 END:
-TEST_RetVal: .data 8 0
-TEST_B: .data 8 0
-TEST_C: .data 4 0
-TEST_D: .data 8 0
-TEST_C8unsigned: .data 8 0
 A: .data 1 0
 B: .data 2 0
 C: .data 4 0
 D: .data 8 0
 E: .data 16 0
-A4unsigned: .data 4 0
-B8unsigned: .data 8 0
+A2unsigned: .data 2 0
