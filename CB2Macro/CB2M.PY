@@ -157,7 +157,7 @@ def multinibOp(length, op):
 		return op
 	else:
 		return op + str(int(length)*4)
-	
+		#return op + str(int(length))
 	
 #Checks if we are in a function, if we are change all labels to be the local version of the label
 #Takes the splitline
@@ -278,7 +278,9 @@ def variableDeclaration(splitline, linenum):
 				
 		
 		# The variable name will be the second whitespace delimited field
+
 		varnames.append(splitline[1])
+		print varnames
 		temp = ''
 		temp += splitline[1]
 		
@@ -394,7 +396,7 @@ def binarymath(splitline, linenum):
 		
 		#Get length of longer value
 		length = longer(splitline[2], splitline[4])
-		print str(length) + "\n"
+		#print str(length) + "\n"
 		#Lengths are the same or a val is a literal
 		if lengthDif == 0 or lengthDif == None:
 			var1 = literal(splitline[2])
@@ -539,10 +541,10 @@ def multiply(var1, var2, result, length, linenum):
 		included.append(file)
 	
 	length = str(length)
-	print var1
-	print var2
-	print result
-	print length
+	#print var1
+	#print var2
+	#print result
+	#print length
 	op = multinibOp(length, "MOV")
 	output.append(op + " " + var1 + " INTO Mult" + multType + "_Op1[1]")
 	output.append(op + " " + var2 + " INTO Mult" + multType + "_Op2[1]")

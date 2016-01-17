@@ -7,10 +7,22 @@ INCL asm-library/Mult16.s
 
 
 
+MOV A INTO A2unsigned[1]
+LOD N_[0]
+STR A2unsigned[0]
+ADD8 A2unsigned B INTO C
 
+MOV8 B INTO B4unsigned[2]
+LOD N_[0]
+STR B4unsigned[1]
+STR B4unsigned[0]
+ADD16 B4unsigned C INTO D
 
+INC A INTO A
 
+SUB32 D N_[1] INTO C
 
+NOT8 B INTO E
 
 MOV A INTO A2unsigned[1]
 LOD N_[0]
@@ -37,3 +49,4 @@ C: .data 4 0
 D: .data 8 0
 E: .data 16 0
 A2unsigned: .data 2 0
+B4unsigned: .data 4 0
