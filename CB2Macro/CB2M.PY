@@ -605,9 +605,36 @@ def assignment(splitline, linenum):
 def conditionals(splitline, linenum):
 	cont = 0
 	if(splitline[0] in ["IF", "ELSEIF", "ELSE", "ENDIF", "LOOPWHILE", "ENDLOOP", "LOOPAGAIN", "EXITLOOP", "EXITIF", "EARLYEND"]):
+	
 		label = splitline[0]+str(linenum)+"jump"
 		output.append("LOD N_[0]")
 		if splitline[0] in ["IF", "ELSEIF", "LOOPWHILE"]:
+			lengthDif = compareLength(splitline[1], splitline[3])
+		
+			#Get length of longer value
+			length = longer(splitline[1], splitline[3])
+			#print str(length) + "\n"
+			#Lengths are the same or a val is a literal
+			if lengthDif == 0 or lengthDif == None:
+				var1 = literal(splitline[1])
+				var2 = literal(splitline[3])
+				
+			#Extends the first or second value as needed		
+			#first var is smaller	
+			elif lengthDif < 0:
+				diff = -lengthDif
+				var1 = extend(splitline[1], diff)
+				var2 = splitline[3]
+				
+			#First var is larger	
+			elif lengthDif > 0:
+				diff = lengthDif
+				var1 = splitline[1]
+				var2 = extend(splitline[3], diff)
+			minnib = 1
+			suffix = str(length*4)	
+			
+			
 			staycond = splitline[2]
 			if staycond == "EQUALS":
 				jumptype = "JMPNE"
@@ -621,9 +648,13 @@ def conditionals(splitline, linenum):
 				jumptype = "JMPGE"
 			elif staycond == "LESSEQUALS":
 				jumptype = "JMPG"
+				
+			if length != minnib:
+				jumptype = jumptype + str(suffix)
 			
-			splitline[1] = literal(splitline[1])
-			splitline[3] = literal(splitline[3])
+			splitline[1] = literal(var1)
+			splitline[3] = literal(var2)
+			
 				
 			if splitline[0] == "IF":
 				ifStatementStack.append(label)

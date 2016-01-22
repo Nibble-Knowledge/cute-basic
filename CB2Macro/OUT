@@ -41,12 +41,78 @@ MOV64 Mult8_Ans INTO E
 
 
 LOD N_[0]
+MOV A INTO A2unsigned[1]
+LOD N_[0]
+STR A2unsigned[0]
 startLOOPWHILE35jump:
-JMPEQ A B TO LOOPWHILE35jump
+JMPEQ8 A2unsigned B TO LOOPWHILE35jump
 INC A INTO A
 LOD N_[0]
 JMP startLOOPWHILE35jump
 LOOPWHILE35jump:
+
+LOD N_[0]
+MOV A INTO A16unsigned[15]
+LOD N_[0]
+STR A16unsigned[14]
+STR A16unsigned[13]
+STR A16unsigned[12]
+STR A16unsigned[11]
+STR A16unsigned[10]
+STR A16unsigned[9]
+STR A16unsigned[8]
+STR A16unsigned[7]
+STR A16unsigned[6]
+STR A16unsigned[5]
+STR A16unsigned[4]
+STR A16unsigned[3]
+STR A16unsigned[2]
+STR A16unsigned[1]
+STR A16unsigned[0]
+JMPNE64 A16unsigned E TO IF39jump
+LOD N_[0]
+IF39jump:
+endif39:
+
+LOD N_[0]
+MOV8 B INTO B8unsigned[6]
+LOD N_[0]
+STR B8unsigned[5]
+STR B8unsigned[4]
+STR B8unsigned[3]
+STR B8unsigned[2]
+STR B8unsigned[1]
+STR B8unsigned[0]
+startLOOPWHILE42jump:
+JMPNE32 B8unsigned D TO LOOPWHILE42jump
+LOD N_[0]
+JMP startLOOPWHILE42jump
+LOOPWHILE42jump:
+
+LOD N_[0]
+MOV16 C INTO C8unsigned[4]
+LOD N_[0]
+STR C8unsigned[3]
+STR C8unsigned[2]
+STR C8unsigned[1]
+STR C8unsigned[0]
+JMPEQ32 C8unsigned D TO IF45jump
+LOD N_[0]
+MOV16 C INTO C8unsigned[4]
+LOD N_[0]
+STR C8unsigned[3]
+STR C8unsigned[2]
+STR C8unsigned[1]
+STR C8unsigned[0]
+JMP endif45
+IF45jump:
+JMPNE32 D C8unsigned TO ELSEIF46jump
+LOD N_[0]
+JMP endif45
+ELSEIF46jump:
+LOD N_[0]
+ELSE47jump:
+endif45:
 
 
 
@@ -59,3 +125,6 @@ E: .data 16 0
 F: .data 4 10
 A2unsigned: .data 2 0
 B4unsigned: .data 4 0
+A16unsigned: .data 16 0
+B8unsigned: .data 8 0
+C8unsigned: .data 8 0

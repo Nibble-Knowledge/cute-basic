@@ -96,10 +96,13 @@ ENDLOOP
 Comparators:
 EQUALS 
 NOTEQUALS 
+
+#Apparently these ones don't work ######
 GREATER 
 GREATEREQUALS
 LESS 
 LESSEQUALS
+################
 
 LOOPAGAIN: return to top of loop, as "continue"
 EXITLOOP: exit innermost loop, as "break"
