@@ -29,16 +29,24 @@ LOD N_[0]
 STR A2unsigned[0]
 MOV8 A2unsigned INTO Mult8_Op1[1]
 MOV8 B INTO Mult8_Op2[1]
-MOVADDR Return30 INTO Mult8_RetAddr[1]
+MOVADDR Return31 INTO Mult8_RetAddr[1]
 LOD N_[0]
 STR Mult8_Op1Ex
 STR Mult8_Op2Ex
 JMP Mult8_UnsignedEntry
-Return30:
+Return31:
 NOP 0
 MOV64 Mult8_Ans INTO E
 
 
+
+LOD N_[0]
+startLOOPWHILE35jump:
+JMPEQ A B TO LOOPWHILE35jump
+INC A INTO A
+LOD N_[0]
+JMP startLOOPWHILE35jump
+LOOPWHILE35jump:
 
 
 
@@ -48,5 +56,6 @@ B: .data 2 0
 C: .data 4 0
 D: .data 8 0
 E: .data 16 0
+F: .data 4 10
 A2unsigned: .data 2 0
 B4unsigned: .data 4 0

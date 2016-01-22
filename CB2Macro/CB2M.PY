@@ -280,7 +280,7 @@ def variableDeclaration(splitline, linenum):
 		# The variable name will be the second whitespace delimited field
 
 		varnames.append(splitline[1])
-		print varnames
+		#print varnames
 		temp = ''
 		temp += splitline[1]
 		
@@ -606,6 +606,7 @@ def conditionals(splitline, linenum):
 	cont = 0
 	if(splitline[0] in ["IF", "ELSEIF", "ELSE", "ENDIF", "LOOPWHILE", "ENDLOOP", "LOOPAGAIN", "EXITLOOP", "EXITIF", "EARLYEND"]):
 		label = splitline[0]+str(linenum)+"jump"
+		output.append("LOD N_[0]")
 		if splitline[0] in ["IF", "ELSEIF", "LOOPWHILE"]:
 			staycond = splitline[2]
 			if staycond == "EQUALS":
